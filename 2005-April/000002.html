@@ -1,0 +1,1259 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Darimasen-svn] r49 - in trunk: . pixmaps pixmaps/scalable src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/darimasen-svn/2005-April/index.html" >
+   <LINK REL="made" HREF="mailto:darimasen-svn%40lists.berlios.de?Subject=Re%3A%20%5BDarimasen-svn%5D%20r49%20-%20in%20trunk%3A%20.%20pixmaps%20pixmaps/scalable%20src&In-Reply-To=%3C200504080612.j386CmdK005467%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000001.html">
+   <LINK REL="Next"  HREF="000003.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Darimasen-svn] r49 - in trunk: . pixmaps pixmaps/scalable src</H1>
+    <B>darimasen-svn-admin at lists.berlios.de</B> 
+    <A HREF="mailto:darimasen-svn%40lists.berlios.de?Subject=Re%3A%20%5BDarimasen-svn%5D%20r49%20-%20in%20trunk%3A%20.%20pixmaps%20pixmaps/scalable%20src&In-Reply-To=%3C200504080612.j386CmdK005467%40sheep.berlios.de%3E"
+       TITLE="[Darimasen-svn] r49 - in trunk: . pixmaps pixmaps/scalable src">darimasen-svn-admin at lists.berlios.de
+       </A><BR>
+    <I>Fri Apr  8 08:12:48 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000001.html">[Darimasen-svn] r48 - in trunk: . src
+</A></li>
+        <LI>Next message: <A HREF="000003.html">[Darimasen-svn] r50 - in trunk: . src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#2">[ date ]</a>
+              <a href="thread.html#2">[ thread ]</a>
+              <a href="subject.html#2">[ subject ]</a>
+              <a href="author.html#2">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: sudrien
+Date: 2005-04-08 08:12:40 +0200 (Fri, 08 Apr 2005)
+New Revision: 49
+
+Added:
+   trunk/pixmaps/scalable/darimasen-lila.svg
+Modified:
+   trunk/TODO
+   trunk/darimasen-0.0.7.ebuild
+   trunk/darimasen-svn-0.1.ebuild
+   trunk/distribute.sh
+   trunk/pixmaps/darimasenInfo.svg
+   trunk/pixmaps/scalable/Makefile.am
+   trunk/src/darimasen.cpp
+   trunk/src/darimasen.h
+   trunk/src/iconmodes.cpp
+   trunk/src/iconmodes.h
+Log:
+Optimization and Stuff. Valgrind-detected Memory leaks plugged
+
+Modified: trunk/TODO
+===================================================================
+--- trunk/TODO	2005-04-06 05:21:35 UTC (rev 48)
++++ trunk/TODO	2005-04-08 06:12:40 UTC (rev 49)
+@@ -1,23 +1,18 @@
+-version 0.0.7: Embetterment by Tab
++version 0.0.7: Embetterment by Tabs
+ 
+ Must address:
+ 
+ resetting menus where subsubdirs have been used
+ 
+ 
+-
+-Would like to address:
+-
+-limiting DaMenu expansion (preserve window width for long paths) - by shortening menu names
+-
+-Folder context menus.
+-
+-
+-
+ -----------------------------------------------
+ version 0.0.8 and onwards
+ -----------------------------------------------
+ 
++limiting DaMenu expansion (preserve window width for long paths) - by shortening menu names
++
++Full Folder &amp; Icon context menus.
++
+ --
+ Detail view, how to handle icon mode switching now
+ Ron &lt;Rds&gt; mentioned that Rox will be moving for ~/Choices to ~/.choices - should probably support that, or check both locations.
+
+Modified: trunk/darimasen-0.0.7.ebuild
+===================================================================
+--- trunk/darimasen-0.0.7.ebuild	2005-04-06 05:21:35 UTC (rev 48)
++++ trunk/darimasen-0.0.7.ebuild	2005-04-08 06:12:40 UTC (rev 49)
+@@ -1,3 +1,8 @@
++# Copyright 1999-2004 Gentoo Technologies, Inc.
++# Distributed under the terms of the GNU General Public License v2
++# $Header: $
++
++
+ DESCRIPTION=&quot;A file manager with menu-based navigation&quot;
+ HOMEPAGE=&quot;<A HREF="http://darimasen.berlios.de/">http://darimasen.berlios.de/</A>&quot;
+ SRC_URI=&quot;<A HREF="http://download.berlios.de/darimasen/${P">http://download.berlios.de/darimasen/${P</A>}.tar.bz2&quot;
+@@ -7,6 +12,7 @@
+ KEYWORDS=&quot;x86&quot;
+ 
+ IUSE=&quot;&quot;
++SLOT=&quot;0&quot;
+ 
+ DEPEND=&quot;&gt;=dev-libs/libsigc++-2.0.3
+         &gt;=dev-cpp/gtkmm-2.4.11
+
+Modified: trunk/darimasen-svn-0.1.ebuild
+===================================================================
+--- trunk/darimasen-svn-0.1.ebuild	2005-04-06 05:21:35 UTC (rev 48)
++++ trunk/darimasen-svn-0.1.ebuild	2005-04-08 06:12:40 UTC (rev 49)
+@@ -1,4 +1,8 @@
++# Copyright 1999-2004 Gentoo Technologies, Inc.
++# Distributed under the terms of the GNU General Public License v2
++# $Header: $
+ 
++
+ ESVN_REPO_URI=&quot;<A HREF="svn://svn.berlios.de/darimasen/trunk">svn://svn.berlios.de/darimasen/trunk</A>&quot;
+ ESVN_PROJECT=&quot;darimasen&quot;
+ ESVN_BOOTSTRAP=&quot;autogen.sh&quot;
+@@ -12,6 +16,7 @@
+ KEYWORDS=&quot;~x86&quot;
+ 
+ IUSE=&quot;&quot;
++SLOT=&quot;0&quot;
+ 
+ DEPEND=&quot;&gt;=dev-libs/libsigc++-2.0.3
+         &gt;=dev-cpp/gtkmm-2.4.11
+
+Modified: trunk/distribute.sh
+===================================================================
+--- trunk/distribute.sh	2005-04-06 05:21:35 UTC (rev 48)
++++ trunk/distribute.sh	2005-04-08 06:12:40 UTC (rev 49)
+@@ -1,9 +1,9 @@
+ #!/bin/sh
+ 
+ cd ..
+-mkdir darimasen-0.0.7
+-cp -R trunk/* darimasen-0.0.7/
+-cd darimasen-0.0.7/
++mkdir darimasen-0.0.6.9
++cp -R trunk/* darimasen-0.0.6.9/
++cd darimasen-0.0.6.9/
+ 
+ rm -Rf .svn/
+ rm -Rf src/.svn/
+@@ -26,4 +26,4 @@
+ 
+ cd ..
+ 
+-tar -cjvf darimasen-0.0.7.tar.bz2 darimasen-0.0.7/
++tar -cjvf darimasen-0.0.6.9.tar.bz2 darimasen-0.0.6.9/
+
+Modified: trunk/pixmaps/darimasenInfo.svg
+===================================================================
+--- trunk/pixmaps/darimasenInfo.svg	2005-04-06 05:21:35 UTC (rev 48)
++++ trunk/pixmaps/darimasenInfo.svg	2005-04-08 06:12:40 UTC (rev 49)
+@@ -14,6 +14,17 @@
+   &lt;defs
+      id=&quot;defs3&quot;&gt;
+     &lt;linearGradient
++       id=&quot;linearGradient2049&quot;&gt;
++      &lt;stop
++         id=&quot;stop2051&quot;
++         offset=&quot;0.0000000&quot;
++         style=&quot;stop-color:#d8d8d8;stop-opacity:1.0000000;&quot; /&gt;
++      &lt;stop
++         id=&quot;stop2053&quot;
++         offset=&quot;1.0000000&quot;
++         style=&quot;stop-color:#ffffff;stop-opacity:1.0000000;&quot; /&gt;
++    &lt;/linearGradient&gt;
++    &lt;linearGradient
+        id=&quot;linearGradient2439&quot;&gt;
+       &lt;stop
+          id=&quot;stop2441&quot;
+@@ -33,13 +44,22 @@
+        x2=&quot;129.66743&quot;
+        y1=&quot;330.76971&quot;
+        x1=&quot;129.06119&quot; /&gt;
++    &lt;linearGradient
++       gradientUnits=&quot;userSpaceOnUse&quot;
++       xlink:href=&quot;#linearGradient2049&quot;
++       id=&quot;linearGradient2057&quot;
++       y2=&quot;194.05247&quot;
++       x2=&quot;141.06122&quot;
++       y1=&quot;70.903793&quot;
++       x1=&quot;29.854227&quot; /&gt;
+   &lt;/defs&gt;
+   &lt;rect
+-     id=&quot;rect2886&quot;
+-     style=&quot;fill:#ffffff;fill-opacity:1.0000000&quot;
+-     y=&quot;2.7185509e-14&quot;
++     id=&quot;rect1287&quot;
++     style=&quot;fill:url(#linearGradient2057);fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000&quot;
++     y=&quot;-5.3400210e-15&quot;
+      x=&quot;0.0000000&quot;
+-     ry=&quot;27.970919&quot;
++     ry=&quot;0.0000000&quot;
++     rx=&quot;0.0000000&quot;
+      height=&quot;256.00000&quot;
+      width=&quot;198.00000&quot; /&gt;
+   &lt;g
+
+Modified: trunk/pixmaps/scalable/Makefile.am
+===================================================================
+--- trunk/pixmaps/scalable/Makefile.am	2005-04-06 05:21:35 UTC (rev 48)
++++ trunk/pixmaps/scalable/Makefile.am	2005-04-08 06:12:40 UTC (rev 49)
+@@ -2,7 +2,8 @@
+ 	$(datadir)/icons/hicolor/scalable/apps/
+ 
+ appsicon_DATA = \
+-	darimasen.svg
++	darimasen.svg \
++	darimasen-lila.svg
+ 
+ EXTRA_DIST = \
+ 	$(appsicon_DATA)
+
+Added: trunk/pixmaps/scalable/darimasen-lila.svg
+===================================================================
+--- trunk/pixmaps/scalable/darimasen-lila.svg	2005-04-06 05:21:35 UTC (rev 48)
++++ trunk/pixmaps/scalable/darimasen-lila.svg	2005-04-08 06:12:40 UTC (rev 49)
+@@ -0,0 +1,190 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;
++&lt;!-- Created with Inkscape (<A HREF="http://www.inkscape.org/">http://www.inkscape.org/</A>) --&gt;
++&lt;svg
++   xmlns:svg=&quot;<A HREF="http://www.w3.org/2000/svg">http://www.w3.org/2000/svg</A>&quot;
++   xmlns=&quot;<A HREF="http://www.w3.org/2000/svg">http://www.w3.org/2000/svg</A>&quot;
++   xmlns:xlink=&quot;<A HREF="http://www.w3.org/1999/xlink">http://www.w3.org/1999/xlink</A>&quot;
++   id=&quot;svg1275&quot;
++   height=&quot;60.000000&quot;
++   width=&quot;60.000000&quot;
++   y=&quot;0.0000000&quot;
++   x=&quot;0.0000000&quot;
++   version=&quot;1.0&quot;&gt;
++  &lt;defs
++     id=&quot;defs3&quot;&gt;
++    &lt;linearGradient
++       id=&quot;linearGradient3373&quot;&gt;
++      &lt;stop
++         id=&quot;stop3375&quot;
++         offset=&quot;0.0000000&quot;
++         style=&quot;stop-color:#ffffff;stop-opacity:1.0000000;&quot; /&gt;
++      &lt;stop
++         id=&quot;stop3377&quot;
++         offset=&quot;1.0000000&quot;
++         style=&quot;stop-color:#000000;stop-opacity:0.0000000;&quot; /&gt;
++    &lt;/linearGradient&gt;
++    &lt;linearGradient
++       id=&quot;linearGradient2540&quot;&gt;
++      &lt;stop
++         id=&quot;stop2542&quot;
++         offset=&quot;0.0000000&quot;
++         style=&quot;stop-color:#ffffff;stop-opacity:1.0000000;&quot; /&gt;
++      &lt;stop
++         id=&quot;stop2544&quot;
++         offset=&quot;1.0000000&quot;
++         style=&quot;stop-color:#d9cce6;stop-opacity:1.0000000;&quot; /&gt;
++    &lt;/linearGradient&gt;
++    &lt;linearGradient
++       id=&quot;linearGradient2383&quot;&gt;
++      &lt;stop
++         id=&quot;stop2385&quot;
++         offset=&quot;0.0000000&quot;
++         style=&quot;stop-color:#d9cce6;stop-opacity:1.0000000;&quot; /&gt;
++      &lt;stop
++         id=&quot;stop2387&quot;
++         offset=&quot;1.0000000&quot;
++         style=&quot;stop-color:#73667f;stop-opacity:1.0000000;&quot; /&gt;
++    &lt;/linearGradient&gt;
++    &lt;linearGradient
++       id=&quot;linearGradient2439&quot;&gt;
++      &lt;stop
++         id=&quot;stop2441&quot;
++         offset=&quot;0.0000000&quot;
++         style=&quot;stop-color:#002200;stop-opacity:1.0000000;&quot; /&gt;
++      &lt;stop
++         id=&quot;stop2443&quot;
++         offset=&quot;1.0000000&quot;
++         style=&quot;stop-color:#508350;stop-opacity:1.0000000;&quot; /&gt;
++    &lt;/linearGradient&gt;
++    &lt;linearGradient
++       gradientTransform=&quot;matrix(0.632356,0.000000,0.000000,0.632356,-13.67091,-184.4702)&quot;
++       gradientUnits=&quot;userSpaceOnUse&quot;
++       xlink:href=&quot;#linearGradient2439&quot;
++       id=&quot;linearGradient3207&quot;
++       y2=&quot;444.66751&quot;
++       x2=&quot;129.66743&quot;
++       y1=&quot;330.76971&quot;
++       x1=&quot;129.06119&quot; /&gt;
++    &lt;linearGradient
++       gradientTransform=&quot;matrix(0.995842,0.000000,0.000000,0.995842,56.75726,39.54780)&quot;
++       gradientUnits=&quot;userSpaceOnUse&quot;
++       xlink:href=&quot;#linearGradient2383&quot;
++       id=&quot;linearGradient2434&quot;
++       y2=&quot;84.711372&quot;
++       x2=&quot;65.857155&quot;
++       y1=&quot;-24.629734&quot;
++       x1=&quot;-43.934826&quot; /&gt;
++    &lt;linearGradient
++       gradientTransform=&quot;matrix(0.995842,0.000000,0.000000,0.995842,-1.818949e-3,0.527042)&quot;
++       gradientUnits=&quot;userSpaceOnUse&quot;
++       xlink:href=&quot;#linearGradient2540&quot;
++       id=&quot;linearGradient2546&quot;
++       y2=&quot;100.00000&quot;
++       x2=&quot;105.50000&quot;
++       y1=&quot;12.500000&quot;
++       x1=&quot;23.000000&quot; /&gt;
++    &lt;linearGradient
++       gradientTransform=&quot;matrix(0.995842,0.000000,0.000000,0.995842,56.75726,39.54780)&quot;
++       gradientUnits=&quot;userSpaceOnUse&quot;
++       xlink:href=&quot;#linearGradient2383&quot;
++       id=&quot;linearGradient3319&quot;
++       y2=&quot;84.711372&quot;
++       x2=&quot;65.857155&quot;
++       y1=&quot;-24.629734&quot;
++       x1=&quot;-43.934826&quot; /&gt;
++    &lt;linearGradient
++       gradientTransform=&quot;matrix(0.995842,0.000000,0.000000,0.995842,-1.818949e-3,0.527042)&quot;
++       gradientUnits=&quot;userSpaceOnUse&quot;
++       xlink:href=&quot;#linearGradient2540&quot;
++       id=&quot;linearGradient3321&quot;
++       y2=&quot;100.00000&quot;
++       x2=&quot;105.50000&quot;
++       y1=&quot;12.500000&quot;
++       x1=&quot;23.000000&quot; /&gt;
++    &lt;linearGradient
++       gradientTransform=&quot;matrix(0.995842,0.000000,0.000000,0.995842,0.435683,0.669235)&quot;
++       gradientUnits=&quot;userSpaceOnUse&quot;
++       xlink:href=&quot;#linearGradient2540&quot;
++       id=&quot;linearGradient3325&quot;
++       y2=&quot;100.00000&quot;
++       x2=&quot;105.50000&quot;
++       y1=&quot;12.500000&quot;
++       x1=&quot;23.000000&quot; /&gt;
++    &lt;linearGradient
++       gradientTransform=&quot;matrix(0.995842,0.000000,0.000000,0.995842,57.19476,39.68999)&quot;
++       gradientUnits=&quot;userSpaceOnUse&quot;
++       xlink:href=&quot;#linearGradient2383&quot;
++       id=&quot;linearGradient3328&quot;
++       y2=&quot;84.711372&quot;
++       x2=&quot;65.857155&quot;
++       y1=&quot;-24.629734&quot;
++       x1=&quot;-43.934826&quot; /&gt;
++    &lt;linearGradient
++       gradientTransform=&quot;matrix(0.995842,0.000000,0.000000,0.995842,57.19476,39.68999)&quot;
++       gradientUnits=&quot;userSpaceOnUse&quot;
++       xlink:href=&quot;#linearGradient2383&quot;
++       id=&quot;linearGradient3337&quot;
++       y2=&quot;84.711372&quot;
++       x2=&quot;65.857155&quot;
++       y1=&quot;-24.629734&quot;
++       x1=&quot;-43.934826&quot; /&gt;
++    &lt;linearGradient
++       gradientTransform=&quot;matrix(0.995842,0.000000,0.000000,0.995842,0.435683,0.669235)&quot;
++       gradientUnits=&quot;userSpaceOnUse&quot;
++       xlink:href=&quot;#linearGradient2540&quot;
++       id=&quot;linearGradient3339&quot;
++       y2=&quot;100.00000&quot;
++       x2=&quot;105.50000&quot;
++       y1=&quot;12.500000&quot;
++       x1=&quot;23.000000&quot; /&gt;
++    &lt;linearGradient
++       gradientUnits=&quot;userSpaceOnUse&quot;
++       xlink:href=&quot;#linearGradient2540&quot;
++       id=&quot;linearGradient3357&quot;
++       y2=&quot;49.393398&quot;
++       x2=&quot;35.708893&quot;
++       y1=&quot;35.781590&quot;
++       x1=&quot;20.329321&quot; /&gt;
++    &lt;linearGradient
++       gradientTransform=&quot;matrix(0.466801,0.000000,0.000000,0.466801,0.204227,0.313705)&quot;
++       gradientUnits=&quot;userSpaceOnUse&quot;
++       xlink:href=&quot;#linearGradient3373&quot;
++       id=&quot;linearGradient3367&quot;
++       y2=&quot;100.00000&quot;
++       x2=&quot;105.50000&quot;
++       y1=&quot;12.500000&quot;
++       x1=&quot;23.000000&quot; /&gt;
++    &lt;linearGradient
++       gradientTransform=&quot;matrix(0.466801,0.000000,0.000000,0.466801,26.81004,18.60468)&quot;
++       gradientUnits=&quot;userSpaceOnUse&quot;
++       xlink:href=&quot;#linearGradient2383&quot;
++       id=&quot;linearGradient3370&quot;
++       y2=&quot;84.711372&quot;
++       x2=&quot;65.857155&quot;
++       y1=&quot;-24.629734&quot;
++       x1=&quot;-43.934826&quot; /&gt;
++  &lt;/defs&gt;
++  &lt;g
++     id=&quot;layer2&quot;&gt;
++    &lt;path
++       id=&quot;path2412&quot;
++       style=&quot;fill:#000000;fill-opacity:0.29411766;stroke:none;stroke-opacity:1.0000000&quot;
++       d=&quot;M 26.179065,5.0527489 C 18.228633,5.6676369 8.3983028,6.9386038 4.0610123,14.149692 C 2.2477532,17.164373 7.1890211,23.256159 8.7672733,21.833383 C 10.675547,20.113093 10.904130,13.689480 14.997413,11.886026 C 22.519366,8.5719416 30.981587,8.3950016 38.896055,9.2501183 C 44.601340,9.8665447 51.727712,10.441991 55.226157,15.192478 C 57.723469,18.583525 52.416104,21.882536 48.901969,22.153007 C 43.844755,22.542243 39.487009,17.900958 36.071819,16.002010 C 33.992083,14.845615 31.021293,21.005805 27.465103,19.370135 C 24.653919,18.077130 21.845383,13.472294 20.018390,14.039924 C 18.029394,14.657889 20.013432,20.392453 23.044306,21.918860 C 27.138331,23.980690 31.896482,22.604728 36.126702,22.052917 C 40.201249,21.521413 44.093536,26.023970 48.828737,25.263758 C 53.807537,24.464438 60.571543,21.435276 59.718422,15.716293 C 58.821638,9.7046324 51.790683,8.1085977 46.815268,6.6718124 C 40.141446,4.7445692 33.069314,4.5198553 26.179065,5.0527489 z M 7.2030934,24.605000 C !
+ 4.3676267,25.129939 3.4416672,29.120188 3.4371975,31.723997 C 3.4246358,39.042856 1.6871027,47.619066 6.4621656,53.706985 C 11.541038,60.182237 21.122382,59.564921 28.731149,59.387424 C 36.349154,59.209707 44.377693,60.298660 51.617569,57.507666 C 57.293504,55.319574 60.400069,49.120970 59.958554,43.142062 C 59.632979,38.733147 60.814196,33.644157 58.395197,29.789926 C 56.838971,27.310367 53.965693,29.779678 52.227104,30.946609 C 48.882019,33.191813 45.176515,34.517934 41.119185,34.569696 C 33.878811,34.662066 26.598775,34.361541 19.373236,34.020140 C 14.956795,33.811466 10.181468,31.429332 9.5082011,26.525923 C 9.3652623,25.484905 8.3272614,24.396880 7.2030934,24.605000 z &quot; /&gt;
++    &lt;path
++       id=&quot;path2426&quot;
++       style=&quot;fill:url(#linearGradient3370);fill-opacity:1.0000000;stroke:none;stroke-width:1.8750000;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000&quot;
++       d=&quot;M 23.497902,1.1989411 C 15.547472,1.8138293 5.7171409,3.0847957 1.3798507,10.295884 C -0.43340842,13.310565 4.5078598,19.402351 6.0861123,17.979576 C 7.9943893,16.259286 8.2229687,9.8356719 12.316251,8.0322186 C 19.838204,4.7181336 28.300425,4.5411943 36.214893,5.3963108 C 41.920178,6.0127367 49.046546,6.5881827 52.545001,11.338671 C 55.042304,14.729717 49.734938,18.028728 46.220808,18.299200 C 41.163594,18.688436 36.805847,14.047150 33.390657,12.148203 C 31.310922,10.991807 28.340132,17.151998 24.783941,15.516328 C 21.972760,14.223323 19.164221,9.6184864 17.337228,10.186116 C 15.348232,10.804081 17.332271,16.538645 20.363145,18.065052 C 24.457170,20.126882 29.215322,18.750921 33.445540,18.199110 C 37.520087,17.667606 41.412375,22.170163 46.147580,21.409950 C 51.126366,20.610631 57.890377,17.581468 57.037252,11.862485 C 56.140472,5.8508249 49.109522,4.2547903 44.134105,2.8180049 C 37.460284,0.89076183 30.388152,0.66604795 23.497902,1.1989411 z M 4.5219320,20.75119!
+ 3 C 1.6864653,21.276131 0.76050547,25.266381 0.75603585,27.870191 C 0.74347424,35.189051 -0.99405897,43.765265 3.7810042,49.853176 C 8.8598809,56.328427 18.441221,55.711116 26.049987,55.533620 C 33.667992,55.355907 41.696531,56.444860 48.936404,53.653857 C 54.612338,51.465774 57.718904,45.267163 57.277393,39.288254 C 56.951818,34.879338 58.133035,29.790350 55.714032,25.936118 C 54.157810,23.456560 51.284527,25.925871 49.545947,27.092801 C 46.200861,29.338005 42.495353,30.664127 38.438023,30.715888 C 31.197649,30.808258 23.917612,30.507734 16.692075,30.166332 C 12.275633,29.957657 7.5003109,27.575525 6.8270397,22.672116 C 6.6841009,21.631097 5.6461000,20.543072 4.5219320,20.751193 z &quot; /&gt;
++    &lt;path
++       id=&quot;path2477&quot;
++       style=&quot;fill:url(#linearGradient3367);fill-opacity:1.0000000;fill-rule:evenodd;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000&quot;
++       d=&quot;M 27.249517,1.0284941 C 25.997607,1.0697617 24.743993,1.1073741 23.500521,1.2035445 C 15.550090,1.8184327 5.7231076,3.0804909 1.3858174,10.291579 C 0.53937899,11.698847 1.1783610,13.770050 2.2464820,15.440979 C 2.7854160,15.061900 3.1988119,14.456767 3.2092593,13.661300 C 3.2716816,8.9084535 8.7054826,6.1843855 12.734920,4.6024402 C 17.304172,2.8085652 23.136812,3.5369846 27.030704,1.4515326 C 27.213726,1.3535114 27.264190,1.2040006 27.249517,1.0284941 z M 32.573968,12.027496 C 30.987563,12.328948 28.979495,15.157629 26.680603,15.659792 C 28.120398,16.154584 30.241445,16.087350 31.202740,14.974178 C 31.776780,14.309442 32.973984,13.379241 33.959784,12.523472 C 33.776784,12.410758 33.568787,12.243124 33.390870,12.144196 C 33.130903,11.999646 32.861183,11.972918 32.573968,12.027496 z M 52.981927,12.275484 C 53.812346,14.743733 50.974168,16.909394 48.138868,17.804159 C 50.624227,17.822188 53.300490,16.949243 53.769657,14.434439 C 53.949638,13.469692 53.581866,12.7789!
+ 23 52.981927,12.275484 z M 4.5221375,20.750841 C 1.6866705,21.275780 0.76302299,25.265749 0.75855336,27.869559 C 0.75068628,32.453223 0.066892038,37.530029 0.72937832,42.179931 C 2.6728978,36.038384 0.37993362,28.855371 3.7635856,23.420360 C 4.1824026,22.747633 5.2943190,22.029205 6.1267665,21.363518 C 5.6965825,20.926724 5.1329659,20.637757 4.5221375,20.750841 z M 53.536257,24.908289 C 52.161732,25.128921 50.625887,26.367088 49.539272,27.096419 C 46.194187,29.341623 42.495487,30.662367 38.438157,30.714128 C 34.055120,30.770046 29.656829,30.663855 25.265612,30.509903 C 25.785497,30.711273 26.450571,31.046930 26.782716,31.122579 C 32.959983,32.529522 39.791422,34.342042 45.921562,32.099944 C 49.065699,30.949976 53.045682,28.232390 53.594607,24.908289 C 53.574676,24.911063 53.556249,24.905080 53.536257,24.908289 z &quot; /&gt;
++    &lt;path
++       id=&quot;path2548&quot;
++       style=&quot;fill:none;fill-opacity:1.0000000;stroke:#000000;stroke-width:1.8750000;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000&quot;
++       d=&quot;M 23.497902,1.1989411 C 15.547472,1.8138293 5.7171409,3.0847957 1.3798507,10.295884 C -0.43340842,13.310565 4.5078598,19.402351 6.0861123,17.979576 C 7.9943893,16.259286 8.2229687,9.8356719 12.316251,8.0322186 C 19.838204,4.7181336 28.300425,4.5411943 36.214893,5.3963108 C 41.920178,6.0127367 49.046546,6.5881827 52.545001,11.338671 C 55.042304,14.729717 49.734938,18.028728 46.220808,18.299200 C 41.163594,18.688436 36.805847,14.047150 33.390657,12.148203 C 31.310922,10.991807 28.340132,17.151998 24.783941,15.516328 C 21.972760,14.223323 19.164221,9.6184864 17.337228,10.186116 C 15.348232,10.804081 17.332271,16.538645 20.363145,18.065052 C 24.457170,20.126882 29.215322,18.750921 33.445540,18.199110 C 37.520087,17.667606 41.412375,22.170163 46.147580,21.409950 C 51.126366,20.610631 57.890377,17.581468 57.037252,11.862485 C 56.140472,5.8508249 49.109522,4.2547903 44.134105,2.8180049 C 37.460284,0.89076183 30.388152,0.66604795 23.497902,1.1989411 z M 4.5219320,20.75119!
+ 3 C 1.6864653,21.276131 0.76050547,25.266381 0.75603585,27.870191 C 0.74347424,35.189051 -0.99405897,43.765265 3.7810042,49.853176 C 8.8598809,56.328427 18.441221,55.711116 26.049987,55.533620 C 33.667992,55.355907 41.696531,56.444860 48.936404,53.653857 C 54.612338,51.465774 57.718904,45.267163 57.277393,39.288254 C 56.951818,34.879338 58.133035,29.790350 55.714032,25.936118 C 54.157810,23.456560 51.284527,25.925871 49.545947,27.092801 C 46.200861,29.338005 42.495353,30.664127 38.438023,30.715888 C 31.197649,30.808258 23.917612,30.507734 16.692075,30.166332 C 12.275633,29.957657 7.5003109,27.575525 6.8270397,22.672116 C 6.6841009,21.631097 5.6461000,20.543072 4.5219320,20.751193 z &quot; /&gt;
++    &lt;path
++       id=&quot;text3341&quot;
++       style=&quot;font-size:84.568108;font-style:normal;font-weight:normal;fill:url(#linearGradient3357);fill-opacity:1.0000000;stroke:#000000;stroke-width:0.25000000;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans&quot;
++       d=&quot;M 32.797855,34.794532 C 31.702536,36.153469 28.984254,34.944407 27.221498,35.478656 C 25.080140,35.626904 27.906792,37.170057 29.185157,36.741656 C 28.945206,37.347724 25.049336,37.090916 26.321036,38.230190 C 27.907011,39.015405 28.211262,37.628775 28.371485,39.440564 C 28.639659,40.660493 27.811713,41.110252 28.469128,42.192097 C 28.161499,43.648004 28.225352,45.297279 28.349788,46.762950 C 29.425114,48.348920 31.080829,46.321735 30.073475,45.354421 C 28.957477,44.039882 30.949346,43.108773 32.699430,43.547598 C 35.024339,43.702732 37.620857,43.468006 39.795424,43.846024 C 39.642050,44.899307 39.270145,45.857006 37.723408,46.266698 C 34.709081,47.133974 38.780497,47.699699 39.979856,47.033592 C 42.762051,45.376040 40.541127,42.497824 41.715687,40.402848 C 42.110294,39.115333 42.056645,36.940556 39.404899,37.090962 C 36.799582,37.425068 34.145606,37.586442 31.474284,37.478404 C 34.006119,36.010040 37.558077,36.962336 40.575061,36.798953 C 42.176447,36.943342 44.3!
+ 15610,36.770967 42.692090,35.568871 C 39.730595,34.750176 35.680526,36.442188 33.336919,34.343643 C 33.080391,34.045984 32.972998,34.730849 32.797855,34.794532 z M 19.627238,34.403604 C 17.450964,34.372566 17.339174,36.517084 17.425209,37.665397 C 17.915789,40.688918 17.621478,43.726087 17.858860,46.755431 C 19.586114,48.062586 20.218286,45.979461 19.823967,44.990085 C 19.889668,42.149115 19.479544,39.190579 19.822520,36.425906 C 20.975441,36.142140 23.086926,36.145152 23.966816,36.365763 C 23.396545,37.761657 20.342005,38.351653 20.744679,39.876599 C 22.051142,40.657376 25.056005,40.918176 24.650298,42.492811 C 23.056939,42.825923 20.973444,44.436523 23.933980,44.298257 C 27.390709,44.285453 27.508314,40.556552 24.411622,39.974331 C 22.349588,39.467790 24.083653,38.173806 25.040861,37.583654 C 26.202526,36.891593 26.828178,35.104896 24.682845,35.012549 C 22.914247,35.207254 21.196714,34.900089 19.627238,34.403604 z M 35.965746,38.726367 C 37.054012,38.904700 40.911052,38.3!
+ 85036 39.459706,39.692880 C 37.739329,40.097324 35.458524,39.6!
+ 43977 33
+.524735,39.906670 C 32.069766,39.913824 29.460958,39.995934 29.879489,39.019564 C 31.813327,38.560226 33.952741,38.851847 35.965746,38.726367 z M 34.577083,41.094491 C 36.314200,41.257916 38.316430,40.829920 39.871365,41.417758 C 39.723221,43.142610 36.640561,42.124931 35.076134,42.372526 C 33.331413,42.389152 31.286099,42.743881 29.749302,42.056776 C 29.816883,40.724540 32.731844,41.303714 34.388397,41.099384 L 34.544536,41.094491 L 34.577083,41.094491 z M 31.289853,47.725234 C 30.336126,47.638205 28.971048,47.703303 28.534221,48.581759 C 24.935988,48.579685 21.337758,48.575311 17.739522,48.574751 C 18.174411,50.225352 20.679638,50.104413 22.545603,49.912927 C 25.042074,49.959186 27.610367,49.805200 30.014637,50.086825 C 33.670253,49.557318 37.463789,50.128731 41.184088,49.942999 C 40.746802,48.323089 38.292308,48.411214 36.453949,48.612340 C 34.059256,48.773340 32.745986,48.527565 31.886544,47.604948 C 31.689203,47.648621 31.374795,47.422904 31.289853,47.725234 z M 31.2356!
+ 07,48.589787 C 30.152026,48.848337 30.464395,47.971323 31.235607,48.589787 z M 29.261099,50.830105 C 24.592524,51.425062 19.723764,50.742865 14.973042,51.040605 C 16.015103,52.319166 18.037138,52.642263 19.996102,52.401336 C 27.635933,52.477226 35.279279,52.398280 42.919918,52.356228 C 43.477983,50.996925 41.353059,50.809825 39.904234,50.949984 C 36.465214,50.798689 32.852512,51.578366 29.554021,50.694784 L 29.265162,50.828229 L 29.261099,50.830105 z &quot; /&gt;
++  &lt;/g&gt;
++&lt;/svg&gt;
+
+Modified: trunk/src/darimasen.cpp
+===================================================================
+--- trunk/src/darimasen.cpp	2005-04-06 05:21:35 UTC (rev 48)
++++ trunk/src/darimasen.cpp	2005-04-08 06:12:40 UTC (rev 49)
+@@ -25,10 +25,18 @@
+ 
+           subdir-&gt;set_events(Gdk::BUTTON_RELEASE_MASK);
+ 
++    if ( ext != &quot;&quot; ){
+           subdir-&gt;signal_button_press_event().connect(
+             sigc::bind&lt;Glib::ustring,guint,bool&gt;(
+               sigc::mem_fun(*this, &amp;Darimasen::DarimasenMenu::DaMenuSelect),
+                  (path + menulevel[position]).substr(0, (path + menulevel[position]).length() - 1),position,true));
++      }
++    else {
++          subdir-&gt;signal_button_press_event().connect(
++            sigc::bind&lt;Glib::ustring,guint,bool&gt;(
++              sigc::mem_fun(*this, &amp;Darimasen::DarimasenMenu::DaMenuSelect),
++                 (path + menulevel[position]).substr(0, (path + menulevel[position]).length() - 1),position,false));
++      }
+ 
+     Gtk::SeparatorMenuItem * sep = Gtk::manage( new Gtk::SeparatorMenuItem());
+     MenuArray[position]-&gt;attach(*sep, 0 ,4, entry++, entry+1);
+@@ -164,9 +172,7 @@
+   if ((event-&gt;type == GDK_BUTTON_PRESS) &amp;&amp; (event-&gt;button == 3) ) //right
+   {
+     Gtk::Menu * m_Menu_Popup = Gtk::manage( new Gtk::Menu);
+-    Gtk::Menu::MenuList&amp; menulist = m_Menu_Popup-&gt;items();
+-
+-    menulist.push_back( Gtk::Menu_Helpers::MenuElem(&quot;Open In new Tab&quot;));
++    m_Menu_Popup-&gt;items().push_back( Gtk::Menu_Helpers::MenuElem(&quot;Open In new Tab&quot;));
+     m_Menu_Popup-&gt;popup(event-&gt;button, event-&gt;time);
+   return true;
+    }
+@@ -202,13 +208,6 @@
+ 
+ }
+ 
+-/**********************
+-
+-void  Darimasen::DarimasenMenu::signal_deactivate (){
+-std::cout &lt;&lt; &quot;on_unmap_event(GdkEventAny* event)\n&quot;;
+-
+-}
+-
+ /**********************/
+ 
+ // parses the path, builds the menu bar. 
+@@ -249,7 +248,7 @@
+  
+     Glib::ustring subin = CountSubdir(path);
+     if ( subin != &quot;0&quot; ){
+-      MenuItemArray[depth] =  Gtk::manage(new Gtk::MenuItem( subin + &quot; \342\226\272&quot; ));
++      MenuItemArray[depth] =  new Gtk::MenuItem( subin + &quot; \342\226\272&quot; );
+       MenuItemArray[depth]-&gt;show();
+       MenuItemArray[depth]-&gt;set_submenu(*MenuArray[depth]);
+       prepend(*MenuItemArray[depth]);
+@@ -326,8 +325,12 @@
+     delete MenuArray[c];
+     }
+   delete menulevel;
+-  delete MenuArray;
+-  delete MenuItemArray;
++
++  for (int i = 0; i &lt;=depth; i++){
++    delete MenuArray[i];
++    delete MenuItemArray[i];
++    }
++  
+   }
+ 
+ /**********************/
+@@ -365,6 +368,7 @@
+ 
+   DarimasenMenuContainer-&gt;remove();
+ 
++ 
+   DaMenu = Gtk::manage(new DarimasenMenu(history[n].top(), *this, n));
+   DarimasenMenuContainer-&gt;add(*DaMenu);
+ 
+@@ -416,7 +420,7 @@
+   arrangement-&gt;pack_start(*tabNum);
+   arrangement-&gt;pack_end(*closeButton);
+ 
+-  Gtk::EventBox * MainEventBox = Gtk::manage(new class Gtk::EventBox);
++  Gtk::EventBox * MainEventBox = new class Gtk::EventBox;
+ 
+   Gdk::Color m_Color;
+   m_Color.set_rgb(65535, 65535, 65535);
+@@ -428,10 +432,13 @@
+ 
+   if ( IconModeList.size() == pos ){
+     IconModeList.push_back(foo);
++    EventBoxList.push_back(MainEventBox);
+     }
+   else {
+     delete IconModeList[pos];
+     IconModeList[pos] = foo;
++    delete EventBoxList[pos];
++    EventBoxList[pos] = MainEventBox;
+     }
+ 
+   Gtk::ScrolledWindow * MainScroller = Gtk::manage(new Gtk::ScrolledWindow);
+@@ -490,6 +497,9 @@
+   history.erase(history.begin()+pos,history.begin()+pos+1 );
+   delete IconModeList[pos];
+   IconModeList.erase(IconModeList.begin()+pos,IconModeList.begin()+pos+1 );
++
++  delete EventBoxList[pos];
++  EventBoxList.erase(EventBoxList.begin()+pos,EventBoxList.begin()+pos+1 );
+   }
+ 
+ 
+@@ -498,7 +508,7 @@
+ Darimasen::Darimasen(std::vector&lt;Glib::ustring&gt; paths){
+   set_title(&quot;Darimasen&quot;);
+   set_default_size(500, 330);
+-
++  set_icon_from_file( (Glib::ustring)DATADIR + (Glib::ustring)&quot;/icons/hicolor/48x48/apps/darimasen.png&quot;  );
+   add(VerticalOrganizer);
+   VerticalOrganizer.show();
+ 
+@@ -508,30 +518,32 @@
+   TopBar.set_toolbar_style(Gtk::TOOLBAR_ICONS); 
+ 
+ 
+-  Gtk::ToolItem * CompactMenuContainer = Gtk::manage(new Gtk::ToolItem);
++  CompactMenuContainer = new Gtk::ToolItem;
+   TopBar.append(*CompactMenuContainer);
+   CompactMenuContainer-&gt;show();
+ 
+-  Gtk::MenuBar * CompactMenu = Gtk::manage(new Gtk::MenuBar);
+-  Gtk::Menu * m_Menu_File = Gtk::manage(new Gtk::Menu);
+-  Gtk::Menu::MenuList&amp; menulist = m_Menu_File-&gt;items();
++  CompactMenu = new Gtk::MenuBar;
++  m_Menu_File = new Gtk::Menu;
+ 
++
++
+   CompactMenu-&gt;items().push_back( Gtk::Menu_Helpers::MenuElem(&quot;\342\226\274&quot;, *m_Menu_File) );
+ 
+   // glade-- told me to do it....
+-  menulist.push_back(Gtk::Menu_Helpers::CheckMenuElem(
++  m_Menu_File-&gt;items().push_back(Gtk::Menu_Helpers::CheckMenuElem(
+     &quot;Show Hidden&quot;,Gtk::AccelKey(GDK_H, Gdk::CONTROL_MASK), sigc::mem_fun(*this, &amp;Darimasen::fShowHidden)));
+-  optShowHidden = (Gtk::CheckMenuItem *)&amp;menulist.back();
+ 
+-  menulist.push_back(Gtk::Menu_Helpers::MenuElem(
++  optShowHidden = (Gtk::CheckMenuItem *)&amp;m_Menu_File-&gt;items().back();
++
++  m_Menu_File-&gt;items().push_back(Gtk::Menu_Helpers::MenuElem(
+     &quot;Print history to Terminal&quot;,Gtk::AccelKey(GDK_P, Gdk::CONTROL_MASK), sigc::mem_fun(*this, &amp;Darimasen::fPrintHist)));
+ 
+-  menulist.push_back( Gtk::Menu_Helpers::MenuElem(&quot;About...&quot;,
++  m_Menu_File-&gt;items().push_back( Gtk::Menu_Helpers::MenuElem(&quot;About...&quot;,
+     sigc::mem_fun(*this, &amp;Darimasen::fAbout) ) );
+ 
+-  menulist.push_back( Gtk::Menu_Helpers::SeparatorElem() ) ;
++  m_Menu_File-&gt;items().push_back( Gtk::Menu_Helpers::SeparatorElem() ) ;
+ 
+-  menulist.push_back( Gtk::Menu_Helpers::StockMenuElem(Gtk::Stock::QUIT,
++  m_Menu_File-&gt;items().push_back( Gtk::Menu_Helpers::StockMenuElem(Gtk::Stock::QUIT,
+     sigc::mem_fun(*this, &amp;Darimasen::fQuit) ) );
+     
+   TopBar.set_show_arrow(false);
+@@ -539,38 +551,38 @@
+   CompactMenu-&gt;show();
+ 
+ 
+-  Gtk::SeparatorToolItem * sep1  = Gtk::manage(new Gtk::SeparatorToolItem);
++  Gtk::SeparatorToolItem * sep1 = new Gtk::SeparatorToolItem;
+   TopBar.append(*sep1);
+   sep1-&gt;show();
+ 
+-  DarimasenMenuContainer = Gtk::manage(new Gtk::ToolItem);
++  DarimasenMenuContainer = new Gtk::ToolItem;
+   TopBar.append(*DarimasenMenuContainer);
+   DarimasenMenuContainer-&gt;set_expand(true);
+   DarimasenMenuContainer-&gt;show();
+ 
+-  Gtk::SeparatorToolItem * sep2  = Gtk::manage(new Gtk::SeparatorToolItem);
++  Gtk::SeparatorToolItem * sep2  = new Gtk::SeparatorToolItem;
+   TopBar.append(*sep2);
+   sep2-&gt;show();
+ 
+-  BackButton = Gtk::manage(new Gtk::ToolButton(Gtk::StockID(&quot;gtk-go-back&quot;)));
++  BackButton = new Gtk::ToolButton(Gtk::StockID(&quot;gtk-go-back&quot;));
+   BackButton-&gt;signal_clicked().connect(sigc::mem_fun(*this, &amp;Darimasen::fBack));
+   TopBar.append(*BackButton);
+   BackButton-&gt;set_sensitive(false);
+   BackButton-&gt;show();
+   
+-  Gtk::ToolButton * ChangeIconMode = Gtk::manage(new Gtk::ToolButton(Gtk::StockID(&quot;gtk-convert&quot;)));
++  ChangeIconMode = new Gtk::ToolButton(Gtk::StockID(&quot;gtk-convert&quot;));
+   //ChangeIconMode-&gt;signal_clicked().connect(sigc::mem_fun(*this, &amp;Darimasen::fChangeIconMode));
+   TopBar.append(*ChangeIconMode);
+   ChangeIconMode-&gt;set_sensitive(false);
+-  ChangeIconMode-&gt;show();
++  //ChangeIconMode-&gt;show();
+    
+-  Gtk::ToggleToolButton * ViewTree = Gtk::manage(new Gtk::ToggleToolButton(Gtk::StockID(&quot;gtk-index&quot;)));
++  ViewTree = new Gtk::ToggleToolButton(Gtk::StockID(&quot;gtk-index&quot;));
+   //ViewTree-&gt;signal_clicked().connect(sigc::mem_fun(*this, &amp;Darimasen::fViewTree));
+   TopBar.append(*ViewTree);
+   ViewTree-&gt;set_sensitive(false);
+-  ViewTree -&gt; show();
++  //ViewTree -&gt; show();
+ 
+-  Gtk::ToolButton * NewTab = Gtk::manage(new Gtk::ToolButton(Gtk::StockID(&quot;gtk-new&quot;)));
++  NewTab = new Gtk::ToolButton(Gtk::StockID(&quot;gtk-new&quot;));
+   NewTab-&gt;signal_clicked().connect(sigc::mem_fun(*this, &amp;Darimasen::fNewTab));
+   TopBar.append(*NewTab);
+   NewTab-&gt;show();
+@@ -580,7 +592,7 @@
+ 
+   HideTreePane.pack1(TreeScroller, Gtk::SHRINK);
+ 
+-  Tabber = Gtk::manage(new Gtk::Notebook);
++  Tabber = new Gtk::Notebook;
+   Tabber-&gt;signal_switch_page().connect(sigc::mem_fun(*this, &amp;Darimasen::tabberSwitched));
+   Tabber-&gt;set_show_border(false);
+   Tabber-&gt;show();
+@@ -611,36 +623,74 @@
+ /**********************/
+ 
+ void Darimasen::fQuit(){
++
++  delete Tabber;
++
++ // delete sep1;
++ // delete sep2;
++  delete BackButton;
++  delete ChangeIconMode;
++  delete ViewTree;
++  delete NewTab;
+   DarimasenMenuContainer-&gt;remove();
++
++  delete DarimasenMenuContainer;
++  delete m_Menu_File;
++  delete CompactMenu;
++  delete CompactMenuContainer;
++
++  for (int i=0; i &lt; IconModeList.size(); i++){
++     delete IconModeList[i];
++     delete EventBoxList[i];
++     }
++
+   hide();
+   }
+ 
+ /**********************/
+ 
+ void Darimasen::fAbout(){
++  aboutDa about;
++  Gtk::Main::run(about); 
++  }
+ 
+-  Glib::RefPtr&lt;Gdk::Pixbuf&gt; loader=  
+-    Gdk::Pixbuf::create_from_file( 
+-      ((Glib::ustring)DATADIR + (Glib::ustring)&quot;/pixmaps/darimasenInfo.svg&quot; ));
++/**********************/
+ 
+-   Gtk::Dialog aboutDarimasen;
++bool Darimasen::aboutDa::ch0wned(GdkEventButton*){
++  hide();
++  }
+ 
+-   Gtk::Button * closebutton1 = Gtk::manage(new class Gtk::Button(Gtk::StockID(&quot;gtk-close&quot;)));
+-   Gtk::Image * image1 = Gtk::manage(new class Gtk::Image(loader));
+-   aboutDarimasen.get_action_area()-&gt;property_layout_style().set_value(Gtk::BUTTONBOX_END);
+-   aboutDarimasen.get_vbox()-&gt;set_homogeneous(false);
+-   aboutDarimasen.get_vbox()-&gt;set_spacing(10);
+-   aboutDarimasen.get_vbox()-&gt;pack_start(*image1);
+-   aboutDarimasen.set_title(&quot;About Darimasen&quot;);
+-   aboutDarimasen.set_modal(true);
+-   aboutDarimasen.set_resizable(false);
+-   aboutDarimasen.add_action_widget(*closebutton1, -7);
+-  aboutDarimasen.show_all_children();
+-  aboutDarimasen.run();
++/**********************/
++
++Darimasen::aboutDa::aboutDa(){
++  image1 = new class Gtk::Image(  Gdk::Pixbuf::create_from_file( 
++    (Glib::ustring)DATADIR + (Glib::ustring)&quot;/pixmaps/darimasenInfo.svg&quot; ) );
++  closer = new Gtk::EventBox;
++  closer-&gt;add(*image1);
++  closer-&gt;signal_button_press_event().connect(
++    sigc::mem_fun(*this, &amp;Darimasen::aboutDa::ch0wned));
++
++  add(*closer);
++  set_title(&quot;About Darimasen&quot;);
++  set_modal(true);
++  set_resizable(false);
++  set_decorated (false);
++  set_position(Gtk::WIN_POS_CENTER);
++
++  show_all_children();
+   }
+ 
+ /**********************/
+ 
++Darimasen::aboutDa::~aboutDa(){
++  delete image1;
++  delete closer;
++  }
++
++
++
++/**********************/
++
+ void Darimasen::fShowHidden(){
+ 
+ 
+
+Modified: trunk/src/darimasen.h
+===================================================================
+--- trunk/src/darimasen.h	2005-04-06 05:21:35 UTC (rev 48)
++++ trunk/src/darimasen.h	2005-04-08 06:12:40 UTC (rev 49)
+@@ -71,8 +71,6 @@
+       };
+ 
+ 
+-
+-
+     Darimasen * parent;
+ 
+     int depth;
+@@ -97,7 +95,14 @@
+     ~DarimasenMenu();
+     };
+ 
+-
++  class aboutDa : public Gtk::Window {
++    Gtk::Image * image1;
++    Gtk::EventBox * closer;
++    bool ch0wned(GdkEventButton*);
++  public:
++    aboutDa();
++    ~aboutDa();
++    };
+   
+   Gtk::VBox VerticalOrganizer;
+   Gtk::Toolbar TopBar;
+@@ -108,10 +113,20 @@
+   Gtk::Notebook * Tabber;
+   Gtk::Statusbar Info;
+ 
++  Gtk::ToolItem * CompactMenuContainer;
++  Gtk::MenuBar * CompactMenu;
++  Gtk::Menu * m_Menu_File;
+ 
++  Gtk::SeparatorToolItem * sep1;
++  Gtk::SeparatorToolItem * sep2;
+ 
+   Gtk::ToolButton * BackButton;
++Gtk::ToolButton * ChangeIconMode;
++ Gtk::ToggleToolButton * ViewTree;
++Gtk::ToolButton * NewTab;
+ 
++
++
+   void fNewTab();
+   void newTab(Glib::ustring);
+   void tabberSwitched(GtkNotebookPage*, guint);
+@@ -126,6 +141,7 @@
+ 
+ 
+   std::vector&lt; class DaIconModes* &gt; IconModeList;
++  std::vector&lt; class Gtk::EventBox* &gt; EventBoxList;
+ 
+ 
+ public:
+@@ -140,7 +156,3 @@
+ /**********************/
+ 
+ #endif //DARIMASEN_H
+-
+-
+-
+-
+
+Modified: trunk/src/iconmodes.cpp
+===================================================================
+--- trunk/src/iconmodes.cpp	2005-04-06 05:21:35 UTC (rev 48)
++++ trunk/src/iconmodes.cpp	2005-04-08 06:12:40 UTC (rev 49)
+@@ -70,8 +70,11 @@
+   for(int c = 0; c &lt; filesAtPath; c++){
+     delete sideconContainer[c];
+     }
+-
+   delete sideconContainer;
++  delete hidden;
++
++
++  //delete sideconContainer; //well, valgrind --tool=addrcheck said this line was bad.
+ }
+ }
+ /**********************/
+@@ -117,130 +120,63 @@
+ /**********************/
+ 
+ DaIconModes::Sidecon::Sidecon(
+-    Glib::ustring path,
+-    const Glib::RefPtr&lt;const Gnome::Vfs::FileInfo&gt;&amp; info,
+-    DaIconModes&amp; above){
++      Glib::ustring path,
++      const Glib::RefPtr&lt;const Gnome::Vfs::FileInfo&gt;&amp; info,
++      DaIconModes&amp; above){
+ 
+-
+   parent = &above;
+   filePath = path + info-&gt;get_name();
+ 
+-  Glib::ustring shortnom = info-&gt;get_name();
+-
+   if (info-&gt;get_name().length() &gt; 25){
+-
+     int last = info-&gt;get_name().rfind(&quot;.&quot;);
+-
+-    if (last != -1){ //fix for the missing extension bug
+-      Glib::ustring ext = info-&gt;get_name().substr(last);  
+-      shortnom = info-&gt;get_name().substr(0, 20) + &quot;..&quot; + ext;
++    if (last != -1){
++      FileName = new class Gtk::Label( info-&gt;get_name().substr(0, 20) + &quot;..&quot; + info-&gt;get_name().substr(last) );
+       }
+     else {
+-      shortnom = info-&gt;get_name().substr(0,22) + &quot;...&quot;;
++      FileName = new class Gtk::Label( info-&gt;get_name().substr(0,22) + &quot;...&quot; );
+       }
+-
+-    }
++    }
++  else {
++  FileName = new class Gtk::Label( info-&gt;get_name() );
++  }
+                    
+-  resize(3,2);
+ 
+ 
+-Glib::ustring ico;
++//  FileName = new class Gtk::Label(shortnom);
++  FileName-&gt;set_alignment(0,0.5);
++  FileName-&gt;set_justify(Gtk::JUSTIFY_LEFT);
++  attach(*FileName, 1, 2, 0, 1, Gtk::FILL, Gtk::AttachOptions(), 0, 0);
+ 
+-/*
+ 
+-  try {
+-  if(info-&gt;get_mime_type() == &quot;image/jpeg&quot;
+-    || info-&gt;get_mime_type() == &quot;image/gif&quot;
+-    || info-&gt;get_mime_type() == &quot;image/png&quot;){
++  // hand off getting the icon
++  image1 = new class Gtk::Image(parent-&gt;getIcon(info-&gt;get_mime_type(), 48));
++  attach(*image1, 0, 1, 0, 3, Gtk::FILL, Gtk::FILL, 0, 0);
+ 
+-  ico = info-&gt;get_name();
+-  }
+-else{
+-  ico = &quot;/usr/share/icons/Lila/scalable/mimetypes/mime-&quot;;
+-  ico += info-&gt;get_mime_type().replace(info-&gt;get_mime_type().find(&quot;/&quot;), 1, &quot;:&quot;);
+-  ico += &quot;.svg&quot;;
+-   }
+ 
+-    Glib::file_get_contents(ico);
+-    }
+-  catch(const Glib::Error) {
+-ico = &quot;/usr/share/icons/Lila/scalable/mimetypes/mime-&quot;;
+-ico += info-&gt;get_mime_type().substr(0,info-&gt;get_mime_type().find(&quot;/&quot;));
+-ico += &quot;.svg&quot;;
+-    }
+-Glib::RefPtr&lt;Gdk::Pixbuf&gt; xe = Gdk::Pixbuf::create_from_file(ico);
+-Glib::RefPtr&lt;Gdk::Pixbuf&gt; xf = xe-&gt;scale_simple(48,48,Gdk::INTERP_TILES);
+-
+-
+-  Gtk::Image * image1 = Gtk::manage(new class Gtk::Image(xf));
+-///
+-
+-
+-  try{
+-    ico = &quot;/usr/share/icons/gnome/48x48/mimetypes/gnome-mime-&quot;;
+-    ico += info-&gt;get_mime_type().replace(info-&gt;get_mime_type().find(&quot;/&quot;), 1, &quot;-&quot;);
+-    ico += &quot;.png&quot;;
+-    Glib::file_get_contents(ico);
+-    }
+-  catch(const Glib::Error) {
+-    ico = &quot;/usr/share/icons/gnome/48x48/mimetypes/gnome-mime-&quot;;
+-    ico += info-&gt;get_mime_type().substr(0,info-&gt;get_mime_type().find(&quot;/&quot;));
+-    ico += &quot;.png&quot;;
+-
+-    }
+-
+-  Gtk::Image * image1 = Gtk::manage(new class Gtk::Image(ico));
+-*/
+-
+-
+-Glib::RefPtr&lt;Gdk::Pixbuf&gt; img;
+-img = parent-&gt;getIcon(info-&gt;get_mime_type(), 48);
+-
+-
+-Gtk::Image * image1 = Gtk::manage (new class Gtk::Image(img));
+-
+-image1-&gt;show();
+-
+-
+-
+-  Gtk::Label * FileName = Gtk::manage(new class Gtk::Label(shortnom));
+-
+   // this is where the mimetype info goes
+-  mimeInfo = info-&gt;get_mime_type();
+-  Gtk::Label * FilePermissions = Gtk::manage( new class Gtk::Label(mimeInfo));
++  FilePermissions = new class Gtk::Label(info-&gt;get_mime_type());
++  FilePermissions-&gt;set_alignment(0,0.5);
++  FilePermissions-&gt;set_justify(Gtk::JUSTIFY_LEFT);
++  attach(*FilePermissions, 1, 2, 1, 2, Gtk::FILL, Gtk::AttachOptions(), 0, 0);
+ 
+-  // THis is simply file size - images an video could have more. Much later.
+-  Glib::ustring size;
++
++  // This is simply file size - images an video could have more. Later.
+   if( info-&gt;get_size() &lt; 1024 ){
+-    size = int2ustr(info-&gt;get_size()) + &quot; B&quot;;
++    FileSizeInfo = new class Gtk::Label(int2ustr(info-&gt;get_size()) + &quot; B&quot;);
+     }
+   else if ( info-&gt;get_size() &lt; (1024 * 1024) ){
+-    size = int2ustr(info-&gt;get_size() / 1024) + &quot; KB&quot;;
++    FileSizeInfo = new class Gtk::Label(int2ustr(info-&gt;get_size() / 1024) + &quot; KB&quot;);
+     }
+   else{
+-    size = int2ustr(info-&gt;get_size() / 1024 / 1024) + &quot; MB&quot;;
++    FileSizeInfo = new class Gtk::Label( int2ustr(info-&gt;get_size() / 1048576) + &quot; MB&quot;);
+     }
+-
+-  // ideally, this label would be 80% size of standard
+-  Gtk::Label * FileSizeInfo = Gtk::manage( new class Gtk::Label(size));
+-
+-  FileName-&gt;set_alignment(0,0.5);
+-  FileName-&gt;set_justify(Gtk::JUSTIFY_LEFT);
+-  FilePermissions-&gt;set_alignment(0,0.5);
+-  FilePermissions-&gt;set_justify(Gtk::JUSTIFY_LEFT);
+   FileSizeInfo-&gt;set_alignment(0,0.5);
+   FileSizeInfo-&gt;set_justify(Gtk::JUSTIFY_LEFT);
+-  
+-  attach(*image1, 0, 1, 0, 3, Gtk::FILL, Gtk::FILL, 0, 0);
+-  attach(*FileName, 1, 2, 0, 1, Gtk::FILL, Gtk::AttachOptions(), 0, 0);
+-  attach(*FilePermissions, 1, 2, 1, 2, Gtk::FILL, Gtk::AttachOptions(), 0, 0);
+-  attach(*FileSizeInfo, 1, 2, 2, 3, Gtk::FILL, Gtk::AttachOptions(), 0, 0);
+-  
+-  image1-&gt;show();
+-  FileName-&gt;show();
+-  FilePermissions-&gt;show();
+-  FileSizeInfo-&gt;show();
+-  show();
+  }
++  attach(*FileSizeInfo, 1, 2, 2, 3, Gtk::FILL, Gtk::AttachOptions(), 0, 0);
++
++
++  show_all_children();
+  }
++
+ /**********************
+ 
+ DaIconModes::Detail::Detail(
+@@ -549,24 +485,22 @@
+ DaIconModes::ChooseActionDialogue::ChooseActionDialogue(Glib::ustring mimeType){
+ 
+   mime = mimeType;
+-  cancelbutton1 = Gtk::manage(new class Gtk::Button(Gtk::StockID(&quot;gtk-close&quot;)));
+-  okbutton1     = Gtk::manage(new class Gtk::Button(Gtk::StockID(&quot;gtk-apply&quot;)));
+-  label1 = Gtk::manage(new class Gtk::Label(&quot;Enter a Shell command:&quot;));
+-  entry1 = Gtk::manage(new class Gtk::Entry());
+-  vbox1  = Gtk::manage(new class Gtk::VBox(false, 0));
++  cancelbutton1 = new class Gtk::Button(Gtk::StockID(&quot;gtk-close&quot;));
++  okbutton1 = new class Gtk::Button(Gtk::StockID(&quot;gtk-apply&quot;));
++  label1 = new class Gtk::Label(&quot;Enter a Shell command:&quot;);
++  entry1 = new class Gtk::Entry();
++  vbox1  = new class Gtk::VBox(false, 0);
+ 
+ 
+-  radiobutton1 = Gtk::manage(
+-      new class Gtk::RadioButton(_RadioBGroup_radiobutton1, 
+-      &quot;Set Mime For \&quot;&quot; + mimeType.substr(0, mimeType.find(&quot;_&quot;)) + &quot;\&quot;&quot;) );
++  radiobutton1 = new class Gtk::RadioButton(_RadioBGroup_radiobutton1, 
++    &quot;Set Mime For \&quot;&quot; + mimeType.substr(0, mimeType.find(&quot;_&quot;)) + &quot;\&quot;&quot; );
+ 
+   radiobutton1-&gt;signal_clicked().connect(
+       sigc::bind&lt;Glib::ustring &gt;( sigc::mem_fun(*this,
+       &amp;DaIconModes::ChooseActionDialogue::GetCurrentAction), mimeType.substr(0, mimeType.find(&quot;_&quot;)) ));
+ 
+- radiobutton2 = Gtk::manage(
+-      new class Gtk::RadioButton(_RadioBGroup_radiobutton1,
+-      &quot;Set Mime For \&quot;&quot; + mimeType + &quot;\&quot;&quot;) ) ;
++ radiobutton2 = new class Gtk::RadioButton(_RadioBGroup_radiobutton1,
++      &quot;Set Mime For \&quot;&quot; + mimeType + &quot;\&quot;&quot;)  ;
+ 
+   radiobutton2-&gt;signal_clicked().connect(
+       sigc::bind&lt;Glib::ustring &gt;( sigc::mem_fun(*this,
+@@ -609,14 +543,8 @@
+   add_action_widget(*cancelbutton1, Gtk::RESPONSE_CANCEL);
+   add_action_widget(*okbutton1, Gtk::RESPONSE_OK);
+   set_default_response(Gtk::RESPONSE_OK);
+-  cancelbutton1-&gt;show();
+-  okbutton1-&gt;show();
+-  radiobutton1-&gt;show();
+-  radiobutton2-&gt;show();
+-  label1-&gt;show();
+-  entry1-&gt;show();
+-  vbox1-&gt;show();
+-  show();
++
++  show_all_children();
+   }
+ 
+ /**********************/
+@@ -706,43 +634,43 @@
+   set_title(&quot;Set file permissions&quot;);
+   set_modal(true);
+ 
+-   read = Gtk::manage(new class Gtk::Label(&quot;R&quot;));
+-   write = Gtk::manage(new class Gtk::Label(&quot;W&quot;));
+-   run = Gtk::manage(new class Gtk::Label(&quot;X&quot;));
+-   user = Gtk::manage(new class Gtk::Label(&quot;User&quot;));
+-   group = Gtk::manage(new class Gtk::Label(&quot;Group&quot;));
+-   others = Gtk::manage(new class Gtk::Label(&quot;Everybody&quot;));
++   read = new class Gtk::Label(&quot;R&quot;);
++   write = new class Gtk::Label(&quot;W&quot;);
++   run = new class Gtk::Label(&quot;X&quot;);
++   user = new class Gtk::Label(&quot;User&quot;);
++   group = new class Gtk::Label(&quot;Group&quot;);
++   others = new class Gtk::Label(&quot;Everybody&quot;);
+ 
+-   explaination = Gtk::manage(new class Gtk::Label(&quot;for \&quot;&quot;+ info-&gt;get_name() + &quot;\&quot;...&quot;));
++   explaination = new class Gtk::Label(&quot;for \&quot;&quot;+ info-&gt;get_name() + &quot;\&quot;...&quot;);
+ 
+-   layout = Gtk::manage(new class Gtk::Table(5, 6, false));
++   layout = new class Gtk::Table(5, 6, false);
+ 
+-   u_r = Gtk::manage(new class Gtk::CheckButton(&quot;&quot;));
++   u_r = new class Gtk::CheckButton(&quot;&quot;);
+    if((info-&gt;get_permissions() &amp; Gnome::Vfs::PERM_USER_READ) != 0)  u_r-&gt;set_active(true);
+-   u_w = Gtk::manage(new class Gtk::CheckButton(&quot;&quot;));
++   u_w = new class Gtk::CheckButton(&quot;&quot;);
+    if((info-&gt;get_permissions() &amp; Gnome::Vfs::PERM_USER_WRITE) != 0)  u_w-&gt;set_active(true);
+-   u_x = Gtk::manage(new class Gtk::CheckButton(&quot;&quot;));
++   u_x = new class Gtk::CheckButton(&quot;&quot;);
+    if((info-&gt;get_permissions() &amp; Gnome::Vfs::PERM_USER_EXEC) != 0)  u_x-&gt;set_active(true);
+-   g_r = Gtk::manage(new class Gtk::CheckButton(&quot;&quot;));
++   g_r = new class Gtk::CheckButton(&quot;&quot;);
+    if((info-&gt;get_permissions() &amp; Gnome::Vfs::PERM_GROUP_READ) != 0)  g_r-&gt;set_active(true);
+-   g_w = Gtk::manage(new class Gtk::CheckButton(&quot;&quot;));
++   g_w = new class Gtk::CheckButton(&quot;&quot;);
+    if((info-&gt;get_permissions() &amp; Gnome::Vfs::PERM_GROUP_WRITE) != 0)  g_w-&gt;set_active(true);
+-   g_x = Gtk::manage(new class Gtk::CheckButton(&quot;&quot;));
++   g_x = new class Gtk::CheckButton(&quot;&quot;);
+    if((info-&gt;get_permissions() &amp; Gnome::Vfs::PERM_GROUP_EXEC) != 0)  g_x-&gt;set_active(true);
+-   o_r = Gtk::manage(new class Gtk::CheckButton(&quot;&quot;));
++   o_r = new class Gtk::CheckButton(&quot;&quot;);
+    if((info-&gt;get_permissions() &amp; Gnome::Vfs::PERM_OTHER_READ) != 0)  o_r-&gt;set_active(true);
+-   o_w = Gtk::manage(new class Gtk::CheckButton(&quot;&quot;));
++   o_w = new class Gtk::CheckButton(&quot;&quot;);
+    if((info-&gt;get_permissions() &amp; Gnome::Vfs::PERM_OTHER_WRITE) != 0)  o_w-&gt;set_active(true);
+-   o_x = Gtk::manage(new class Gtk::CheckButton(&quot;&quot;));
++   o_x = new class Gtk::CheckButton(&quot;&quot;);
+    if((info-&gt;get_permissions() &amp; Gnome::Vfs::PERM_OTHER_EXEC) != 0)  o_x-&gt;set_active(true);
+ 
+-   extra = Gtk::manage(new  Gtk::VSeparator);
++   extra = new  Gtk::VSeparator;
+ 
+-   sticky = Gtk::manage(new class Gtk::CheckButton(&quot;Sticky&quot;));
++   sticky = new class Gtk::CheckButton(&quot;Sticky&quot;);
+    if((info-&gt;get_permissions() &amp; Gnome::Vfs::PERM_STICKY) != 0)  sticky-&gt;set_active(true);
+-   GID = Gtk::manage(new class Gtk::CheckButton(&quot;Group ID&quot;));
++   GID = new class Gtk::CheckButton(&quot;Group ID&quot;);
+    if((info-&gt;get_permissions() &amp; Gnome::Vfs::PERM_SGID) != 0)  GID-&gt;set_active(true);
+-   UID = Gtk::manage(new class Gtk::CheckButton(&quot;User ID&quot;));;
++   UID = new class Gtk::CheckButton(&quot;User ID&quot;);
+    if((info-&gt;get_permissions() &amp; Gnome::Vfs::PERM_SUID) != 0)  UID-&gt;set_active(true);
+ 
+    layout-&gt;attach(*u_r, 1, 2, 2, 3, Gtk::FILL, Gtk::FILL, 0, 0);
+@@ -769,13 +697,14 @@
+    layout-&gt;attach(*others, 0, 1, 4, 5, Gtk::FILL , Gtk::FILL, 0, 0);
+    layout-&gt;attach(*explaination, 0, 6, 0, 1, Gtk::FILL | Gtk::EXPAND, Gtk::FILL, 10, 0);
+ 
++
+   get_vbox()-&gt;pack_start(*layout);
+-  button1 = Gtk::manage(new class Gtk::Button(Gtk::StockID(&quot;gtk-cancel&quot;)));
++  button1 = new class Gtk::Button(Gtk::StockID(&quot;gtk-cancel&quot;));
+   button1-&gt;signal_clicked().connect(
+       sigc::mem_fun(*this, &amp;DaIconModes::SetPermissionsDialogue::cancled) );
+ 
+ 
+-  button2 = Gtk::manage(new class Gtk::Button(Gtk::StockID(&quot;gtk-apply&quot;)));
++  button2 = new class Gtk::Button(Gtk::StockID(&quot;gtk-apply&quot;));
+   button2-&gt;signal_clicked().connect(
+     sigc::bind&lt;Glib::RefPtr&lt;Gnome::Vfs::FileInfo&gt; &gt;(
+       sigc::mem_fun(*this, &amp;DaIconModes::SetPermissionsDialogue::apply), info ));
+@@ -785,9 +714,6 @@
+   add_action_widget(*button1, -6);
+   add_action_widget(*button2, -10);
+ 
+-  button1-&gt;show();
+-  button2-&gt;show();
+-
+   set_modal(true);
+   show_all_children();
+   show();
+@@ -795,7 +721,9 @@
+ 
+ /**********************/
+ 
+-void DaIconModes::SetPermissionsDialogue::cancled(){hide();}
++void DaIconModes::SetPermissionsDialogue::cancled(){
++  hide();
++  }
+ 
+ /**********************/
+ 
+@@ -829,6 +757,34 @@
+ 
+ /**********************/
+ 
++DaIconModes::SetPermissionsDialogue::~SetPermissionsDialogue(){
++      delete read;
++      delete write;
++      delete run;
++      delete user;
++      delete group;
++      delete others;
++      delete explaination;
++      delete layout;
++      delete u_r;
++      delete u_w;
++      delete u_x;
++      delete g_r;
++      delete g_w;
++      delete g_x;
++      delete o_r;
++      delete o_w;
++      delete o_x;
++      delete extra;
++      delete sticky;
++      delete GID;
++      delete UID;
++      delete button1;
++      delete button2;
++      }
++
++/**********************/
++
+ Glib::RefPtr&lt;Gdk::Pixbuf&gt; DaIconModes::getIcon(Glib::ustring mimeGiven, guint size){
+   int i;
+   static std::vector &lt;Glib::ustring&gt; mimeList;
+
+Modified: trunk/src/iconmodes.h
+===================================================================
+--- trunk/src/iconmodes.h	2005-04-06 05:21:35 UTC (rev 48)
++++ trunk/src/iconmodes.h	2005-04-08 06:12:40 UTC (rev 49)
+@@ -22,9 +22,21 @@
+ 
+   class Sidecon : public Gtk::Table {
+     Glib::ustring filePath, mimeInfo;
+-    DaIconModes * parent;
++    DaIconModes * parent;
++    Gtk::Image * image1;
++    Gtk::Label * FileName;
++    Gtk::Label * FilePermissions ;
++  Gtk::Label * FileSizeInfo;
+     public:
+-    Sidecon(Glib::ustring, const Glib::RefPtr&lt;const Gnome::Vfs::FileInfo&gt;&amp;, DaIconModes&amp;);
++    Sidecon(Glib::ustring, const Glib::RefPtr&lt;const Gnome::Vfs::FileInfo&gt;&amp;, DaIconModes&amp;);
++~Sidecon(){
++delete image1;
++delete FileName;
++delete FilePermissions;
++delete FileSizeInfo;
++
++}
++
+     };
+ 
+ /*
+@@ -50,6 +62,16 @@
+     public:
+ 
+     ChooseActionDialogue(Glib::ustring);
++    ~ChooseActionDialogue(){
++
++      delete cancelbutton1;
++      delete okbutton1;
++      delete label1;
++      delete entry1;
++      delete vbox1;
++      delete radiobutton1;
++      delete radiobutton2;
++      }
+     };
+ 
+ 
+@@ -78,6 +100,7 @@
+     public:
+ 
+     SetPermissionsDialogue(Glib::RefPtr&lt;Gnome::Vfs::FileInfo&gt; , Glib::ustring);
++    ~SetPermissionsDialogue();
+     };
+ 
+   class Darimasen * parent;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000001.html">[Darimasen-svn] r48 - in trunk: . src
+</A></li>
+	<LI>Next message: <A HREF="000003.html">[Darimasen-svn] r50 - in trunk: . src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#2">[ date ]</a>
+              <a href="thread.html#2">[ thread ]</a>
+              <a href="subject.html#2">[ subject ]</a>
+              <a href="author.html#2">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/darimasen-svn">More information about the Darimasen-svn
+mailing list</a><br>
+</body></html>

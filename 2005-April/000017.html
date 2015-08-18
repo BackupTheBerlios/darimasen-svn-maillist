@@ -1,0 +1,1042 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Darimasen-svn] r64 - in trunk: . src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/darimasen-svn/2005-April/index.html" >
+   <LINK REL="made" HREF="mailto:darimasen-svn%40lists.berlios.de?Subject=Re%3A%20%5BDarimasen-svn%5D%20r64%20-%20in%20trunk%3A%20.%20src&In-Reply-To=%3C200504302121.j3ULLnX2026075%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000016.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Darimasen-svn] r64 - in trunk: . src</H1>
+    <B>darimasen-svn-admin at lists.berlios.de</B> 
+    <A HREF="mailto:darimasen-svn%40lists.berlios.de?Subject=Re%3A%20%5BDarimasen-svn%5D%20r64%20-%20in%20trunk%3A%20.%20src&In-Reply-To=%3C200504302121.j3ULLnX2026075%40sheep.berlios.de%3E"
+       TITLE="[Darimasen-svn] r64 - in trunk: . src">darimasen-svn-admin at lists.berlios.de
+       </A><BR>
+    <I>Sat Apr 30 23:21:49 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000016.html">[Darimasen-svn] r63 - in trunk: pixmaps src
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#17">[ date ]</a>
+              <a href="thread.html#17">[ thread ]</a>
+              <a href="subject.html#17">[ subject ]</a>
+              <a href="author.html#17">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: sudrien
+Date: 2005-04-30 23:21:46 +0200 (Sat, 30 Apr 2005)
+New Revision: 64
+
+Removed:
+   trunk/acinclude.m4
+   trunk/src/prefix.c
+   trunk/src/prefix.h
+Modified:
+   trunk/configure.in
+   trunk/darimasen-0.0.8.ebuild
+   trunk/darimasen-svn-0.1.ebuild
+   trunk/src/Makefile.am
+   trunk/src/darimasen.cpp
+   trunk/src/iconmodes.cpp
+   trunk/src/main.h
+Log:
+binreloc removed, 3.3 fix
+
+Deleted: trunk/acinclude.m4
+===================================================================
+--- trunk/acinclude.m4	2005-04-27 05:37:08 UTC (rev 63)
++++ trunk/acinclude.m4	2005-04-30 21:21:46 UTC (rev 64)
+@@ -1,77 +0,0 @@
+-# Check for binary relocation support
+-# Hongli Lai
+-# <A HREF="http://autopackage.org/">http://autopackage.org/</A>
+-
+-AC_DEFUN([AM_BINRELOC],
+-[
+-	AC_ARG_ENABLE(binreloc,
+-		[  --enable-binreloc       compile with binary relocation support
+-                          (default=enable when available)],
+-		enable_binreloc=$enableval,enable_binreloc=auto)
+-
+-	AC_ARG_ENABLE(binreloc-threads,
+-		[  --enable-binreloc-threads      compile binary relocation with threads support
+-	                         (default=yes)],
+-		enable_binreloc_threads=$enableval,enable_binreloc_threads=yes)
+-
+-	BINRELOC_CFLAGS=
+-	BINRELOC_LIBS=
+-	if test &quot;x$enable_binreloc&quot; = &quot;xauto&quot;; then
+-		AC_CHECK_FILE([/proc/self/maps])
+-		AC_CACHE_CHECK([whether everything is installed to the same prefix],
+-			       [br_cv_valid_prefixes], [
+-				if test &quot;$bindir&quot; = '${exec_prefix}/bin' -a &quot;$sbindir&quot; = '${exec_prefix}/sbin' -a \
+-					&quot;$datadir&quot; = '${prefix}/share' -a &quot;$libdir&quot; = '${exec_prefix}/lib' -a \
+-					&quot;$libexecdir&quot; = '${exec_prefix}/libexec' -a &quot;$sysconfdir&quot; = '${prefix}/etc'
+-				then
+-					br_cv_valid_prefixes=yes
+-				else
+-					br_cv_valid_prefixes=no
+-				fi
+-				])
+-	fi
+-	AC_CACHE_CHECK([whether binary relocation support should be enabled],
+-		       [br_cv_binreloc],
+-		       [if test &quot;x$enable_binreloc&quot; = &quot;xyes&quot;; then
+-		       	       br_cv_binreloc=yes
+-		       elif test &quot;x$enable_binreloc&quot; = &quot;xauto&quot;; then
+-			       if test &quot;x$br_cv_valid_prefixes&quot; = &quot;xyes&quot; -a \
+-			       	       &quot;x$ac_cv_file__proc_self_maps&quot; = &quot;xyes&quot;; then
+-				       br_cv_binreloc=yes
+-			       else
+-				       br_cv_binreloc=no
+-			       fi
+-		       else
+-			       br_cv_binreloc=no
+-		       fi])
+-
+-	if test &quot;x$br_cv_binreloc&quot; = &quot;xyes&quot;; then
+-		BINRELOC_CFLAGS=&quot;-DENABLE_BINRELOC&quot;
+-		AC_DEFINE(ENABLE_BINRELOC,,[Use binary relocation?])
+-		if test &quot;x$enable_binreloc_threads&quot; = &quot;xyes&quot;; then
+-			AC_CHECK_LIB([pthread], [pthread_getspecific])
+-		fi
+-
+-		AC_CACHE_CHECK([whether binary relocation should use threads],
+-			       [br_cv_binreloc_threads],
+-			       [if test &quot;x$enable_binreloc_threads&quot; = &quot;xyes&quot;; then
+-					if test &quot;x$ac_cv_lib_pthread_pthread_getspecific&quot; = &quot;xyes&quot;; then
+-						br_cv_binreloc_threads=yes
+-					else
+-						br_cv_binreloc_threads=no
+-					fi
+-			        else
+-					br_cv_binreloc_threads=no
+-				fi])
+-
+-		if test &quot;x$br_cv_binreloc_threads&quot; = &quot;xyes&quot;; then
+-			BINRELOC_LIBS=&quot;-lpthread&quot;
+-			AC_DEFINE(BR_PTHREAD,1,[Include pthread support for binary relocation?])
+-		else
+-			BINRELOC_CFLAGS=&quot;$BINRELOC_CFLAGS -DBR_PTHREADS=0&quot;
+-			AC_DEFINE(BR_PTHREAD,0,[Include pthread support for binary relocation?])
+-		fi
+-	fi
+-	AC_SUBST(BINRELOC_CFLAGS)
+-	AC_SUBST(BINRELOC_LIBS)
+-])
+
+Modified: trunk/configure.in
+===================================================================
+--- trunk/configure.in	2005-04-27 05:37:08 UTC (rev 63)
++++ trunk/configure.in	2005-04-30 21:21:46 UTC (rev 64)
+@@ -13,7 +13,6 @@
+ AC_PROG_CXX
+ AC_PROG_CXXCPP
+ AM_PROG_LIBTOOL
+-AM_BINRELOC
+ 
+ AC_LANG_CPLUSPLUS
+ 
+
+Modified: trunk/darimasen-0.0.8.ebuild
+===================================================================
+--- trunk/darimasen-0.0.8.ebuild	2005-04-27 05:37:08 UTC (rev 63)
++++ trunk/darimasen-0.0.8.ebuild	2005-04-30 21:21:46 UTC (rev 64)
+@@ -23,7 +23,7 @@
+ 
+ src_compile() {
+ 
+-	./configure --prefix=/usr ${myconf} || die
++	econf || die
+ 	emake || die
+ }
+ 
+
+Modified: trunk/darimasen-svn-0.1.ebuild
+===================================================================
+--- trunk/darimasen-svn-0.1.ebuild	2005-04-27 05:37:08 UTC (rev 63)
++++ trunk/darimasen-svn-0.1.ebuild	2005-04-30 21:21:46 UTC (rev 64)
+@@ -99,7 +99,7 @@
+ src_compile() {
+ 	export WANT_AUTOCONF=2.5
+ 
+-	./configure --prefix=/usr ${myconf} || die
++	econf || die
+ 	emake || die
+ }
+ 
+
+Modified: trunk/src/Makefile.am
+===================================================================
+--- trunk/src/Makefile.am	2005-04-27 05:37:08 UTC (rev 63)
++++ trunk/src/Makefile.am	2005-04-30 21:21:46 UTC (rev 64)
+@@ -7,8 +7,7 @@
+ 	supplimental.cpp \
+         firsttime.cpp \
+ 	main.cpp \
+-	damenu.cpp \
+-        prefix.c
++	damenu.cpp 
+ 
+ noinst_HEADERS = \
+ 	darimasen.h \
+@@ -16,10 +15,8 @@
+ 	supplimental.h \
+         firsttime.h \
+ 	main.h \
+-	damenu.h \
+-        prefix.h
++	damenu.h 
+ 
++AM_CXXFLAGS = -I../.. @PKG_CFLAGS@
+ 
+-AM_CXXFLAGS = -I../.. @PKG_CFLAGS@ @BINRELOC_CFLAGS@
+-
+ darimasen_LDADD = -lpthread @LIBS@ @PKG_LIBS@ 
+
+Modified: trunk/src/darimasen.cpp
+===================================================================
+--- trunk/src/darimasen.cpp	2005-04-27 05:37:08 UTC (rev 63)
++++ trunk/src/darimasen.cpp	2005-04-30 21:21:46 UTC (rev 64)
+@@ -184,9 +184,14 @@
+   mode = 0;
+ 
+   try{
+-    set_icon_from_file( (Glib::ustring)DATADIR + (Glib::ustring)&quot;/icons/hicolor/48x48/apps/darimasen.png&quot;  );
+-  }
+-  catch(const Glib::Error) {/*non-existant file OR folder*/}
++    set_icon_from_file( &quot;/usr/share/icons/hicolor/48x48/apps/darimasen.png&quot;  );
++    }
++  catch(const Glib::Error) {
++    try{
++      set_icon_from_file( &quot;../pixmaps/48x48/darimasen.png&quot;  );
++      }
++    catch(const Glib::Error) {}
++    }
+   add(VerticalOrganizer);
+   VerticalOrganizer.show();
+ 
+@@ -336,8 +341,18 @@
+ /**********************/
+ 
+ Darimasen::aboutDa::aboutDa(){
+-  image1 = new class Gtk::Image(  Gdk::Pixbuf::create_from_file( 
+-    (Glib::ustring)DATADIR + (Glib::ustring)&quot;/pixmaps/darimasenInfo.svg&quot; ) );
++  try{
++    image1 = new class Gtk::Image(  Gdk::Pixbuf::create_from_file( 
++      &quot;/usr/share/pixmaps/darimasenInfo.svg&quot; ) );
++    }
++  catch(const Glib::Error) {
++    try{
++      set_icon_from_file( &quot;../pixmaps/darimasenInfo.svg&quot;  );
++      }
++  catch(const Glib::Error) {}
++    }
++
++
+   closer = new Gtk::EventBox;
+   closer-&gt;add(*image1);
+   closer-&gt;signal_button_press_event().connect(
+
+Modified: trunk/src/iconmodes.cpp
+===================================================================
+--- trunk/src/iconmodes.cpp	2005-04-27 05:37:08 UTC (rev 63)
++++ trunk/src/iconmodes.cpp	2005-04-30 21:21:46 UTC (rev 64)
+@@ -1,5 +1,5 @@
+-/* Darimasen - iconmodes.cpp - Copyright (C) 2004 - 2005 Sudrien, GPL */
+-
++/* Darimasen - iconmodes.cpp - Copyright (C) 2004 - 2005 Sudrien, GPL */
++
+ #include &quot;iconmodes.h&quot;
+ 
+ /**********************/
+@@ -232,7 +232,8 @@
+       Glib::ustring getPath,
+       const Glib::RefPtr&lt;const Gnome::Vfs::FileInfo&gt; getFile) {
+ 
+-  path = getPath;
+  parent = &getParent;
++  path = getPath;
++  parent = &getParent;
+ 
+   icon = parent-&gt;getIcon(getFile-&gt;get_mime_type());
+ 
+@@ -245,7 +246,7 @@
+       }
+     else {
+       ShortFileName = getFile-&gt;get_name().substr(0,22) + &quot;...&quot;;
+-      }
++      }
+     }
+   else {
+   ShortFileName = getFile-&gt;get_name();
+@@ -705,7 +706,7 @@
+ void DaIconModes::redraw(){
+   Gtk::Widget * tmp = get_child();
+   
+-  if (tmp)
++  if (tmp)
+     delete tmp; // actually DisposableTable, but segfaulted otherwise
+ 
+   Gtk::Table * DisposableTable = new Gtk::Table((filesAtPath)/IconsHigh+1,IconsHigh);
+@@ -717,13 +718,15 @@
+   for(int i = 0; i &lt; slotsUsed; i++){
+     if(  !iconlist[i]-&gt;hidden || parent-&gt;optShowHidden-&gt;get_active()){
+       switch(mode){
+-        case 0:
++        case 0: {
+           Sidecon * tmpSidecon = new Sidecon(*iconlist[i]);
+           DisposableTable-&gt;attach( *tmpSidecon, x_pos, x_pos+1, y_pos, y_pos+1,Gtk::FILL, Gtk::FILL, 4, 4);
++            }
+           break;
+-        case 1:
++        case 1: {
+           Listview * tmpListview = new Listview(*iconlist[i]);
+           DisposableTable-&gt;attach( *tmpListview, x_pos, x_pos+1, y_pos, y_pos+1,Gtk::FILL, Gtk::FILL, 4, 4);
++            }
+           break;
+         }
+ 
+@@ -739,7 +742,7 @@
+   DisposableTable-&gt;show();
+   DisposableTable-&gt;show_all_children();
+   }
+-
++
+ /**********************/
+ 
+ DaIconModes::DaIconModes(
+@@ -838,12 +841,8 @@
+ /**********************/
+ 
+ void DaIconModes::CopyDialogue::onOk(){
+-//  std::cout &lt;&lt; &quot;copying &quot; &lt;&lt; label-&gt;get_text()
+-//    &lt;&lt; &quot;\nto &quot; &lt;&lt; entry-&gt;get_text() &lt;&lt; &quot;\n\n&quot;;
++  Glib::spawn_command_line_async((Glib::ustring)&quot;cp \&quot;&quot;  + label-&gt;get_text().c_str() + (Glib::ustring)&quot;\&quot; \&quot;&quot; + entry-&gt;get_text().c_str()+ &quot;\&quot;&quot;);
+ 
+-//rename(label-&gt;get_text().c_str(), entry-&gt;get_text().c_str());
+-    Glib::spawn_command_line_async((Glib::ustring)&quot;cp \&quot;&quot;  + label-&gt;get_text().c_str() + (Glib::ustring)&quot;\&quot; \&quot;&quot; + entry-&gt;get_text().c_str()+ &quot;\&quot;&quot;);
+-
+   grandparent-&gt;updateView(
+     label-&gt;get_text().substr(0, label-&gt;get_text().rfind(slash,label-&gt;get_text().length())+1),
+     entry-&gt;get_text().substr(0, entry-&gt;get_text().rfind(slash,entry-&gt;get_text().length())+1));
+@@ -899,13 +898,8 @@
+ /**********************/
+ 
+ void DaIconModes::MoveDialogue::onOk(){
+-//  std::cout &lt;&lt; &quot;moveing &quot; &lt;&lt; label-&gt;get_text()
+-//    &lt;&lt; &quot;\nto &quot; &lt;&lt; entry-&gt;get_text() &lt;&lt; &quot;\n\n&quot;;
++  Glib::spawn_command_line_async((Glib::ustring)&quot;mv \&quot;&quot;  + label-&gt;get_text().c_str() + (Glib::ustring)&quot;\&quot; \&quot;&quot; + entry-&gt;get_text().c_str()+ &quot;\&quot;&quot;);
+ 
+- // rename(label-&gt;get_text().c_str(), entry-&gt;get_text().c_str());
+-
+-    Glib::spawn_command_line_async((Glib::ustring)&quot;mv \&quot;&quot;  + label-&gt;get_text().c_str() + (Glib::ustring)&quot;\&quot; \&quot;&quot; + entry-&gt;get_text().c_str()+ &quot;\&quot;&quot;);
+-
+   grandparent-&gt;updateView(
+     label-&gt;get_text().substr(0, label-&gt;get_text().rfind(slash,label-&gt;get_text().length())+1),
+     entry-&gt;get_text().substr(0, entry-&gt;get_text().rfind(slash,entry-&gt;get_text().length())+1));
+@@ -961,12 +955,8 @@
+ /**********************/
+ 
+ void DaIconModes::LinkDialogue::onOk(){
+-//  std::cout &lt;&lt; &quot;linking &quot; &lt;&lt; label-&gt;get_text()
+- //   &lt;&lt; &quot;\nto &quot; &lt;&lt; entry-&gt;get_text() &lt;&lt; &quot;\n\n&quot;;
++  Glib::spawn_command_line_async((Glib::ustring)&quot;ln -s \&quot;&quot;  + label-&gt;get_text().c_str() + (Glib::ustring)&quot;\&quot; \&quot;&quot; + entry-&gt;get_text().c_str() + &quot;\&quot;&quot;);
+ 
+-  //symlink(label-&gt;get_text().c_str(), entry-&gt;get_text().c_str());
+-    Glib::spawn_command_line_async((Glib::ustring)&quot;ln -s \&quot;&quot;  + label-&gt;get_text().c_str() + (Glib::ustring)&quot;\&quot; \&quot;&quot; + entry-&gt;get_text().c_str() + &quot;\&quot;&quot;);
+-
+   grandparent-&gt;updateView(
+     label-&gt;get_text().substr(0, label-&gt;get_text().rfind(slash,label-&gt;get_text().length())+1),
+     entry-&gt;get_text().substr(0, entry-&gt;get_text().rfind(slash,entry-&gt;get_text().length())+1));
+@@ -1017,9 +1007,6 @@
+ /**********************/
+ 
+ void DaIconModes::DeleteDialogue::onOk(){
+-//  std::cout &lt;&lt; &quot;delete &quot; &lt;&lt; label-&gt;get_text() &lt;&lt; &quot;\n\n&quot;;
+-
+- // unlink( label-&gt;get_text().c_str() );
+   Glib::spawn_command_line_async((Glib::ustring)&quot;rm \&quot;&quot;  + label-&gt;get_text().c_str() + &quot;\&quot;&quot;);
+ 
+   grandparent-&gt;updateView(
+
+Modified: trunk/src/main.h
+===================================================================
+--- trunk/src/main.h	2005-04-27 05:37:08 UTC (rev 63)
++++ trunk/src/main.h	2005-04-30 21:21:46 UTC (rev 64)
+@@ -10,7 +10,6 @@
+ #include &lt;libgnomevfsmm.h&gt;
+ #include &lt;vector&gt;
+ #include &quot;darimasen.h&quot;
+-#include &lt;prefix.h&gt;
+ 
+ /**********************/
+ 
+
+Deleted: trunk/src/prefix.c
+===================================================================
+--- trunk/src/prefix.c	2005-04-27 05:37:08 UTC (rev 63)
++++ trunk/src/prefix.c	2005-04-30 21:21:46 UTC (rev 64)
+@@ -1,482 +0,0 @@
+-/*
+- * BinReloc - a library for creating relocatable executables
+- * Written by: Mike Hearn &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/darimasen-svn">mike at theoretic.com</A>&gt;
+- *             Hongli Lai &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/darimasen-svn">h.lai at chello.nl</A>&gt;
+- * <A HREF="http://autopackage.org/">http://autopackage.org/</A>
+- * 
+- * This source code is public domain. You can relicense this code
+- * under whatever license you want.
+- *
+- * NOTE: if you're using C++ and are getting &quot;undefined reference
+- * to br_*&quot;, try renaming prefix.c to prefix.cpp
+- */
+-
+-/* WARNING, BEFORE YOU MODIFY PREFIX.C:
+- *
+- * If you make changes to any of the functions in prefix.c, you MUST
+- * change the BR_NAMESPACE macro (in prefix.h).
+- * This way you can avoid symbol table conflicts with other libraries
+- * that also happen to use BinReloc.
+- *
+- * Example:
+- * #define BR_NAMESPACE(funcName) foobar_ ## funcName
+- * --&gt; expands br_locate to foobar_br_locate
+- */
+-
+-#ifndef _PREFIX_C_
+-#define _PREFIX_C_
+-
+-#ifdef HAVE_CONFIG_H
+-	#include &quot;config.h&quot;
+-#endif
+-
+-#ifndef BR_PTHREADS
+-	/* Change 1 to 0 if you don't want pthread support */
+-	#define BR_PTHREADS 1
+-#endif /* BR_PTHREADS */
+-
+-#include &lt;stdlib.h&gt;
+-#include &lt;stdio.h&gt;
+-#include &lt;limits.h&gt;
+-#include &lt;string.h&gt;
+-#include &quot;prefix.h&quot;
+-
+-#ifdef __cplusplus
+-extern &quot;C&quot; {
+-#endif /* __cplusplus */
+-
+-
+-#undef NULL
+-#define NULL ((void *) 0)
+-
+-#ifdef __GNUC__
+-	#define br_return_val_if_fail(expr,val) if (!(expr)) {fprintf (stderr, &quot;** BinReloc (%s): assertion %s failed\n&quot;, __PRETTY_FUNCTION__, #expr); return val;}
+-#else
+-	#define br_return_val_if_fail(expr,val) if (!(expr)) return val
+-#endif /* __GNUC__ */
+-
+-
+-static br_locate_fallback_func fallback_func = NULL;
+-static void *fallback_data = NULL;
+-
+-
+-#ifdef ENABLE_BINRELOC
+-#include &lt;sys/types.h&gt;
+-#include &lt;sys/stat.h&gt;
+-#include &lt;sys/param.h&gt;
+-#include &lt;unistd.h&gt;
+-
+-
+-/**
+- * br_locate:
+- * symbol: A symbol that belongs to the app/library you want to locate.
+- * Returns: A newly allocated string containing the full path of the
+- *	    app/library that func belongs to, or NULL on error. This
+- *	    string should be freed when not when no longer needed.
+- *
+- * Finds out to which application or library symbol belongs, then locate
+- * the full path of that application or library.
+- * Note that symbol cannot be a pointer to a function. That will not work.
+- *
+- * Example:
+- * --&gt; main.c
+- * #include &quot;prefix.h&quot;
+- * #include &quot;libfoo.h&quot;
+- *
+- * int main (int argc, char *argv[]) {
+- *	printf (&quot;Full path of this app: %s\n&quot;, br_locate (&amp;argc));
+- *	libfoo_start ();
+- *	return 0;
+- * }
+- *
+- * --&gt; libfoo.c starts here
+- * #include &quot;prefix.h&quot;
+- *
+- * void libfoo_start () {
+- *	--&gt; &quot;&quot; is a symbol that belongs to libfoo (because it's called
+- *	--&gt; from libfoo_start()); that's why this works.
+- *	printf (&quot;libfoo is located in: %s\n&quot;, br_locate (&quot;&quot;));
+- * }
+- */
+-char *
+-br_locate (void *symbol)
+-{
+-	char line[5000];
+-	FILE *f;
+-	char *path;
+-
+-	br_return_val_if_fail (symbol != NULL, NULL);
+-
+-	f = fopen (&quot;/proc/self/maps&quot;, &quot;r&quot;);
+-	if (!f) {
+-		if (fallback_func)
+-			return fallback_func(symbol, fallback_data);
+-		else
+-			return NULL;
+-	}
+-
+-	while (!feof (f))
+-	{
+-		unsigned long start, end;
+-
+-		if (!fgets (line, sizeof (line), f))
+-			continue;
+-		if (!strstr (line, &quot; r-xp &quot;) || !strchr (line, '/'))
+-			continue;
+-
+-		sscanf (line, &quot;%lx-%lx &quot;, &amp;start, &amp;end);
+-		if (symbol &gt;= (void *) start &amp;&amp; symbol &lt; (void *) end)
+-		{
+-			char *tmp;
+-			size_t len;
+-
+-			/* Extract the filename; it is always an absolute path */
+-			path = strchr (line, '/');
+-
+-			/* Get rid of the newline */
+-			tmp = strrchr (path, '\n');
+-			if (tmp) *tmp = 0;
+-
+-			/* Get rid of &quot;(deleted)&quot; */
+-			len = strlen (path);
+-			if (len &gt; 10 &amp;&amp; strcmp (path + len - 10, &quot; (deleted)&quot;) == 0)
+-			{
+-				tmp = path + len - 10;
+-				*tmp = 0;
+-			}
+-
+-			fclose(f);
+-			return strdup (path);
+-		}
+-	}
+-
+-	fclose (f);
+-	return NULL;
+-}
+-
+-
+-/**
+- * br_locate_prefix:
+- * symbol: A symbol that belongs to the app/library you want to locate.
+- * Returns: A prefix. This string should be freed when no longer needed.
+- *
+- * Locates the full path of the app/library that symbol belongs to, and return
+- * the prefix of that path, or NULL on error.
+- * Note that symbol cannot be a pointer to a function. That will not work.
+- *
+- * Example:
+- * --&gt; This application is located in /usr/bin/foo
+- * br_locate_prefix (&amp;argc);   --&gt; returns: &quot;/usr&quot;
+- */
+-char *
+-br_locate_prefix (void *symbol)
+-{
+-	char *path, *prefix;
+-
+-	br_return_val_if_fail (symbol != NULL, NULL);
+-
+-	path = br_locate (symbol);
+-	if (!path) return NULL;
+-
+-	prefix = br_extract_prefix (path);
+-	free (path);
+-	return prefix;
+-}
+-
+-
+-/**
+- * br_prepend_prefix:
+- * symbol: A symbol that belongs to the app/library you want to locate.
+- * path: The path that you want to prepend the prefix to.
+- * Returns: The new path, or NULL on error. This string should be freed when no
+- *	    longer needed.
+- *
+- * Gets the prefix of the app/library that symbol belongs to. Prepend that prefix to path.
+- * Note that symbol cannot be a pointer to a function. That will not work.
+- *
+- * Example:
+- * --&gt; The application is /usr/bin/foo
+- * br_prepend_prefix (&amp;argc, &quot;/share/foo/data.png&quot;);   --&gt; Returns &quot;/usr/share/foo/data.png&quot;
+- */
+-char *
+-br_prepend_prefix (void *symbol, char *path)
+-{
+-	char *tmp, *newpath;
+-
+-	br_return_val_if_fail (symbol != NULL, NULL);
+-	br_return_val_if_fail (path != NULL, NULL);
+-
+-	tmp = br_locate_prefix (symbol);
+-	if (!tmp) return NULL;
+-
+-	if (strcmp (tmp, &quot;/&quot;) == 0)
+-		newpath = strdup (path);
+-	else
+-		newpath = br_strcat (tmp, path);
+-
+-	/* Get rid of compiler warning (&quot;br_prepend_prefix never used&quot;) */
+-	if (0) br_prepend_prefix (NULL, NULL);
+-
+-	free (tmp);
+-	return newpath;
+-}
+-
+-#endif /* ENABLE_BINRELOC */
+-
+-
+-/* Pthread stuff for thread safetiness */
+-#if BR_PTHREADS &amp;&amp; defined(ENABLE_BINRELOC)
+-
+-#include &lt;pthread.h&gt;
+-
+-static pthread_key_t br_thread_key;
+-static pthread_once_t br_thread_key_once = PTHREAD_ONCE_INIT;
+-
+-
+-static void
+-br_thread_local_store_fini ()
+-{
+-	char *specific;
+-
+-	specific = (char *) pthread_getspecific (br_thread_key);
+-	if (specific)
+-	{
+-		free (specific);
+-		pthread_setspecific (br_thread_key, NULL);
+-	}
+-	pthread_key_delete (br_thread_key);
+-	br_thread_key = 0;
+-}
+-
+-
+-static void
+-br_str_free (void *str)
+-{
+-	if (str)
+-		free (str);
+-}
+-
+-
+-static void
+-br_thread_local_store_init ()
+-{
+-	if (pthread_key_create (&amp;br_thread_key, br_str_free) == 0)
+-		atexit (br_thread_local_store_fini);
+-}
+-
+-#else /* BR_PTHREADS */
+-#ifdef ENABLE_BINRELOC
+-
+-static char *br_last_value = (char *) NULL;
+-
+-static void
+-br_free_last_value ()
+-{
+-	if (br_last_value)
+-		free (br_last_value);
+-}
+-
+-#endif /* ENABLE_BINRELOC */
+-#endif /* BR_PTHREADS */
+-
+-
+-#ifdef ENABLE_BINRELOC
+-
+-/**
+- * br_thread_local_store:
+- * str: A dynamically allocated string.
+- * Returns: str. This return value must not be freed.
+- *
+- * Store str in a thread-local variable and return str. The next
+- * you run this function, that variable is freed too.
+- * This function is created so you don't have to worry about freeing
+- * strings. Just be careful about doing this sort of thing:
+- *
+- * some_function( BR_DATADIR(&quot;/one.png&quot;), BR_DATADIR(&quot;/two.png&quot;) )
+- *
+- * Examples:
+- * char *foo;
+- * foo = br_thread_local_store (strdup (&quot;hello&quot;)); --&gt; foo == &quot;hello&quot;
+- * foo = br_thread_local_store (strdup (&quot;world&quot;)); --&gt; foo == &quot;world&quot;; &quot;hello&quot; is now freed.
+- */
+-const char *
+-br_thread_local_store (char *str)
+-{
+-	#if BR_PTHREADS
+-		char *specific;
+-
+-		pthread_once (&amp;br_thread_key_once, br_thread_local_store_init);
+-
+-		specific = (char *) pthread_getspecific (br_thread_key);
+-		br_str_free (specific);
+-		pthread_setspecific (br_thread_key, str);
+-
+-	#else /* BR_PTHREADS */
+-		static int initialized = 0;
+-
+-		if (!initialized)
+-		{
+-			atexit (br_free_last_value);
+-			initialized = 1;
+-		}
+-
+-		if (br_last_value)
+-			free (br_last_value);
+-		br_last_value = str;
+-	#endif /* BR_PTHREADS */
+-
+-	return (const char *) str;
+-}
+-
+-#endif /* ENABLE_BINRELOC */
+-
+-
+-/**
+- * br_strcat:
+- * str1: A string.
+- * str2: Another string.
+- * Returns: A newly-allocated string. This string should be freed when no longer needed.
+- *
+- * Concatenate str1 and str2 to a newly allocated string.
+- */
+-char *
+-br_strcat (const char *str1, const char *str2)
+-{
+-	char *result;
+-	size_t len1, len2;
+-
+-	if (!str1) str1 = &quot;&quot;;
+-	if (!str2) str2 = &quot;&quot;;
+-
+-	len1 = strlen (str1);
+-	len2 = strlen (str2);
+-
+-	result = (char *) malloc (len1 + len2 + 1);
+-	memcpy (result, str1, len1);
+-	memcpy (result + len1, str2, len2);
+-	result[len1 + len2] = '\0';
+-
+-	return result;
+-}
+-
+-
+-/* Emulates glibc's strndup() */
+-static char *
+-br_strndup (char *str, size_t size)
+-{
+-	char *result = (char *) NULL;
+-	size_t len;
+-
+-	br_return_val_if_fail (str != (char *) NULL, (char *) NULL);
+-
+-	len = strlen (str);
+-	if (!len) return strdup (&quot;&quot;);
+-	if (size &gt; len) size = len;
+-
+-	result = (char *) calloc (sizeof (char), len + 1);
+-	memcpy (result, str, size);
+-	return result;
+-}
+-
+-
+-/**
+- * br_extract_dir:
+- * path: A path.
+- * Returns: A directory name. This string should be freed when no longer needed.
+- *
+- * Extracts the directory component of path. Similar to g_dirname() or the dirname
+- * commandline application.
+- *
+- * Example:
+- * br_extract_dir (&quot;/usr/local/foobar&quot;);  --&gt; Returns: &quot;/usr/local&quot;
+- */
+-char *
+-br_extract_dir (const char *path)
+-{
+-	char *end, *result;
+-
+-	br_return_val_if_fail (path != (char *) NULL, (char *) NULL);
+-
+-	end = strrchr (path, '/');
+-	if (!end) return strdup (&quot;.&quot;);
+-
+-	while (end &gt; path &amp;&amp; *end == '/')
+-		end--;
+-	result = br_strndup ((char *) path, end - path + 1);
+-	if (!*result)
+-	{
+-		free (result);
+-		return strdup (&quot;/&quot;);
+-	} else
+-		return result;
+-}
+-
+-
+-/**
+- * br_extract_prefix:
+- * path: The full path of an executable or library.
+- * Returns: The prefix, or NULL on error. This string should be freed when no longer needed.
+- *
+- * Extracts the prefix from path. This function assumes that your executable
+- * or library is installed in an LSB-compatible directory structure.
+- *
+- * Example:
+- * br_extract_prefix (&quot;/usr/bin/gnome-panel&quot;);       --&gt; Returns &quot;/usr&quot;
+- * br_extract_prefix (&quot;/usr/local/lib/libfoo.so&quot;);   --&gt; Returns &quot;/usr/local&quot;
+- * br_extract_prefix (&quot;/usr/local/libfoo.so&quot;);       --&gt; Returns &quot;/usr&quot;
+- */
+-char *
+-br_extract_prefix (const char *path)
+-{
+-	char *end, *tmp, *result;
+-
+-	br_return_val_if_fail (path != (char *) NULL, (char *) NULL);
+-
+-	if (!*path) return strdup (&quot;/&quot;);
+-	end = strrchr (path, '/');
+-	if (!end) return strdup (path);
+-
+-	tmp = br_strndup ((char *) path, end - path);
+-	if (!*tmp)
+-	{
+-		free (tmp);
+-		return strdup (&quot;/&quot;);
+-	}
+-	end = strrchr (tmp, '/');
+-	if (!end) return tmp;
+-
+-	result = br_strndup (tmp, end - tmp);
+-	free (tmp);
+-
+-	if (!*result)
+-	{
+-		free (result);
+-		result = strdup (&quot;/&quot;);
+-	}
+-
+-	return result;
+-}
+-
+-
+-/**
+- * br_set_fallback_function:
+- * func: A function to call to find the binary.
+- * data: User data to pass to func.
+- *
+- * Sets a function to call to find the path to the binary, in
+- * case &quot;/proc/self/maps&quot; can't be opened. The function set should
+- * return a string that is safe to free with free().
+- */
+-void
+-br_set_locate_fallback_func (br_locate_fallback_func func, void *data)
+-{
+-	fallback_func = func;
+-	fallback_data = data;
+-}
+-
+-
+-#ifdef __cplusplus
+-}
+-#endif /* __cplusplus */
+-
+-#endif /* _PREFIX_C */
+
+Deleted: trunk/src/prefix.h
+===================================================================
+--- trunk/src/prefix.h	2005-04-27 05:37:08 UTC (rev 63)
++++ trunk/src/prefix.h	2005-04-30 21:21:46 UTC (rev 64)
+@@ -1,139 +0,0 @@
+-/*
+- * BinReloc - a library for creating relocatable executables
+- * Written by: Mike Hearn &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/darimasen-svn">mike at theoretic.com</A>&gt;
+- *             Hongli Lai &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/darimasen-svn">h.lai at chello.nl</A>&gt;
+- * <A HREF="http://autopackage.org/">http://autopackage.org/</A>
+- *
+- * This source code is public domain. You can relicense this code
+- * under whatever license you want.
+- *
+- * See <A HREF="http://autopackage.org/docs/binreloc/">http://autopackage.org/docs/binreloc/</A> for
+- * more information and how to use this.
+- *
+- * NOTE: if you're using C++ and are getting &quot;undefined reference
+- * to br_*&quot;, try renaming prefix.c to prefix.cpp
+- */
+-
+-#ifndef _PREFIX_H_
+-#define _PREFIX_H_
+-
+-#ifdef __cplusplus
+-extern &quot;C&quot; {
+-#endif /* __cplusplus */
+-
+-/* WARNING, BEFORE YOU MODIFY PREFIX.C:
+- *
+- * If you make changes to any of the functions in prefix.c, you MUST
+- * change the BR_NAMESPACE macro.
+- * This way you can avoid symbol table conflicts with other libraries
+- * that also happen to use BinReloc.
+- *
+- * Example:
+- * #define BR_NAMESPACE(funcName) foobar_ ## funcName
+- * --&gt; expands br_locate to foobar_br_locate
+- */
+-#undef BR_NAMESPACE
+-#define BR_NAMESPACE(funcName) funcName
+-
+-
+-#ifdef ENABLE_BINRELOC
+-
+-#define br_thread_local_store BR_NAMESPACE(br_thread_local_store)
+-#define br_locate BR_NAMESPACE(br_locate)
+-#define br_locate_prefix BR_NAMESPACE(br_locate_prefix)
+-#define br_prepend_prefix BR_NAMESPACE(br_prepend_prefix)
+-
+-#ifndef BR_NO_MACROS
+-	/* These are convience macros that replace the ones usually used
+-	   in Autoconf/Automake projects */
+-	#undef SELFPATH
+-	#undef PREFIX
+-	#undef PREFIXDIR
+-	#undef BINDIR
+-	#undef SBINDIR
+-	#undef DATADIR
+-	#undef LIBDIR
+-	#undef LIBEXECDIR
+-	#undef ETCDIR
+-	#undef SYSCONFDIR
+-	#undef CONFDIR
+-	#undef LOCALEDIR
+-
+-	#define SELFPATH	(br_thread_local_store (br_locate ((void *) &quot;&quot;)))
+-	#define PREFIX		(br_thread_local_store (br_locate_prefix ((void *) &quot;&quot;)))
+-	#define PREFIXDIR	(br_thread_local_store (br_locate_prefix ((void *) &quot;&quot;)))
+-	#define BINDIR		(br_thread_local_store (br_prepend_prefix ((void *) &quot;&quot;, &quot;/bin&quot;)))
+-	#define SBINDIR		(br_thread_local_store (br_prepend_prefix ((void *) &quot;&quot;, &quot;/sbin&quot;)))
+-	#define DATADIR		(br_thread_local_store (br_prepend_prefix ((void *) &quot;&quot;, &quot;/share&quot;)))
+-	#define LIBDIR		(br_thread_local_store (br_prepend_prefix ((void *) &quot;&quot;, &quot;/lib&quot;)))
+-	#define LIBEXECDIR	(br_thread_local_store (br_prepend_prefix ((void *) &quot;&quot;, &quot;/libexec&quot;)))
+-	#define ETCDIR		(br_thread_local_store (br_prepend_prefix ((void *) &quot;&quot;, &quot;/etc&quot;)))
+-	#define SYSCONFDIR	(br_thread_local_store (br_prepend_prefix ((void *) &quot;&quot;, &quot;/etc&quot;)))
+-	#define CONFDIR		(br_thread_local_store (br_prepend_prefix ((void *) &quot;&quot;, &quot;/etc&quot;)))
+-	#define LOCALEDIR	(br_thread_local_store (br_prepend_prefix ((void *) &quot;&quot;, &quot;/share/locale&quot;)))
+-#endif /* BR_NO_MACROS */
+-
+-
+-/* The following functions are used internally by BinReloc
+-   and shouldn't be used directly in applications. */
+-
+-char *br_locate		(void *symbol);
+-char *br_locate_prefix	(void *symbol);
+-char *br_prepend_prefix	(void *symbol, char *path);
+-
+-#endif /* ENABLE_BINRELOC */
+-
+-const char *br_thread_local_store (char *str);
+-
+-
+-/* These macros and functions are not guarded by the ENABLE_BINRELOC
+- * macro because they are portable. You can use these functions.
+- */
+-
+-#define br_strcat BR_NAMESPACE(br_strcat)
+-#define br_extract_dir BR_NAMESPACE(br_extract_dir)
+-#define br_extract_prefix BR_NAMESPACE(br_extract_prefix)
+-#define br_set_locate_fallback_func BR_NAMESPACE(br_set_locate_fallback_func)
+-
+-#ifndef BR_NO_MACROS
+-  #ifndef ENABLE_BINRELOC        
+-	#define BR_SELFPATH(suffix)	SELFPATH suffix
+-	#define BR_PREFIX(suffix)	PREFIX suffix
+-	#define BR_PREFIXDIR(suffix)	BR_PREFIX suffix
+-	#define BR_BINDIR(suffix)	BINDIR suffix
+-	#define BR_SBINDIR(suffix)	SBINDIR suffix
+-	#define BR_DATADIR(suffix)	DATADIR suffix
+-	#define BR_LIBDIR(suffix)	LIBDIR suffix
+-	#define BR_LIBEXECDIR(suffix)	LIBEXECDIR suffix
+-	#define BR_ETCDIR(suffix)	ETCDIR suffix
+-	#define BR_SYSCONFDIR(suffix)	SYSCONFDIR suffix
+-	#define BR_CONFDIR(suffix)	CONFDIR suffix
+-	#define BR_LOCALEDIR(suffix)	LOCALEDIR suffix
+-  #else
+-	#define BR_SELFPATH(suffix)	(br_thread_local_store (br_strcat (SELFPATH, suffix)))
+-	#define BR_PREFIX(suffix)	(br_thread_local_store (br_strcat (PREFIX, suffix)))
+-	#define BR_PREFIXDIR(suffix)	(br_thread_local_store (br_strcat (BR_PREFIX, suffix)))
+-	#define BR_BINDIR(suffix)	(br_thread_local_store (br_strcat (BINDIR, suffix)))
+-	#define BR_SBINDIR(suffix)	(br_thread_local_store (br_strcat (SBINDIR, suffix)))
+-	#define BR_DATADIR(suffix)	(br_thread_local_store (br_strcat (DATADIR, suffix)))
+-	#define BR_LIBDIR(suffix)	(br_thread_local_store (br_strcat (LIBDIR, suffix)))
+-	#define BR_LIBEXECDIR(suffix)	(br_thread_local_store (br_strcat (LIBEXECDIR, suffix)))
+-	#define BR_ETCDIR(suffix)	(br_thread_local_store (br_strcat (ETCDIR, suffix)))
+-	#define BR_SYSCONFDIR(suffix)	(br_thread_local_store (br_strcat (SYSCONFDIR, suffix)))
+-	#define BR_CONFDIR(suffix)	(br_thread_local_store (br_strcat (CONFDIR, suffix)))
+-	#define BR_LOCALEDIR(suffix)	(br_thread_local_store (br_strcat (LOCALEDIR, suffix)))        
+-  #endif
+-#endif
+-
+-char *br_strcat	(const char *str1, const char *str2);
+-char *br_extract_dir	(const char *path);
+-char *br_extract_prefix(const char *path);
+-typedef char *(*br_locate_fallback_func) (void *symbol, void *data);
+-void br_set_locate_fallback_func (br_locate_fallback_func func, void *data);
+-
+-
+-#ifdef __cplusplus
+-}
+-#endif /* __cplusplus */
+-
+-#endif /* _PREFIX_H_ */
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000016.html">[Darimasen-svn] r63 - in trunk: pixmaps src
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#17">[ date ]</a>
+              <a href="thread.html#17">[ thread ]</a>
+              <a href="subject.html#17">[ subject ]</a>
+              <a href="author.html#17">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/darimasen-svn">More information about the Darimasen-svn
+mailing list</a><br>
+</body></html>

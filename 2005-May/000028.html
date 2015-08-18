@@ -1,0 +1,396 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Darimasen-svn] r79 - trunk/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/darimasen-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:darimasen-svn%40lists.berlios.de?Subject=Re%3A%20%5BDarimasen-svn%5D%20r79%20-%20trunk/src&In-Reply-To=%3C200505271318.j4RDIXvX030106%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000027.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Darimasen-svn] r79 - trunk/src</H1>
+    <B>darimasen-svn-admin at lists.berlios.de</B> 
+    <A HREF="mailto:darimasen-svn%40lists.berlios.de?Subject=Re%3A%20%5BDarimasen-svn%5D%20r79%20-%20trunk/src&In-Reply-To=%3C200505271318.j4RDIXvX030106%40sheep.berlios.de%3E"
+       TITLE="[Darimasen-svn] r79 - trunk/src">darimasen-svn-admin at lists.berlios.de
+       </A><BR>
+    <I>Fri May 27 15:18:33 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000027.html">[Darimasen-svn] r78 - trunk/src
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#28">[ date ]</a>
+              <a href="thread.html#28">[ thread ]</a>
+              <a href="subject.html#28">[ subject ]</a>
+              <a href="author.html#28">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: sudrien
+Date: 2005-05-27 15:18:32 +0200 (Fri, 27 May 2005)
+New Revision: 79
+
+Modified:
+   trunk/src/directory.cpp
+   trunk/src/directory.h
+   trunk/src/icon.cpp
+   trunk/src/icon.h
+   trunk/src/tabs.cpp
+Log:
+listview implementation
+
+Modified: trunk/src/directory.cpp
+===================================================================
+--- trunk/src/directory.cpp	2005-05-25 02:34:38 UTC (rev 78)
++++ trunk/src/directory.cpp	2005-05-27 13:18:32 UTC (rev 79)
+@@ -2,16 +2,145 @@
+ 
+ #include &quot;directory.h&quot;
+ 
+-directory::directory(){
+-modify_bg(Gtk::STATE_NORMAL, Gdk::Color(&quot;#ffffff&quot;));
+-show();
++directory::directory(class tabs &amp; ancestor, gint pos){
++
++  modify_bg(Gtk::STATE_NORMAL, Gdk::Color(&quot;#ffffff&quot;));
++
++  parent = &ancestor;
++position = pos;
++  // prepare the listing
++  add(scroller);
++  scroller.add(tree_view);
++  tree_model = Gtk::ListStore::create(icon_list);
++  tree_view.set_model(tree_model);
++  tree_view.append_column(&quot;Icon&quot;, icon_list.icon_pixmap); 
++  tree_view.append_column(&quot;File Name&quot;, icon_list.file_name);
++
++
++
++  //get the stuff for this directory
++  try { // make all those files into proto_icons
++    Gnome::Vfs::DirectoryHandle::visit(
++      parent-&gt;get_history(position),
++      Gnome::Vfs::FILE_INFO_GET_MIME_TYPE |
++      Gnome::Vfs::FILE_INFO_FOLLOW_LINKS ,
++      Gnome::Vfs::DIRECTORY_VISIT_LOOPCHECK,
++      sigc::mem_fun(*this,&amp;directory::add_file));
++    }
++  catch(const Gnome::Vfs::exception&amp; ex){}
++  
++  
++ // tree_model-&gt;set_sort_column(1,Gtk::SORT_ASCENDING);
++
++  tree_model-&gt;set_sort_func(1,
++
++      sigc::mem_fun(*this, &amp;directory::sort_list_func));
++
++
++  show();
+ }
+ 
++bool directory::add_file(    Glib::ustring rel_path,
++    Glib::RefPtr&lt;const Gnome::Vfs::FileInfo&gt; file,
++    bool recursing_will_loop,
++    bool recurse){
+ 
+ 
++/*
+ 
++  if (file-&gt;get_type() != Gnome::Vfs::FILE_TYPE_DIRECTORY){
++
++  Gtk::TreeModel::Row row = *(tree_model-&gt;append());
++std::cout &lt;&lt; file-&gt;get_mime_type() &lt;&lt; &quot;\n&quot;;
++
++Glib::ustring n = file-&gt;get_mime_type();
++parent-&gt;get_icon(n.c_str());
++  //row[icon_list.icon_pixmap] = parent-&gt;get_icon(file-&gt;get_mime_type());
++
++
++  row[icon_list.file_name] = file-&gt;get_name();
++
++
++
++
++    }
++  else {
++    Glib::RefPtr&lt;Gnome::Vfs::Uri&gt; x = Gnome::Vfs::Uri::create(
++      parent-&gt;get_history(position) + file-&gt;get_name() + &quot;/.DirIcon&quot;);
++      if (x-&gt;uri_exists()){
++
++  Gtk::TreeModel::Row row = *(tree_model-&gt;append());
++//std::cout &lt;&lt; file-&gt;get_mime_type() &lt;&lt; &quot;\n&quot;;
++
++//Glib::ustring n = file-&gt;get_mime_type();
++//parent-&gt;get_icon(n.c_str());
++  //row[icon_list.icon_pixmap] = parent-&gt;get_icon(file-&gt;get_mime_type());
++
++
++  row[icon_list.file_name] = file-&gt;get_name();
++
++
++        }
++    }
++
++*/
++
++  if (file-&gt;get_type() != Gnome::Vfs::FILE_TYPE_DIRECTORY ||
++      Gnome::Vfs::Uri::create(rel_path + file-&gt;get_name() + &quot;/.DirIcon&quot;)-&gt;uri_exists()){
++    //file_list.push_back(*file);
++    //std::cout &lt;&lt; file_list.back()-&gt;get_name() &lt;&lt; &quot;\n&quot;;
++  Gtk::TreeModel::Row row = *(tree_model-&gt;append());
++    row[icon_list.file_name] = file-&gt;get_name();
++    }
++
++  return true;
++  }
++
++
+ directory::~directory(){}
+ 
++/*
++void directory::render(){
+ 
++  Gtk::TreeModel::Row row = *(tree_model-&gt;append());
++  for(int i=0; i &lt; file_list.size(); i++){
++    std::cout &lt;&lt; file_list[i]-&gt;get_name() &lt;&lt; &quot;\n&quot;;
++    row[icon_list.file_name] = file_list[i]-&gt;get_name();
++    row = *(tree_model-&gt;append());
++    }
+ 
+ 
++  }
++*/
++
++
++
++int directory::sort_list_func(const Gtk::TreeModel::iterator&amp; A, const Gtk::TreeModel::iterator&amp; B){
++  
++Glib::ustring n = (*A)-&gt;get_value(icon_list.file_name);
++Glib::ustring b = (*A)-&gt;get_value(icon_list.file_name);
++//std::cout &lt;&lt; n &lt;&lt;&quot;\n&quot;;
++//Gtk::TreeModel::Row row = *(A);
++//Gtk::TreeModel::Row row2 = *(B);
++
++
++//std::cout &lt;&lt;  row[icon_list.file_name] &lt;&lt; &quot; &quot; &lt;&lt; row2[icon_list.file_name] &lt;&lt; &quot;\n&quot;;
++
++  if(n.substr(0,1) == &quot;.&quot; &amp;&amp; b.substr(0,1) != &quot;.&quot;)
++    return -1;
++
++  if(n.substr(0,1) != &quot;.&quot; &amp;&amp; b.substr(0,1) == &quot;.&quot;)
++    return 1;
++
++
++  if(n &gt; b){
++
++    return -1;
++
++    }
++
++  if(n &lt; b)
++    return 1;
++
++return 0;
++}
+
+Modified: trunk/src/directory.h
+===================================================================
+--- trunk/src/directory.h	2005-05-25 02:34:38 UTC (rev 78)
++++ trunk/src/directory.h	2005-05-27 13:18:32 UTC (rev 79)
+@@ -5,13 +5,35 @@
+ 
+ #include &lt;gtkmm.h&gt;
+ #include &lt;vector&gt;
++#include &quot;icon.h&quot;
++#include &quot;tabs.h&quot;
++#include &lt;iostream&gt;
+ 
+ class directory : public Gtk::EventBox {
+   public:
+-    directory();
++    directory(class tabs&amp;, gint);
+     ~directory();
+ 
+-};
++  private:
+ 
++  class tabs * parent;
++  gint position;
+ 
++  class icon icon_list;
++  Gtk::ScrolledWindow scroller;
++
++  Gtk::TreeView tree_view;
++  Glib::RefPtr&lt; Gtk::ListStore &gt; tree_model;
++
++  
++  std::vector&lt; Glib::RefPtr&lt;const Gnome::Vfs::FileInfo &gt; &gt; file_list;
++
++
++  bool add_file(Glib::ustring,Glib::RefPtr&lt;const Gnome::Vfs::FileInfo&gt;, bool, bool);
++  int sort_list_func(const Gtk::TreeModel::iterator&amp;, const Gtk::TreeModel::iterator&amp;);
++
++//  void render();
++  };
++
++
+ #endif
+
+Modified: trunk/src/icon.cpp
+===================================================================
+--- trunk/src/icon.cpp	2005-05-25 02:34:38 UTC (rev 78)
++++ trunk/src/icon.cpp	2005-05-27 13:18:32 UTC (rev 79)
+@@ -13,7 +13,7 @@
+   icon(parent, result);
+   }
+ 
+-/* ~_~; */
++/* ~_~; 
+ 
+ icon::icon(
+     const class directory&amp; dir,
+@@ -21,10 +21,22 @@
+ 
+   parent = &dir;
+   file_info = file;
++
++
++
++
+   }
+ 
+ /* ~_~; */
+ 
++icon::icon(){
++    add(icon_pixmap);
++    //add(file_info);
++    add(file_name);
++  }
++
++/* ~_~; */
++
+ icon::~icon(){}
+ 
+ /* ~_~; */
+
+Modified: trunk/src/icon.h
+===================================================================
+--- trunk/src/icon.h	2005-05-25 02:34:38 UTC (rev 78)
++++ trunk/src/icon.h	2005-05-27 13:18:32 UTC (rev 79)
+@@ -10,10 +10,11 @@
+ 
+ /* ~_~; */
+ 
+-class icon{
++class icon : public Gtk::TreeModel::ColumnRecord{
+   public:
+     //icon(const class directory&amp;, const Glib::ustring&amp;);
+-    icon(const class directory&amp;, Glib::RefPtr&lt;const Gnome::Vfs::FileInfo&gt;);
++    //icon(const class directory&amp;, Glib::RefPtr&lt;const Gnome::Vfs::FileInfo&gt;);
++    icon();
+     ~icon();
+     
+     gint run() const;
+@@ -31,11 +32,18 @@
+     gint set_permissions() const;
+ 
+ 
++    Gtk::TreeModelColumn&lt; Glib::RefPtr&lt;Gdk::Pixbuf&gt; &gt; icon_pixmap;
++    //Gtk::TreeModelColumn&lt; Glib::RefPtr&lt;Gnome::Vfs::FileInfo&gt; &gt; file_info;
++    Gtk::TreeModelColumn&lt; Glib::ustring &gt; file_name;
++
+   private:  
+ 
+-    Glib::RefPtr&lt;const Gnome::Vfs::FileInfo&gt; file_info;
+-    const class directory * parent;
++    //Glib::RefPtr&lt;const Gnome::Vfs::FileInfo&gt; file_info;
++    //const class directory * parent;
+ 
++
++    
++
+   };
+ 
+ #endif
+
+Modified: trunk/src/tabs.cpp
+===================================================================
+--- trunk/src/tabs.cpp	2005-05-25 02:34:38 UTC (rev 78)
++++ trunk/src/tabs.cpp	2005-05-27 13:18:32 UTC (rev 79)
+@@ -102,8 +102,8 @@
+ 
+  // MainEventBox-&gt;modify_bg(Gtk::STATE_NORMAL, Gdk::Color(&quot;#ffffff&quot;));
+ 
+-  //directory * dir = Gtk::manage(new class directory(*this,pos))
+-  directory * dir = Gtk::manage(new class directory());
++  directory * dir = Gtk::manage(new class directory(*this,pos));
++  //directory * dir = Gtk::manage(new class directory());
+   insert_page( *dir, *arrangement, pos);
+ 
+ 
+@@ -122,25 +122,26 @@
+     }
+    // pic doesn't exist.
+ 
+-    Glib::ustring ico;
++    Glib::ustring ico = &quot;/usr/share/icons/gnome/48x48/mimetypes/gnome-mime-&quot;;
++Glib::ustring t;
+   try{
+-    ico = &quot;/usr/share/icons/gnome/48x48/mimetypes/gnome-mime-&quot;;
+-    ico += mime.replace(mime.find(&quot;/&quot;), 1, &quot;-&quot;);
+-    ico += &quot;.png&quot;;
++    t = mime.replace(mime.find(&quot;/&quot;), 1, &quot;-&quot;);
++    t += &quot;.png&quot;;
+ 
+     Glib::file_get_contents(ico);
+     }
+   catch(const Glib::Error) {
+     try{
+-      ico = &quot;/usr/share/icons/gnome/48x48/mimetypes/gnome-mime-&quot;;
+-      ico += mime.substr(0,mime.find(&quot;-&quot;));
+-      ico += &quot;.png&quot;;
++      t = mime.substr(0,mime.find(&quot;-&quot;));
++      t += &quot;.png&quot;;
+       Glib::file_get_contents(ico);
+       }
+     catch(const Glib::Error) {
+      ico = &quot;/usr/share/icons/gnome/48x48/filesystems/gnome-fs-loading-icon.png&quot;;
++     t = &quot;&quot;;
+      }
+     }
++ico += t;
+ 
+   mimeList.push_back(mime);
+   Glib::RefPtr&lt;Gdk::Pixbuf&gt; xe = Gdk::Pixbuf::create_from_file(ico);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000027.html">[Darimasen-svn] r78 - trunk/src
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#28">[ date ]</a>
+              <a href="thread.html#28">[ thread ]</a>
+              <a href="subject.html#28">[ subject ]</a>
+              <a href="author.html#28">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/darimasen-svn">More information about the Darimasen-svn
+mailing list</a><br>
+</body></html>

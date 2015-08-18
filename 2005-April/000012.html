@@ -1,0 +1,547 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Darimasen-svn] r59 - in trunk: . src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/darimasen-svn/2005-April/index.html" >
+   <LINK REL="made" HREF="mailto:darimasen-svn%40lists.berlios.de?Subject=Re%3A%20%5BDarimasen-svn%5D%20r59%20-%20in%20trunk%3A%20.%20src&In-Reply-To=%3C200504220500.j3M50Yh2028280%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000011.html">
+   <LINK REL="Next"  HREF="000013.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Darimasen-svn] r59 - in trunk: . src</H1>
+    <B>darimasen-svn-admin at lists.berlios.de</B> 
+    <A HREF="mailto:darimasen-svn%40lists.berlios.de?Subject=Re%3A%20%5BDarimasen-svn%5D%20r59%20-%20in%20trunk%3A%20.%20src&In-Reply-To=%3C200504220500.j3M50Yh2028280%40sheep.berlios.de%3E"
+       TITLE="[Darimasen-svn] r59 - in trunk: . src">darimasen-svn-admin at lists.berlios.de
+       </A><BR>
+    <I>Fri Apr 22 07:00:34 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000011.html">[Darimasen-svn] r58 - trunk/src
+</A></li>
+        <LI>Next message: <A HREF="000013.html">[Darimasen-svn] r60 - trunk/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#12">[ date ]</a>
+              <a href="thread.html#12">[ thread ]</a>
+              <a href="subject.html#12">[ subject ]</a>
+              <a href="author.html#12">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: sudrien
+Date: 2005-04-22 07:00:03 +0200 (Fri, 22 Apr 2005)
+New Revision: 59
+
+Added:
+   trunk/darimasen-0.0.8.ebuild
+Removed:
+   trunk/darimasen-0.0.7.ebuild
+Modified:
+   trunk/configure.in
+   trunk/darimasen-svn-0.1.ebuild
+   trunk/src/damenu.cpp
+   trunk/src/darimasen.cpp
+   trunk/src/darimasen.h
+   trunk/src/iconmodes.cpp
+Log:
+Gtkmm-2.6 required - history menu
+
+Modified: trunk/configure.in
+===================================================================
+--- trunk/configure.in	2005-04-21 05:05:41 UTC (rev 58)
++++ trunk/configure.in	2005-04-22 05:00:03 UTC (rev 59)
+@@ -17,7 +17,7 @@
+ 
+ AC_LANG_CPLUSPLUS
+ 
+-PKG_CHECK_MODULES([PKG], [sigc++-2.0 &gt;= 2.0 gtkmm-2.4 &gt;= 2.4.0 gnome-vfsmm-2.6 &gt;= 2.5.0])
++PKG_CHECK_MODULES([PKG], [sigc++-2.0 &gt;= 2.0 gtkmm-2.4 &gt;= 2.6.0 gnome-vfsmm-2.6 &gt;= 2.5.0])
+ AC_SUBST([PKG_CFLAGS])
+ AC_SUBST([PKG_LIBS])
+ 
+
+Deleted: trunk/darimasen-0.0.7.ebuild
+===================================================================
+--- trunk/darimasen-0.0.7.ebuild	2005-04-21 05:05:41 UTC (rev 58)
++++ trunk/darimasen-0.0.7.ebuild	2005-04-22 05:00:03 UTC (rev 59)
+@@ -1,38 +0,0 @@
+-# Copyright 1999-2004 Gentoo Technologies, Inc.
+-# Distributed under the terms of the GNU General Public License v2
+-# $Header: $
+-
+-
+-DESCRIPTION=&quot;A file manager with menu-based navigation&quot;
+-HOMEPAGE=&quot;<A HREF="http://darimasen.berlios.de/">http://darimasen.berlios.de/</A>&quot;
+-SRC_URI=&quot;<A HREF="http://download.berlios.de/darimasen/${P">http://download.berlios.de/darimasen/${P</A>}.tar.bz2&quot;
+-
+-LICENSE=&quot;GPL-2&quot;
+-SLOT=&quot;0&quot;
+-KEYWORDS=&quot;x86&quot;
+-
+-IUSE=&quot;&quot;
+-SLOT=&quot;0&quot;
+-
+-DEPEND=&quot;&gt;=dev-libs/libsigc++-2.0.3
+-        &gt;=dev-cpp/gtkmm-2.4.11
+-        &gt;=dev-cpp/gnome-vfsmm-2.6.0
+-        x11-themes/gnome-icon-theme&quot;
+-
+-RDEPEND=&quot;!x11-misc/darimasen-svn&quot;
+-
+-src_compile() {
+-
+-	./configure --prefix=/usr ${myconf} || die
+-	emake || die
+-}
+-
+-
+-
+-
+-src_install() {
+-	einfo &quot;Installing...&quot;
+-	make DESTDIR=${D} install || die &quot;make install failed&quot;
+-	dodoc README* AUTHORS TODO* COPYING
+-}
+-
+
+Copied: trunk/darimasen-0.0.8.ebuild (from rev 56, trunk/darimasen-0.0.7.ebuild)
+===================================================================
+--- trunk/darimasen-0.0.7.ebuild	2005-04-19 18:26:51 UTC (rev 56)
++++ trunk/darimasen-0.0.8.ebuild	2005-04-22 05:00:03 UTC (rev 59)
+@@ -0,0 +1,38 @@
++# Copyright 1999-2004 Gentoo Technologies, Inc.
++# Distributed under the terms of the GNU General Public License v2
++# $Header: $
++
++
++DESCRIPTION=&quot;A file manager with menu-based navigation&quot;
++HOMEPAGE=&quot;<A HREF="http://darimasen.berlios.de/">http://darimasen.berlios.de/</A>&quot;
++SRC_URI=&quot;<A HREF="http://download.berlios.de/darimasen/${P">http://download.berlios.de/darimasen/${P</A>}.tar.bz2&quot;
++
++LICENSE=&quot;GPL-2&quot;
++SLOT=&quot;0&quot;
++KEYWORDS=&quot;x86&quot;
++
++IUSE=&quot;&quot;
++SLOT=&quot;0&quot;
++
++DEPEND=&quot;&gt;=dev-libs/libsigc++-2.0.3
++        &gt;=dev-cpp/gtkmm-2.6.1
++        &gt;=dev-cpp/gnome-vfsmm-2.6.0
++        x11-themes/gnome-icon-theme&quot;
++
++RDEPEND=&quot;!x11-misc/darimasen-svn&quot;
++
++src_compile() {
++
++	./configure --prefix=/usr ${myconf} || die
++	emake || die
++}
++
++
++
++
++src_install() {
++	einfo &quot;Installing...&quot;
++	make DESTDIR=${D} install || die &quot;make install failed&quot;
++	dodoc README* AUTHORS TODO* COPYING
++}
++
+
+Modified: trunk/darimasen-svn-0.1.ebuild
+===================================================================
+--- trunk/darimasen-svn-0.1.ebuild	2005-04-21 05:05:41 UTC (rev 58)
++++ trunk/darimasen-svn-0.1.ebuild	2005-04-22 05:00:03 UTC (rev 59)
+@@ -19,7 +19,7 @@
+ SLOT=&quot;0&quot;
+ 
+ DEPEND=&quot;&gt;=dev-libs/libsigc++-2.0.3
+-        &gt;=dev-cpp/gtkmm-2.4.11
++        &gt;=dev-cpp/gtkmm-2.6.1
+         &gt;=dev-cpp/gnome-vfsmm-2.6.0
+         x11-themes/gnome-icon-theme&quot;
+ RDEPEND=&quot;!x11-misc/darimasen&quot;
+
+Modified: trunk/src/damenu.cpp
+===================================================================
+--- trunk/src/damenu.cpp	2005-04-21 05:05:41 UTC (rev 58)
++++ trunk/src/damenu.cpp	2005-04-22 05:00:03 UTC (rev 59)
+@@ -221,6 +221,7 @@
+   depth = 0;
+ 
+   Glib::ustring shortpath = path; //home = getenv(&quot;HOME&quot;);
++
+   parent = &Myparent;
+   
+   int startPos = 0 , i = 0;
+
+Modified: trunk/src/darimasen.cpp
+===================================================================
+--- trunk/src/darimasen.cpp	2005-04-21 05:05:41 UTC (rev 58)
++++ trunk/src/darimasen.cpp	2005-04-22 05:00:03 UTC (rev 59)
+@@ -10,10 +10,7 @@
+ 
+ // anything prefixed with 'f' corresponds with a button. 'nuff said.
+ void Darimasen::fNewTab(){
+-    std::stack&lt;Glib::ustring&gt; empty;
+-    history.push_back(empty);
+-
+-  history[history.size() -1].push(getenv(&quot;HOME&quot;) + slash);
++  set_history(Tabber-&gt;get_n_pages(), getenv(&quot;HOME&quot;) + slash);
+   addTab(Tabber-&gt;get_n_pages());
+ 
+   }
+@@ -22,13 +19,11 @@
+ 
+ // ...and there was already one with an f.
+ void Darimasen::newTab(Glib::ustring newpath){
+-    std::stack&lt;Glib::ustring&gt; empty;
+-    history.push_back(empty);
+ 
+-if( newpath.substr(newpath.length() - 1) != slash)
+-   newpath += slash;
++  if( newpath.substr(newpath.length() - 1) != slash)
++    newpath += slash;
+ 
+-  history[history.size() -1].push(newpath);
++  set_history(Tabber-&gt;get_n_pages(), newpath);
+   addTab(Tabber-&gt;get_n_pages());
+ 
+   }
+@@ -42,7 +37,7 @@
+   DarimasenMenuContainer-&gt;remove();
+ 
+  
+-  DaMenu = Gtk::manage(new class DarimasenMenu(history[n].top(), *this, n));
++  DaMenu = Gtk::manage(new class DarimasenMenu(get_history(n), *this, n));
+   DarimasenMenuContainer-&gt;add(*DaMenu);
+ 
+   if (history[n].size() == 1)
+@@ -50,6 +45,7 @@
+   else
+     BackButton-&gt;set_sensitive(true);
+ 
++  buildHistoryMenu(n);
+   }
+ 
+ /**********************/
+@@ -69,12 +65,13 @@
+ 
+   Gtk::Label * tabNum;
+ 
+-if ( history[pos].top() == slash)
+-tabNum = Gtk::manage(new Gtk::Label(slash + &quot; &quot;));
+-else if ( history[pos].top() == (getenv(&quot;HOME&quot;) + slash))
+-tabNum = Gtk::manage(new Gtk::Label(&quot;~ &quot;));
+-else
+-  tabNum = Gtk::manage(new Gtk::Label(history[pos].top().substr(history[pos].top().rfind(slash,history[pos].top().length() - 2  ) + 1)));
++  if ( get_history(pos) == slash)
++    tabNum = Gtk::manage(new Gtk::Label(slash + &quot; &quot;));
++  else if ( get_history(pos) == (getenv(&quot;HOME&quot;) + slash))
++    tabNum = Gtk::manage(new Gtk::Label(&quot;~ &quot;));
++  else
++    tabNum = Gtk::manage(new Gtk::Label(
++      get_history(pos).substr(get_history(pos).rfind(slash,get_history(pos).length() - 2  ) + 1)));
+ 
+ 
+   Gtk::HBox * arrangement= Gtk::manage(new Gtk::HBox()) ;
+@@ -133,9 +130,9 @@
+ 
+   if (addPath &amp;&amp; !menuOnly){
+     if (pathin.substr(pathin.length()-1) != &quot;/&quot;)
+-      history[nth].push(pathin + slash);
++      set_history(nth, pathin + slash);
+     else
+-      history[nth].push(pathin); 
++      set_history(nth, pathin);
+     }
+ 
+   if  (!menuOnly){
+@@ -150,7 +147,7 @@
+     }
+ 
+   DarimasenMenuContainer-&gt;remove();
+-  DaMenu = Gtk::manage( new DarimasenMenu( history[nth].top(), *this,nth));
++  DaMenu = Gtk::manage( new DarimasenMenu( get_history(nth), *this,nth));
+   DarimasenMenuContainer-&gt;add(*DaMenu);
+ 
+   }
+@@ -167,8 +164,9 @@
+ 
+   guint tmp = pos;
+   Tabber-&gt;remove_page(pos);
++  
++  while ( del_history(pos) &gt; 0 );
+ 
+-  history.erase(history.begin()+pos,history.begin()+pos+1 );
+   delete IconModeList[pos];
+   IconModeList.erase(IconModeList.begin()+pos,IconModeList.begin()+pos+1 );
+ 
+@@ -244,7 +242,7 @@
+   TopBar.append(*sep2);
+   sep2-&gt;show();
+ 
+-  BackButton = new Gtk::ToolButton(Gtk::StockID(&quot;gtk-go-back&quot;));
++  BackButton = new Gtk::MenuToolButton(Gtk::StockID(&quot;gtk-go-back&quot;));
+   BackButton-&gt;signal_clicked().connect(sigc::mem_fun(*this, &amp;Darimasen::fBack));
+   TopBar.append(*BackButton);
+   BackButton-&gt;set_sensitive(false);
+@@ -286,10 +284,7 @@
+   show();
+ 
+   for(int i = 0; i &lt; paths.size(); i++){
+-    std::stack&lt;Glib::ustring&gt; empty;
+-    history.push_back(empty);
+-    history[i].push(paths[i]);
+-
++    set_history(i,paths[i]);
+     addTab(Tabber-&gt;get_n_pages());
+     }
+  }
+@@ -373,7 +368,7 @@
+ 
+ 
+   DarimasenMenuContainer-&gt;remove();
+-  DaMenu = Gtk::manage( new DarimasenMenu(history[Tabber-&gt;get_current_page()].top(), *this, Tabber-&gt;get_current_page()));
++  DaMenu = Gtk::manage( new DarimasenMenu(get_history(Tabber-&gt;get_current_page()), *this, Tabber-&gt;get_current_page()));
+   DarimasenMenuContainer-&gt;add(*DaMenu);
+ 
+ 
+@@ -386,9 +381,9 @@
+ /**********************/
+ 
+ void Darimasen::fBack(){
+-  history[Tabber-&gt;get_current_page()].pop();
++  del_history(Tabber-&gt;get_current_page());
+ 
+-  ChangeCurrentPath(history[Tabber-&gt;get_current_page()].top(),false,false);
++  ChangeCurrentPath(get_history(Tabber-&gt;get_current_page()),false,false);
+ 
+   if (history[Tabber-&gt;get_current_page()].size() == 1)
+     BackButton-&gt;set_sensitive(false);
+@@ -397,13 +392,13 @@
+ /**********************/
+ 
+ void Darimasen::fPrintHist(){
+-  std::vector&lt; std::stack&lt;Glib::ustring&gt; &gt; destroy = history;
++  std::vector&lt; std::vector&lt;Glib::ustring&gt; &gt; destroy = history;
+   
+   std::cout &lt;&lt; &quot;There are &quot; &lt;&lt; destroy.size() &lt;&lt; &quot; tabs here.\n&quot;;
+   
+   for (int i = 0; i &lt; destroy.size(); i++){
+-    for (; destroy[i].size() &gt; 0; destroy[i].pop()){
+-      std::cout &lt;&lt; &quot;history[&quot; &lt;&lt; i &lt;&lt; &quot;].top() = &quot; &lt;&lt; destroy[i].top() &lt;&lt; &quot;\n&quot;;
++    for (; destroy[i].size() &gt; 0; destroy[i].pop_back()){
++      std::cout &lt;&lt; &quot;history[&quot; &lt;&lt; i &lt;&lt; &quot;].end() = &quot; &lt;&lt; destroy[i][destroy[i].size() -1] &lt;&lt; &quot;\n&quot;;
+       }
+     }
+   }
+@@ -424,8 +419,8 @@
+ //  std::cout &lt;&lt; sourceDir &lt;&lt; &quot;\n&quot; &lt;&lt; targetDir &lt;&lt; &quot;\n\n&quot;;
+ 
+   for(int i = 0; i &lt; history.size(); i++){
+-    if( history[i].top() == sourceDir || history[i].top() == targetDir ){
+-      ChangeCurrentPath(history[i].top(),false,false);
++    if( get_history(i) == sourceDir || get_history(i) == targetDir ){
++      ChangeCurrentPath(get_history(i),false,false);
+       }
+     }
+ }
+@@ -435,8 +430,68 @@
+ void Darimasen::fChangeIconMode(){
+   mode = (mode + 1) % 2; // increment, mod of possibilities.
+   for(int i = 0; i &lt; history.size(); i++){
+-      ChangeCurrentPath(history[i].top(),false,false);
++      ChangeCurrentPath(get_history(i),false,false);
+     } 
+   }
+ 
+ /**********************/
++
++Glib::ustring Darimasen::get_history(gint tab, gint level){
++  return history[tab][history[tab].size()-level-1];
++  }
++
++/**********************/
++
++void Darimasen::set_history(gint tab, Glib::ustring path){
++  if (Tabber-&gt;get_n_pages() == tab){
++    std::vector&lt;Glib::ustring&gt; empty;
++    history.push_back(empty);
++    history[tab].push_back(path);
++    }
++  else {
++    history[tab].push_back(path);
++    }
++  }
++
++/**********************/
++
++bool Darimasen::del_history(gint tab){
++  history[tab].pop_back();
++  if ( history[tab].size() == 0 ){
++    history.erase(history.begin()+tab,history.begin()+tab+1 );
++    return 0;
++    }
++  return history[tab].size();
++  }
++
++/**********************/
++
++void Darimasen::buildHistoryMenu(gint tab){
++  if(BackButton-&gt;get_menu() != NULL){
++    delete BackButton-&gt;get_menu();
++    }
++
++  history_menu = new Gtk::Menu();
++  
++  BackButton-&gt;set_menu(*history_menu);
++
++  for( int i = 1; i &lt;  history[tab].size(); i++){
++    history_menu-&gt;items().push_back(Gtk::Menu_Helpers::MenuElem(
++      get_history(tab,i),sigc::bind&lt;gint,gint&gt;(sigc::mem_fun(*this, &amp;Darimasen::fHistoryMenu), tab, i)));
++    }
++
++  }
++
++/**********************/
++
++void Darimasen::fHistoryMenu(gint tab, gint iterations){
++  for(int i = 0; i &lt; iterations; i++)
++    del_history(Tabber-&gt;get_current_page());
++
++  ChangeCurrentPath(get_history(Tabber-&gt;get_current_page()),false,false);
++
++  if (history[Tabber-&gt;get_current_page()].size() == 1)
++    BackButton-&gt;set_sensitive(false);
++  }
++
++/**********************/
+
+Modified: trunk/src/darimasen.h
+===================================================================
+--- trunk/src/darimasen.h	2005-04-21 05:05:41 UTC (rev 58)
++++ trunk/src/darimasen.h	2005-04-22 05:00:03 UTC (rev 59)
+@@ -57,7 +57,9 @@
+ 
+ #include &quot;iconmodes.h&quot;
+ #include &quot;damenu.h&quot;
++#include &lt;gtkmm/menutoolbutton.h&gt;
+ 
++
+ /**********************/
+ 
+ class Darimasen : public Gtk::Window {
+@@ -91,13 +93,13 @@
+   Gtk::SeparatorToolItem * sep1;
+   Gtk::SeparatorToolItem * sep2;
+ 
+-  Gtk::ToolButton * BackButton;
++Gtk::MenuToolButton * BackButton;
+ Gtk::ToolButton * ChangeIconMode;
+  Gtk::ToggleToolButton * ViewTree;
+ Gtk::ToolButton * NewTab;
+ 
++  Gtk::Menu * history_menu;
+ 
+-
+   void fNewTab();
+ 
+   void tabberSwitched(GtkNotebookPage*, guint);
+@@ -117,6 +119,8 @@
+   std::vector&lt; class Gtk::EventBox* &gt; EventBoxList;
+   short mode;
+ 
++  std::vector&lt; std::vector&lt;Glib::ustring&gt; &gt; history;
++
+ public:
+ 
+   Darimasen(std::vector&lt;Glib::ustring&gt;);
+@@ -126,11 +130,22 @@
+ 
+   Gtk::CheckMenuItem * optShowHidden;
+   void set_message(Glib::ustring);
+-  std::vector&lt; std::stack&lt;Glib::ustring&gt; &gt; history;
++  //std::vector&lt; std::stack&lt;Glib::ustring&gt; &gt; history;
+   void updateView(Glib::ustring, Glib::ustring);
+ 
+   void newTab(Glib::ustring);
+   void ChangeCurrentPath(Glib::ustring path, bool, bool);
++  
++
++
++  Glib::ustring get_history(gint, gint = 0);
++
++  void set_history(gint, Glib::ustring);
++
++  bool del_history(gint);
++
++  void buildHistoryMenu(gint);
++  void fHistoryMenu(gint, gint);
+   };
+ 
+ /**********************/
+
+Modified: trunk/src/iconmodes.cpp
+===================================================================
+--- trunk/src/iconmodes.cpp	2005-04-21 05:05:41 UTC (rev 58)
++++ trunk/src/iconmodes.cpp	2005-04-22 05:00:03 UTC (rev 59)
+@@ -264,7 +264,7 @@
+     bool recurse) {
+ 
+   if (info-&gt;get_type() != Gnome::Vfs::FILE_TYPE_DIRECTORY){
+-    iconlist[slotsUsed++] = new proto_icon(*this, parent-&gt;history[position].top(), info);
++    iconlist[slotsUsed++] = new proto_icon(*this, parent-&gt;get_history(position), info);
+     }
+ 
+   return true;
+@@ -347,7 +347,7 @@
+ 
+   try{  //count up the files in the directory. 
+     Gnome::Vfs::DirectoryHandle handle;
+-    handle.open((parent-&gt;history[position].top()), Gnome::Vfs::FILE_INFO_DEFAULT);
++    handle.open(parent-&gt;get_history(position), Gnome::Vfs::FILE_INFO_DEFAULT);
+     bool file_exists = true;
+     while(file_exists){
+       handle.read_next(file_exists);
+@@ -363,7 +363,7 @@
+   IconsHigh = 0;
+   try { // make all those files into proto_icons
+     Gnome::Vfs::DirectoryHandle::visit(
+-      parent-&gt;history[position].top(),
++      parent-&gt;get_history(position),
+       Gnome::Vfs::FILE_INFO_GET_MIME_TYPE |
+       Gnome::Vfs::FILE_INFO_FORCE_FAST_MIME_TYPE |
+       Gnome::Vfs::FILE_INFO_FOLLOW_LINKS ,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000011.html">[Darimasen-svn] r58 - trunk/src
+</A></li>
+	<LI>Next message: <A HREF="000013.html">[Darimasen-svn] r60 - trunk/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#12">[ date ]</a>
+              <a href="thread.html#12">[ thread ]</a>
+              <a href="subject.html#12">[ subject ]</a>
+              <a href="author.html#12">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/darimasen-svn">More information about the Darimasen-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,196 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Darimasen-svn] r65 - in trunk: . src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/darimasen-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:darimasen-svn%40lists.berlios.de?Subject=Re%3A%20%5BDarimasen-svn%5D%20r65%20-%20in%20trunk%3A%20.%20src&In-Reply-To=%3C200504302358.j3UNwu0F004457%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000019.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Darimasen-svn] r65 - in trunk: . src</H1>
+    <B>darimasen-svn-admin at lists.berlios.de</B> 
+    <A HREF="mailto:darimasen-svn%40lists.berlios.de?Subject=Re%3A%20%5BDarimasen-svn%5D%20r65%20-%20in%20trunk%3A%20.%20src&In-Reply-To=%3C200504302358.j3UNwu0F004457%40sheep.berlios.de%3E"
+       TITLE="[Darimasen-svn] r65 - in trunk: . src">darimasen-svn-admin at lists.berlios.de
+       </A><BR>
+    <I>Sun May  1 01:58:56 CEST 2005</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000019.html">[Darimasen-svn] r69 - in trunk: . src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#18">[ date ]</a>
+              <a href="thread.html#18">[ thread ]</a>
+              <a href="subject.html#18">[ subject ]</a>
+              <a href="author.html#18">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: sudrien
+Date: 2005-05-01 01:58:31 +0200 (Sun, 01 May 2005)
+New Revision: 65
+
+Modified:
+   trunk/TODO
+   trunk/src/iconmodes.cpp
+Log:
+minimal AppDir Support
+
+Modified: trunk/TODO
+===================================================================
+--- trunk/TODO	2005-04-30 21:21:46 UTC (rev 64)
++++ trunk/TODO	2005-04-30 23:58:31 UTC (rev 65)
+@@ -5,7 +5,7 @@
+ add a routine to update tab numbers when tabs get deleted.
+ 
+ evaluate the &quot; Gtk-CRITICAL **: gtk_widget_event: assertion `WIDGET_REALIZED_FOR_EVENT (widget, event)' failed&quot; messages
+-Full Folder &amp; Icon context menus.
++Full Folder context menu.
+ Keyboard navigation of menus (Alt+1 opens root menu, Alt+2 opens first child, etc)
+ 
+ Move, copy, delete of files needs more checking
+@@ -13,13 +13,12 @@
+ move, copy, delete of folder
+ move, copy of folder contents
+ 
+-Traditional List and detail views
++detail view
+ 
+ 
+ Would like to do:
+ 
+ limiting DaMenu expansion (preserve window width for long paths) - by shortening menu names
+-AppDir Support
+ Create new folder
+ Ron &lt;Rds&gt; mentioned that Rox will be moving for ~/Choices to ~/.choices - should probably support that, or check both locations
+ use existing thumbnails / create new thumbnails (a la ROX)
+
+Modified: trunk/src/iconmodes.cpp
+===================================================================
+--- trunk/src/iconmodes.cpp	2005-04-30 21:21:46 UTC (rev 64)
++++ trunk/src/iconmodes.cpp	2005-04-30 23:58:31 UTC (rev 65)
+@@ -6,18 +6,22 @@
+ 
+ void DaIconModes::proto_icon::run() const{
+ 
+-  // double checking the file exists
+-  Glib::RefPtr&lt;const Gnome::Vfs::FileInfo&gt; info;
+-  Gnome::Vfs::Handle read_handle;
+-  try{
+-    read_handle.open( path + FileName, Gnome::Vfs::OPEN_READ);
+-    info = read_handle.get_file_info(
+-      Gnome::Vfs::FILE_INFO_GET_MIME_TYPE );
++  Glib::RefPtr&lt;Gnome::Vfs::Uri&gt; x = Gnome::Vfs::Uri::create(path + FileName);
++
++  if (!x-&gt;uri_exists()){
++    std::cout &lt;&lt; &quot;Is not a file - &quot;;
++    x = Gnome::Vfs::Uri::create(path);
++    if (!x-&gt;uri_exists()){
++      std::cout &lt;&lt; &quot;is not an appdir either. Bogus.\n&quot;;
++      }
++    else {
++      std::cout &lt;&lt; &quot;it is a appdir.\n&quot;;
++    Glib::spawn_command_line_async(path + &quot;AppRun&quot;);
++
++    parent-&gt;parent-&gt;set_message(path + &quot; was executed.&quot;);
++	return;
++      }
+     }
+-  catch(const Gnome::Vfs::exception&amp; ex){
+-    std::cout &lt;&lt; &quot;Does not exist.\n&quot;;
+-    return;
+-    }
+ 
+   Gnome::Vfs::Handle exec_handle;
+ 
+@@ -221,7 +225,11 @@
+         sigc::mem_fun(*this, &amp;DaIconModes::proto_icon::unlinkify)));
+ 
+ 
+-    parent-&gt;prompt.popup(event-&gt;button, event-&gt;time);
++
++ // Glib::RefPtr&lt;Gnome::Vfs::Uri&gt; x = Gnome::Vfs::Uri::create( path + &quot;.DirIcon&quot;);
++    if (FileMime != &quot;AppDir&quot;){
++      parent-&gt;prompt.popup(event-&gt;button, event-&gt;time);
++      }
+     }
+   }
+ 
+@@ -235,8 +243,18 @@
+   path = getPath;
+   parent = &getParent;
+ 
+-  icon = parent-&gt;getIcon(getFile-&gt;get_mime_type());
++  Glib::RefPtr&lt;Gnome::Vfs::Uri&gt; x = Gnome::Vfs::Uri::create(
++    getPath + &quot;.DirIcon&quot;);
++  if (x-&gt;uri_exists()){
++    icon = Gdk::Pixbuf::create_from_file(getPath + &quot;.DirIcon&quot;);
++    FileMime = &quot;AppDir&quot;;
++    }
++  else {
+ 
++    icon = parent-&gt;getIcon(getFile-&gt;get_mime_type());
++    FileMime = getFile-&gt;get_mime_type();
++    }
++
+   FileName = getFile-&gt;get_name();
+ 
+   if (getFile-&gt;get_name().length() &gt; 25){
+@@ -252,8 +270,8 @@
+   ShortFileName = getFile-&gt;get_name();
+   }
+ 
+-  FileMime = getFile-&gt;get_mime_type();
+ 
++
+   guint size = getFile-&gt;get_size();
+   if(size &lt; 1024)
+     FileSize = int2ustr(size) + &quot; B&quot;;
+@@ -675,6 +693,15 @@
+   if (info-&gt;get_type() != Gnome::Vfs::FILE_TYPE_DIRECTORY){
+     iconlist[slotsUsed++] = new proto_icon(*this, parent-&gt;get_history(position), info);
+     }
++  else {
++    Glib::RefPtr&lt;Gnome::Vfs::Uri&gt; x = Gnome::Vfs::Uri::create(
++      parent-&gt;get_history(position) + info-&gt;get_name() + slash + &quot;.DirIcon&quot;);
++      if (x-&gt;uri_exists()){
++        //std::cout&lt;&lt; x-&gt;get_path() &lt;&lt; &quot;\n&quot;;
++        iconlist[slotsUsed++] = new proto_icon(
++          *this, parent-&gt;get_history(position) + info-&gt;get_name() + slash, info);
++        }
++    }
+ 
+   return true;
+   }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000019.html">[Darimasen-svn] r69 - in trunk: . src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#18">[ date ]</a>
+              <a href="thread.html#18">[ thread ]</a>
+              <a href="subject.html#18">[ subject ]</a>
+              <a href="author.html#18">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/darimasen-svn">More information about the Darimasen-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,560 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Darimasen-svn] r75 - in trunk: . src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/darimasen-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:darimasen-svn%40lists.berlios.de?Subject=Re%3A%20%5BDarimasen-svn%5D%20r75%20-%20in%20trunk%3A%20.%20src&In-Reply-To=%3C200505190039.j4J0dAeg021715%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000023.html">
+   <LINK REL="Next"  HREF="000025.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Darimasen-svn] r75 - in trunk: . src</H1>
+    <B>darimasen-svn-admin at lists.berlios.de</B> 
+    <A HREF="mailto:darimasen-svn%40lists.berlios.de?Subject=Re%3A%20%5BDarimasen-svn%5D%20r75%20-%20in%20trunk%3A%20.%20src&In-Reply-To=%3C200505190039.j4J0dAeg021715%40sheep.berlios.de%3E"
+       TITLE="[Darimasen-svn] r75 - in trunk: . src">darimasen-svn-admin at lists.berlios.de
+       </A><BR>
+    <I>Thu May 19 02:39:10 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000023.html">[Darimasen-svn] r74 - trunk/src
+</A></li>
+        <LI>Next message: <A HREF="000025.html">[Darimasen-svn] r76 - /
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#24">[ date ]</a>
+              <a href="thread.html#24">[ thread ]</a>
+              <a href="subject.html#24">[ subject ]</a>
+              <a href="author.html#24">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: sudrien
+Date: 2005-05-19 02:38:46 +0200 (Thu, 19 May 2005)
+New Revision: 75
+
+Modified:
+   trunk/README
+   trunk/TODO
+   trunk/darimasen-0.0.8.ebuild
+   trunk/distribute.sh
+   trunk/src/damenu.cpp
+   trunk/src/damenu.h
+   trunk/src/darimasen.cpp
+   trunk/src/iconmodes.cpp
+   trunk/src/iconmodes.h
+   trunk/src/optionsManager.cpp
+Log:
+ready for 0.0.8 release
+
+Modified: trunk/README
+===================================================================
+--- trunk/README	2005-05-17 09:20:39 UTC (rev 74)
++++ trunk/README	2005-05-19 00:38:46 UTC (rev 75)
+@@ -1,15 +1,13 @@
+-Darimasen File Manager - 0.0.7 [Feature Incomplete - Only for Experimental Use]
++Darimasen File Manager - 0.0.8 [Feature Incomplete - Only for Experimental Use]
+ 
+ Readme.txt - 8 Apr. 2005
+ 
+ --
+ 
+-0.0.7 hs been released because:
++0.0.8 hs been released because:
+ 
+-1. Now with tabs, it is at least as stable as 0.0.6
+-2. Except for DnD, THe navigation system is believed to be complete.
++The code has reached a peak in functionality. 
+ 
+-It has better stability and such. Pretty sure. It's faster at several points.
+ 
+ --
+ 
+@@ -44,6 +42,7 @@
+ --
+ 
+ 
++
+ <A HREF="http://darimasen.berlios.de">http://darimasen.berlios.de</A>
+ 
+ 
+
+Modified: trunk/TODO
+===================================================================
+--- trunk/TODO	2005-05-17 09:20:39 UTC (rev 74)
++++ trunk/TODO	2005-05-19 00:38:46 UTC (rev 75)
+@@ -1,46 +1,69 @@
+-version 0.0.8
++Starting over
+ 
+-Must do:
++by Sudrien
+ 
+-Move, copy, delete of files needs more checking (or at least feedback)
+-move, copy, delete of folder
+-move, copy of folder contents
+-detail view
+ 
+ 
+-Would like to do:
++Darimasen is my first real project, my first useful project beyond 
++all the examples and tests of my formal education. I deliberately
++choose somthing with high complexity: there are not that many file
++managers compared with other genres of programming, and the menu system
++of navigation is possible the first of its kind.
+ 
+-Keyboard navigation of menus (Alt+1 opens root menu, Alt+2 opens first child, etc)
+-set unreadable folders insensitive, etc.
+-Create new folder
++And that is where all the difficulties come in.
+ 
++One can design for a standard navigation FM, because it is standard. There
++are expected actions, responces, etc. Tabs are not too much of an extension;
++keep multiple instances available of everything, make simple consistancy checks
++when major operations happen (copy, delete, and so on).
+ 
+-nicities:
+-When deleting a file (or any other operation that leaves you in the same dir
+- in the current window), keep the scrolled position in the same place if possible.
+-limiting DaMenu expansion (preserve window width for long paths) - by shortening menu names
+-use existing thumbnails / create new thumbnails (a la ROX)
++But the Darimasen Menu system can allow you to do ANY operation on ANY
++file in ANY location. The checks required to do this properly and consistantly...
+ 
+-version 0.0.9
+------------------------------------------------
++...requires everything to be self-aware.
+ 
+-Optional Directory tree, updated as needed
+ 
+-Package as appdir?
++0.0.8 is proof that the Darimasen Menu System can work. Efficiently, even.
+ 
+------------------------------------------------
++Now comes the checking.
+ 
+---version 0.1.0 (beta?)
++If a tab is no longer needed, it goes.
++If a file is gone, its icon drops from the face of the earth.
+ 
+-anouncement of usuable public release ^_^;
+ 
+ 
+------------------------------------------------
+ 
+---version 0.1.1 and onwards
++Very little doesn't need to be redesigned and rewritten. I might even switch to C#.
+ 
+-Drag and drop - into menu, between tabs, copy/paste/link popup, multiple selection
+-Re-port to windows?
+-Consider DnD holding box - a &quot;Drop stack&quot;. 
+ 
+ 
++
++Up to this point, I was making a system.
++After this, I'm making a File manager.
++
++
++-Sudrien.
++
++
++
++----------
++
++
++With that said, Here is the known future of the Darimasen project.
++
++The current SVN repository will become &quot;Darimasen-0.0.x&quot;; there will be no branch,
++due to the fact that everything will be starting again.
++
++The release of 0.0.9 is possible; it will be a buxfix release, with no added features
++currently expected. 0.0.10 will follow, if need be.
++
++There will be no version 0.1.0 - that would send the wrong signal, as far as I'm
++ concerned. 0.1.x will come next - it will contain rich descriptions of each of
++the planned components, a plain text file accompanying every source file. Every 25 commits
++there will be a release, format 0.1.date. Care will be taken that it can be compilable,
++using either g++ or mono ( want garbage collection - I really do ). It will continue to use
++Gtk+-2.6-wrapped widgets. As I haven't downloaded mono yet, it will probably be a while. 
++
++
++
++
+
+Modified: trunk/darimasen-0.0.8.ebuild
+===================================================================
+--- trunk/darimasen-0.0.8.ebuild	2005-05-17 09:20:39 UTC (rev 74)
++++ trunk/darimasen-0.0.8.ebuild	2005-05-19 00:38:46 UTC (rev 75)
+@@ -23,7 +23,9 @@
+ 
+ src_compile() {
+ 
++	elibtoolize
+ 	econf || die
++	elibtoolize
+ 	emake || die
+ }
+ 
+
+Modified: trunk/distribute.sh
+===================================================================
+--- trunk/distribute.sh	2005-05-17 09:20:39 UTC (rev 74)
++++ trunk/distribute.sh	2005-05-19 00:38:46 UTC (rev 75)
+@@ -1,9 +1,9 @@
+ #!/bin/sh
+ 
+ cd ..
+-mkdir darimasen-0.0.7
+-cp -R trunk/* darimasen-0.0.7/
+-cd darimasen-0.0.7/
++mkdir darimasen-0.0.8
++cp -R trunk/* darimasen-0.0.8/
++cd darimasen-0.0.8/
+ 
+ rm -Rf .svn/
+ rm -Rf src/.svn/
+@@ -26,4 +26,4 @@
+ 
+ cd ..
+ 
+-tar -cjvf darimasen-0.0.7.tar.bz2 darimasen-0.0.7/
++tar -cjvf darimasen-0.0.8.tar.bz2 darimasen-0.0.8/
+
+Modified: trunk/src/damenu.cpp
+===================================================================
+--- trunk/src/damenu.cpp	2005-05-17 09:20:39 UTC (rev 74)
++++ trunk/src/damenu.cpp	2005-05-19 00:38:46 UTC (rev 75)
+@@ -180,8 +180,8 @@
+       prompt.items().pop_back();
+ 
+ 
+-    prompt.items().push_back(
+-      Gtk::Menu_Helpers::MenuElem(&quot;Opening &quot; + path + &quot; from here consistently leads to errors&quot;));
++    //prompt.items().push_back(
++    //  Gtk::Menu_Helpers::MenuElem(&quot;Opening &quot; + path + &quot; from here consistently leads to errors&quot;));
+ 
+     prompt.items().push_back(
+       Gtk::Menu_Helpers::MenuElem(&quot;Open In new Tab&quot;,
+@@ -208,9 +208,10 @@
+ 
+     prompt.items().push_back(
+       Gtk::Menu_Helpers::MenuElem(&quot;Delete...&quot;,
+-        sigc::bind&lt;Glib::ustring&gt;(
+-          sigc::mem_fun(*this,&amp;DarimasenMenu::unlinkify),path)));
++        sigc::bind&lt;Glib::ustring,gint&gt;(
++          sigc::mem_fun(*this,&amp;DarimasenMenu::unlinkify),path,pos)));
+ 
++    /*
+     prompt.items().push_back(
+       Gtk::Menu_Helpers::SeparatorElem());
+ 
+@@ -218,10 +219,10 @@
+       Gtk::Menu_Helpers::MenuElem(&quot;Add to location menu&quot;,
+         sigc::bind&lt;Glib::ustring&gt;(
+           sigc::mem_fun(*this,&amp;DarimasenMenu::bookmark),path)));
++    */
++    prompt.signal_selection_done().connect_notify(
++      sigc::mem_fun(*MenuItemArray[pos],&amp;Gtk::MenuItem::deselect));
+ 
+-  //  prompt.signal_selection_done().connect_notify(sigc::mem_fun(prompt,&amp;Gtk::Menu::hide));
+-  //  prompt.signal_selection_done().connect_notify(sigc::mem_fun(*MenuArray[pos],&amp;Gtk::Menu::hide));
+-    prompt.signal_selection_done().connect_notify(sigc::mem_fun(*MenuItemArray[pos],&amp;Gtk::MenuItem::deselect));
+ 	
+     prompt.popup(event-&gt;button, event-&gt;time);
+   return true;
+@@ -232,7 +233,11 @@
+   //DaFileLister(); //5:45pm, 24 Dec 2004, it worked! // leave this comment    
+   }
+ 
++/**********************/
+ 
++void DarimasenMenu::bookmark(Glib::ustring path){
++  }
++
+ /**********************/
+ 
+ void DarimasenMenu::copy(Glib::ustring path){
+@@ -243,11 +248,11 @@
+    
+   Gtk::RadioButton::Group _RadioBGroup_radiobutton4;
+   Gtk::RadioButton * radiobutton4 = Gtk::manage(
+-    new class Gtk::RadioButton(_RadioBGroup_radiobutton4, &quot;Copy Directory to ... (cp .)&quot;));
++    new class Gtk::RadioButton(_RadioBGroup_radiobutton4, &quot;Copy Directory to ... (cp -R)&quot;));
+   Gtk::RadioButton * radiobutton5 = Gtk::manage(
+     new class Gtk::RadioButton(_RadioBGroup_radiobutton4, &quot;Copy files in directory to ... (cp *)&quot;));
+   Gtk::RadioButton * radiobutton6 = Gtk::manage(
+-    new class Gtk::RadioButton(_RadioBGroup_radiobutton4, &quot;Copy everything in directory to ... (cp -R *)&quot;));
++    new class Gtk::RadioButton(_RadioBGroup_radiobutton4, &quot;Copy everything in directory to ... (cp -R \*)&quot;));
+   Gtk::Entry * entry2 = Gtk::manage(new class Gtk::Entry());
+   cancelbutton2-&gt;set_flags(Gtk::CAN_FOCUS);
+   cancelbutton2-&gt;set_flags(Gtk::CAN_DEFAULT);
+@@ -274,11 +279,22 @@
+ 
+   switch(copyDialogue.run()){
+     case(Gtk::RESPONSE_OK):{
+-      std::cout &lt;&lt; path &lt;&lt; &quot;moved\n&quot;;
++      parent-&gt;set_message( path + &quot;moved&quot;);
++  if(radiobutton4-&gt;get_active()){
++  Glib::spawn_command_line_async((Glib::ustring)&quot;cp -R \&quot;&quot;  + path.c_str() + (Glib::ustring)&quot;\&quot; \&quot;&quot; + entry2-&gt;get_text().c_str()+ &quot;\&quot;&quot;);
++}
++  if(radiobutton5-&gt;get_active()){
++  Glib::spawn_command_line_async((Glib::ustring)&quot;cp \&quot;&quot;  + path.c_str() + (Glib::ustring)&quot;\&quot; \&quot;&quot; + entry2-&gt;get_text().c_str()+ &quot;\&quot;*&quot;);
++}
++  if(radiobutton6-&gt;get_active()){
++  Glib::spawn_command_line_async((Glib::ustring)&quot;cp -R \&quot;&quot;  + path.c_str() + (Glib::ustring)&quot;\&quot; \&quot;&quot; + entry2-&gt;get_text().c_str()+ &quot;\&quot;*&quot;);
++
++
++}
+       return;
+       }
+     default:{
+-      std::cout &lt;&lt; path &lt;&lt; &quot;not moved\n&quot;;
++      std::cout &lt;&lt; path &lt;&lt; &quot;not copied\n&quot;;
+       return;
+       }
+     }
+@@ -294,11 +310,11 @@
+    
+   Gtk::RadioButton::Group _RadioBGroup_radiobutton1;
+   Gtk::RadioButton * radiobutton1 = Gtk::manage(new class Gtk::RadioButton(
+-    _RadioBGroup_radiobutton1, &quot;Move &quot; + path + &quot; to ... (mv .)&quot;));
++    _RadioBGroup_radiobutton1, &quot;Move &quot; + path + &quot; to ... (mv -R )&quot;));
+   Gtk::RadioButton * radiobutton2 = Gtk::manage(new class Gtk::RadioButton(
+     _RadioBGroup_radiobutton1, &quot;Move files in directory to... (mv *)&quot;));
+   Gtk::RadioButton * radiobutton3 = Gtk::manage(new class Gtk::RadioButton(
+-    _RadioBGroup_radiobutton1, &quot;Move everything in directory to... (mv -R *)&quot;));
++    _RadioBGroup_radiobutton1, &quot;Move everything in directory to... (mv -R \*)&quot;));
+   Gtk::Entry * entry1 = Gtk::manage(new class Gtk::Entry());
+   cancelbutton1-&gt;set_flags(Gtk::CAN_FOCUS);
+   cancelbutton1-&gt;set_flags(Gtk::CAN_DEFAULT);
+@@ -324,7 +340,20 @@
+ 
+   switch(moveDialogue.run()){
+     case(Gtk::RESPONSE_OK):{
+-      std::cout &lt;&lt; path &lt;&lt; &quot;moved\n&quot;;
++      parent-&gt;set_message( path + &quot;moved&quot;);
++  if(radiobutton1-&gt;get_active()){
++  Glib::spawn_command_line_async((Glib::ustring)&quot;mv -R \&quot;&quot;  + path.c_str() + (Glib::ustring)&quot;\&quot; \&quot;&quot; + entry1-&gt;get_text().c_str()+ &quot;\&quot;&quot;);
++}
++  if(radiobutton2-&gt;get_active()){
++  Glib::spawn_command_line_async((Glib::ustring)&quot;mv \&quot;&quot;  + path.c_str() + (Glib::ustring)&quot;\&quot; \&quot;&quot; + entry1-&gt;get_text().c_str()+ &quot;\&quot;*&quot;);
++}
++  if(radiobutton3-&gt;get_active()){
++  Glib::spawn_command_line_async((Glib::ustring)&quot;mv -R \&quot;&quot;  + path.c_str() + (Glib::ustring)&quot;\&quot; \&quot;&quot; + entry1-&gt;get_text().c_str()+ &quot;\&quot;*&quot;);
++
++
++}
++      // rebuild this menu if needed
++      //check if any other menus effected, if so, set for rebuild
+       return;
+       }
+     default:{
+@@ -371,7 +400,13 @@
+ 
+   switch(linkDialogue.run()){
+     case(Gtk::RESPONSE_OK):{
+-      std::cout &lt;&lt; &quot;link created &quot; + path &lt;&lt; &quot;\n&quot;;
++
++
++  Glib::spawn_command_line_async((Glib::ustring)&quot;ln -s \&quot;&quot;  + label1-&gt;get_text().c_str() + (Glib::ustring)&quot;\&quot; \&quot;&quot; + entry3-&gt;get_text().c_str() + &quot;\&quot;&quot;);
++
++      parent-&gt;set_message( &quot;link created &quot; + path );
++
++      //check and see if link path is in any menus, set for rebuild if true.
+       return;
+       }
+     default:{
+@@ -384,7 +419,7 @@
+ /**********************/
+ 
+ 
+-void DarimasenMenu::unlinkify(Glib::ustring path){
++void DarimasenMenu::unlinkify(Glib::ustring path, gint menu){
+   Gtk::Dialog unlinkifyDialogue;
+   Gtk::Button * cancelbutton4 = Gtk::manage(new class Gtk::Button(Gtk::StockID(&quot;gtk-cancel&quot;)));
+   Gtk::Button * okbutton4 = Gtk::manage(new class Gtk::Button(Gtk::StockID(&quot;gtk-ok&quot;)));
+@@ -410,18 +445,20 @@
+ 
+   switch(unlinkifyDialogue.run()){
+     case(Gtk::RESPONSE_OK):{
+-      std::cout &lt;&lt; &quot;Deleted &quot; + path &lt;&lt; &quot;\n&quot;;
++
++      Glib::spawn_command_line_async((Glib::ustring)&quot;rm -Rf \&quot;&quot;  + path + &quot;\&quot;&quot;);
++      needsRebuild[menu] = true;
++      //check if any of the windows contain that path, do what? 
++      parent-&gt;set_message(&quot;Deleted &quot; + path); 
+       return;
+       }
+     default:{
+-      std::cout &lt;&lt; &quot;No deletion &quot; + path &lt;&lt; &quot;\n&quot;;
++      parent-&gt;set_message(&quot;nothing deleted&quot;);
+       return;
+       }
+     }
+   }
+ 
+-    void DarimasenMenu::bookmark(Glib::ustring path){}
+-
+ /**********************/
+ 
+ // provides the numbers by the arrows. 
+
+Modified: trunk/src/damenu.h
+===================================================================
+--- trunk/src/damenu.h	2005-05-17 09:20:39 UTC (rev 74)
++++ trunk/src/damenu.h	2005-05-19 00:38:46 UTC (rev 75)
+@@ -37,7 +37,7 @@
+   bool * needsRebuild;
+   bool SpecialMenuForPath(GdkEventButton* , int, Glib::ustring  , Glib::ustring);
+   void selection_reset(guint, Glib::ustring);
+-  void unlinkify(Glib::ustring);
++  void unlinkify(Glib::ustring,gint);
+ 
+ public:
+ 
+
+Modified: trunk/src/darimasen.cpp
+===================================================================
+--- trunk/src/darimasen.cpp	2005-05-17 09:20:39 UTC (rev 74)
++++ trunk/src/darimasen.cpp	2005-05-19 00:38:46 UTC (rev 75)
+@@ -279,7 +279,7 @@
+ /**********************/
+ 
+ void Darimasen::fChangeIconMode(){
+-  mode = (mode + 1) % 2; // increment, mod of possibilities.
++  mode = (mode + 1) % 3; // increment, mod of possibilities.
+   for(int i = 0; i &lt; history.size(); i++){
+       ChangeCurrentPath(get_history(i),false,false);
+     } 
+@@ -558,6 +558,14 @@
+ 
+   for(int i = 0; i &lt; history.size(); i++){
+     if( get_history(i) == sourceDir || get_history(i) == targetDir ){
++
++/*
++if (!Gnome::Vfs::Uri::create(get_history(i))-&gt;uri_exists()){
++  Glib::ustring temp = get_history(i);
++  del_history(i);
++  set_history(i, temp.substr(0, temp.rfind(slash)) + slash);
++}*/
++
+       ChangeCurrentPath(get_history(i),false,false);
+       }
+     }
+
+Modified: trunk/src/iconmodes.cpp
+===================================================================
+--- trunk/src/iconmodes.cpp	2005-05-17 09:20:39 UTC (rev 74)
++++ trunk/src/iconmodes.cpp	2005-05-19 00:38:46 UTC (rev 75)
+@@ -871,6 +871,16 @@
+ 
+ void DaIconModes::MoveDialogue::onOk(){
+   Glib::spawn_command_line_async((Glib::ustring)&quot;mv \&quot;&quot;  + label-&gt;get_text().c_str() + (Glib::ustring)&quot;\&quot; \&quot;&quot; + entry-&gt;get_text().c_str()+ &quot;\&quot;&quot;);
++/*
++  try
++  {
++    Gnome::Vfs::Transfer::transfer(label-&gt;get_text().c_str(), entry-&gt;get_text().c_str());  
++  }
++  catch(const Gnome::Vfs::exception&amp; ex)
++  {
++    // if the operation was not successful, print the error
++    std::cout &lt;&lt; &quot;Error occurred: &quot; &lt;&lt; label-&gt;get_text() &lt;&lt; &quot;, &quot; &lt;&lt; ex.what() &lt;&lt; std::endl;
++  }*/
+ 
+   grandparent-&gt;updateView(
+     label-&gt;get_text().substr(0, label-&gt;get_text().rfind(slash,label-&gt;get_text().length())+1),
+@@ -923,10 +933,19 @@
+ void DaIconModes::DeleteDialogue::onOk(){
+   Glib::spawn_command_line_async((Glib::ustring)&quot;rm \&quot;&quot;  + label-&gt;get_text().c_str() + &quot;\&quot;&quot;);
+ 
++/*  try
++  {
++    Gnome::Vfs::Transfer::remove(label-&gt;get_text().c_str());  
++  }
++  catch(const Gnome::Vfs::exception&amp; ex)
++  {
++    // if the operation was not successful, print the error
++    std::cout &lt;&lt; &quot;Error occurred: &quot; &lt;&lt; label-&gt;get_text() &lt;&lt; &quot;, &quot; &lt;&lt; ex.what() &lt;&lt; std::endl;
++  }*/
++
+   grandparent-&gt;updateView(
+     label-&gt;get_text().substr(0, label-&gt;get_text().rfind(slash,label-&gt;get_text().length())+1),
+     label-&gt;get_text().substr(0, label-&gt;get_text().rfind(slash,label-&gt;get_text().length())+1));
+-   //std::cout &lt;&lt; label-&gt;get_text().substr(0, label-&gt;get_text().rfind(slash,label-&gt;get_text().length())+1) ;
+   hide();
+   }
+ 
+@@ -953,6 +972,15 @@
+   return true;
+   }
+ 
++/**********************
++
++bool on_transfer_progress(const Gnome::Vfs::Transfer::ProgressInfo&amp; info){
++//if (info-&gt;get_vfs_status() == Gnome::Vfs::OK)
++//  parent-&gt;set_message(&quot;OK!&quot;);
++
++
++    }
++
+ /**********************/
+ 
+ void DaIconModes::on_size_allocate(Gtk::Allocation&amp; allocation){
+
+Modified: trunk/src/iconmodes.h
+===================================================================
+--- trunk/src/iconmodes.h	2005-05-17 09:20:39 UTC (rev 74)
++++ trunk/src/iconmodes.h	2005-05-19 00:38:46 UTC (rev 75)
+@@ -227,6 +227,7 @@
+ 
+   bool addEntry(Glib::ustring, Glib::RefPtr&lt;const Gnome::Vfs::FileInfo&gt;, bool, bool);
+   void on_size_allocate(Gtk::Allocation&amp;);
++ // bool on_transfer_progress(const Gnome::Vfs::Transfer::ProgressInfo&amp;);
+   void redraw();
+ 
+   class Darimasen * parent;
+
+Modified: trunk/src/optionsManager.cpp
+===================================================================
+--- trunk/src/optionsManager.cpp	2005-05-17 09:20:39 UTC (rev 74)
++++ trunk/src/optionsManager.cpp	2005-05-19 00:38:46 UTC (rev 75)
+@@ -17,7 +17,7 @@
+     context.end_parse();
+     }
+   catch(const Glib::Error) {
+-    std::cout&lt;&lt; &quot;Error! Settings file &quot; &lt;&lt; toParse &lt;&lt; &quot; not found.\n&quot;;
++    //std::cout&lt;&lt; &quot;Error! Settings file &quot; &lt;&lt; toParse &lt;&lt; &quot; not found.\n&quot;;
+     }
+   }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000023.html">[Darimasen-svn] r74 - trunk/src
+</A></li>
+	<LI>Next message: <A HREF="000025.html">[Darimasen-svn] r76 - /
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#24">[ date ]</a>
+              <a href="thread.html#24">[ thread ]</a>
+              <a href="subject.html#24">[ subject ]</a>
+              <a href="author.html#24">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/darimasen-svn">More information about the Darimasen-svn
+mailing list</a><br>
+</body></html>

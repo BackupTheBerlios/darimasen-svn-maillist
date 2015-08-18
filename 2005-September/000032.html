@@ -1,0 +1,252 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Darimasen-svn] r84 - 0.0.x
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/darimasen-svn/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:darimasen-svn%40lists.berlios.de?Subject=Re%3A%20%5BDarimasen-svn%5D%20r84%20-%200.0.x&In-Reply-To=%3C200509271922.j8RJMfLY007195%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000031.html">
+   <LINK REL="Next"  HREF="000033.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Darimasen-svn] r84 - 0.0.x</H1>
+    <B>darimasen-svn-admin at lists.berlios.de</B> 
+    <A HREF="mailto:darimasen-svn%40lists.berlios.de?Subject=Re%3A%20%5BDarimasen-svn%5D%20r84%20-%200.0.x&In-Reply-To=%3C200509271922.j8RJMfLY007195%40sheep.berlios.de%3E"
+       TITLE="[Darimasen-svn] r84 - 0.0.x">darimasen-svn-admin at lists.berlios.de
+       </A><BR>
+    <I>Tue Sep 27 21:22:41 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000031.html">[Darimasen-svn] r83 - in trunk: . src
+</A></li>
+        <LI>Next message: <A HREF="000033.html">[Darimasen-svn] r85 - 0.0.x
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#32">[ date ]</a>
+              <a href="thread.html#32">[ thread ]</a>
+              <a href="subject.html#32">[ subject ]</a>
+              <a href="author.html#32">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: sudrien
+Date: 2005-09-27 21:22:41 +0200 (Tue, 27 Sep 2005)
+New Revision: 84
+
+Added:
+   0.0.x/darimasen-svn-0.1-r2.ebuild
+Removed:
+   0.0.x/darimasen-svn-0.1-r1.ebuild
+Modified:
+   0.0.x/distribute.sh
+Log:
+Cleanup for 0.0.8a
+
+Deleted: 0.0.x/darimasen-svn-0.1-r1.ebuild
+===================================================================
+--- 0.0.x/darimasen-svn-0.1-r1.ebuild	2005-09-27 02:48:44 UTC (rev 83)
++++ 0.0.x/darimasen-svn-0.1-r1.ebuild	2005-09-27 19:22:41 UTC (rev 84)
+@@ -1,114 +0,0 @@
+-# Copyright 1999-2004 Gentoo Technologies, Inc.
+-# Distributed under the terms of the GNU General Public License v2
+-# $Header: $
+-
+-
+-ESVN_REPO_URI=&quot;<A HREF="svn://svn.berlios.de/darimasen/0.0.x">svn://svn.berlios.de/darimasen/0.0.x</A>&quot;
+-ESVN_PROJECT=&quot;darimasen&quot;
+-ESVN_BOOTSTRAP=&quot;autogen.sh&quot;
+-inherit subversion
+-
+-DESCRIPTION=&quot;A file manager with menu-based navigation&quot;
+-HOMEPAGE=&quot;<A HREF="http://darimasen.berlios.de/">http://darimasen.berlios.de/</A>&quot;
+-
+-LICENSE=&quot;GPL-2&quot;
+-SLOT=&quot;0&quot;
+-KEYWORDS=&quot;~x86&quot;
+-
+-IUSE=&quot;&quot;
+-SLOT=&quot;0&quot;
+-
+-DEPEND=&quot;&gt;=dev-libs/libsigc++-2.0.3
+-        &gt;=dev-cpp/gtkmm-2.6.1
+-        &gt;=dev-cpp/gnome-vfsmm-2.6.0
+-        x11-themes/gnome-icon-theme&quot;
+-RDEPEND=&quot;!x11-misc/darimasen&quot;
+-
+-
+-subversion_svn_fetch() {
+-
+-	# ESVN_REPO_URI is empty.
+-	[ -z &quot;${ESVN_REPO_URI}&quot; ] &amp;&amp; die &quot;subversion.eclass: ESVN_REPO_URI is empty.&quot;
+-
+-	# http and https only...
+-	case ${ESVN_REPO_URI%%:*} in
+-		http)	;;
+-		https)	;;
+-		svn)	;;
+-		*)
+-			die &quot;subversion.eclass: fetch from &quot;${ESVN_REPO_URI%:*}&quot; is not yet implemented.&quot;
+-			;;
+-	esac
+-
+-	# every time
+-	addwrite &quot;${ESVN_STORE_DIR}&quot;
+-	addwrite &quot;/etc/subversion&quot;
+-
+-	# -userpriv
+-	addwrite &quot;/root/.subversion&quot;
+-
+-	if [ ! -d &quot;${ESVN_STORE_DIR}&quot; ]; then
+-		mkdir -p &quot;${ESVN_STORE_DIR}&quot; || die &quot;subversion.eclass: can't mkdir ${ESVN_STORE_DIR}.&quot;
+-		chmod -f o+rw &quot;${ESVN_STORE_DIR}&quot; || die &quot;subversion.eclass: can't chmod ${ESVN_STORE_DIR}.&quot;
+-		einfo &quot;created store directory: ${ESVN_STORE_DIR}&quot;
+-		einfo
+-	fi
+-
+-	cd &quot;${ESVN_STORE_DIR}&quot;
+-
+-	if [ -z ${ESVN_REPO_URI##*/} ]; then
+-		ESVN_REPO_FIX=&quot;${ESVN_REPO_URI%/}&quot;
+-	else
+-		ESVN_REPO_FIX=&quot;${ESVN_REPO_URI}&quot;
+-	fi
+-
+-	ESVN_CO_DIR=&quot;${ESVN_PROJECT}/${ESVN_REPO_FIX##*/}&quot;
+-
+-	if [ ! -d &quot;${ESVN_CO_DIR}/.svn&quot; ]; then
+-		# first check out
+-		einfo &quot;subversion check out start --&gt;&quot;
+-		einfo
+-		einfo &quot;check out from: ${ESVN_REPO_URI}&quot;
+-
+-		mkdir -p &quot;${ESVN_PROJECT}&quot; || die &quot;subversion.eclass: can't mkdir ${ESVN_PROJECT}.&quot;
+-		chmod -f o+rw &quot;${ESVN_PROJECT}&quot; || die &quot;subversion.eclass: can't chmod ${ESVN_PROJECT}.&quot;
+-		cd &quot;${ESVN_PROJECT}&quot;
+-		${ESVN_FETCH_CMD} &quot;${ESVN_REPO_URI}&quot; || die &quot;subversion.eclass: can't fetch from ${ESVN_REPO_URI}.&quot;
+-		einfo &quot;     stored in: ${ESVN_STORE_DIR}/${ESVN_CO_DIR}&quot;
+-
+-	else
+-		# update working copy
+-		einfo &quot;subversion update start --&gt;&quot;
+-		einfo
+-		einfo &quot;   update from: ${ESVN_REPO_URI}&quot;
+-
+-		cd &quot;${ESVN_CO_DIR}&quot;
+-		${ESVN_UPDATE_CMD} || die &quot;subversion.eclass: can't update from ${ESVN_REPO_URI}.&quot;
+-		einfo &quot;    updated in: ${ESVN_STORE_DIR}/${ESVN_CO_DIR}&quot;
+-	fi
+-
+-	# permission fix
+-	chmod -Rf o+rw . 2&gt;/dev/null
+-
+-	# copy to the ${WORKDIR}
+-	cp -Rf &quot;${ESVN_STORE_DIR}/${ESVN_CO_DIR}&quot; &quot;${WORKDIR}/${P}&quot; || die &quot;subversion.eclass: can't copy to ${WORKDIR}/${P}.&quot;
+-	einfo
+-
+-}
+-
+-src_compile() {
+-	export WANT_AUTOCONF=2.5
+-
+-	econf || die
+-	emake || die
+-}
+-
+-
+-
+-
+-src_install() {
+-	einfo &quot;Installing...&quot;
+-	make DESTDIR=${D} install || die &quot;make install failed&quot;
+-	dodoc README* AUTHORS TODO* COPYING
+-}
+-
+
+Copied: 0.0.x/darimasen-svn-0.1-r2.ebuild (from rev 83, 0.0.x/darimasen-svn-0.1-r1.ebuild)
+===================================================================
+--- 0.0.x/darimasen-svn-0.1-r1.ebuild	2005-09-27 02:48:44 UTC (rev 83)
++++ 0.0.x/darimasen-svn-0.1-r2.ebuild	2005-09-27 19:22:41 UTC (rev 84)
+@@ -0,0 +1,38 @@
++# Copyright 1999-2005 Gentoo Foundation
++# Distributed under the terms of the GNU General Public License v2
++# $Header: $
++
++inherit subversion
++
++DESCRIPTION=&quot;A file manager with menu-based navigation&quot;
++HOMEPAGE=&quot;<A HREF="http://darimasen.berlios.de/">http://darimasen.berlios.de/</A>&quot;
++LICENSE=&quot;GPL-2&quot;
++SLOT=&quot;0&quot;
++KEYWORDS=&quot;~x86 ~amd64 ~ppc&quot;
++IUSE=&quot;&quot;
++SLOT=&quot;0&quot;
++
++DEPEND=&quot;&gt;=dev-libs/libsigc++-2.0.3
++        &gt;=dev-cpp/gtkmm-2.6.1
++        &gt;=dev-cpp/gnome-vfsmm-2.6.0
++        x11-themes/gnome-icon-theme&quot;
++RDEPEND=&quot;!x11-misc/darimasen&quot;
++
++
++ESVN_REPO_URI=&quot;<A HREF="svn://svn.berlios.de/darimasen/0.0.x">svn://svn.berlios.de/darimasen/0.0.x</A>&quot;
++ESVN_PROJECT=&quot;darimasen&quot;
++ESVN_BOOTSTRAP=&quot;autogen.sh&quot;
++
++
++src_compile() {
++	export WANT_AUTOCONF=2.5
++	econf || die
++	emake || die
++}
++
++src_install() {
++	einfo &quot;Installing...&quot;
++	make DESTDIR=${D} install || die &quot;make install failed&quot;
++	dodoc README* AUTHORS TODO* COPYING
++}
++
+
+Modified: 0.0.x/distribute.sh
+===================================================================
+--- 0.0.x/distribute.sh	2005-09-27 02:48:44 UTC (rev 83)
++++ 0.0.x/distribute.sh	2005-09-27 19:22:41 UTC (rev 84)
+@@ -21,7 +21,7 @@
+ rm aclocal.m4
+ rm autogen.sh
+ rm config.log
+-rm darimasen-svn-0.1.ebuild
++rm darimasen-svn-0.1-r2.ebuild
+ rm distribute.sh
+ 
+ cd ..
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000031.html">[Darimasen-svn] r83 - in trunk: . src
+</A></li>
+	<LI>Next message: <A HREF="000033.html">[Darimasen-svn] r85 - 0.0.x
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#32">[ date ]</a>
+              <a href="thread.html#32">[ thread ]</a>
+              <a href="subject.html#32">[ subject ]</a>
+              <a href="author.html#32">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/darimasen-svn">More information about the Darimasen-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,3869 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Darimasen-svn] r77 - 0.0.x trunk trunk/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/darimasen-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:darimasen-svn%40lists.berlios.de?Subject=Re%3A%20%5BDarimasen-svn%5D%20r77%20-%200.0.x%20trunk%20trunk/src&In-Reply-To=%3C200505230307.j4N37fqj026659%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000025.html">
+   <LINK REL="Next"  HREF="000027.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Darimasen-svn] r77 - 0.0.x trunk trunk/src</H1>
+    <B>darimasen-svn-admin at lists.berlios.de</B> 
+    <A HREF="mailto:darimasen-svn%40lists.berlios.de?Subject=Re%3A%20%5BDarimasen-svn%5D%20r77%20-%200.0.x%20trunk%20trunk/src&In-Reply-To=%3C200505230307.j4N37fqj026659%40sheep.berlios.de%3E"
+       TITLE="[Darimasen-svn] r77 - 0.0.x trunk trunk/src">darimasen-svn-admin at lists.berlios.de
+       </A><BR>
+    <I>Mon May 23 05:07:41 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000025.html">[Darimasen-svn] r76 - /
+</A></li>
+        <LI>Next message: <A HREF="000027.html">[Darimasen-svn] r78 - trunk/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#26">[ date ]</a>
+              <a href="thread.html#26">[ thread ]</a>
+              <a href="subject.html#26">[ subject ]</a>
+              <a href="author.html#26">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: sudrien
+Date: 2005-05-23 05:07:19 +0200 (Mon, 23 May 2005)
+New Revision: 77
+
+Added:
+   0.0.x/darimasen-svn-0.1-r1.ebuild
+   trunk/darimasen-svn-0.2.ebuild
+Removed:
+   0.0.x/darimasen-svn-0.1.ebuild
+   trunk/darimasen-svn-0.1.ebuild
+   trunk/src/damenu.cpp
+   trunk/src/damenu.h
+   trunk/src/darimasen.cpp
+   trunk/src/darimasen.h
+   trunk/src/firsttime.cpp
+   trunk/src/firsttime.h
+   trunk/src/iconmodes.cpp
+   trunk/src/iconmodes.h
+   trunk/src/main.cpp
+   trunk/src/main.h
+   trunk/src/optionsManager.cpp
+   trunk/src/optionsManager.h
+   trunk/src/supplimental.cpp
+   trunk/src/supplimental.h
+Modified:
+   trunk/src/Makefile.am
+Log:
+ebuild updates and cleaning out
+
+Copied: 0.0.x/darimasen-svn-0.1-r1.ebuild (from rev 76, 0.0.x/darimasen-svn-0.1.ebuild)
+===================================================================
+--- 0.0.x/darimasen-svn-0.1.ebuild	2005-05-23 00:35:14 UTC (rev 76)
++++ 0.0.x/darimasen-svn-0.1-r1.ebuild	2005-05-23 03:07:19 UTC (rev 77)
+@@ -0,0 +1,114 @@
++# Copyright 1999-2004 Gentoo Technologies, Inc.
++# Distributed under the terms of the GNU General Public License v2
++# $Header: $
++
++
++ESVN_REPO_URI=&quot;<A HREF="svn://svn.berlios.de/darimasen/0.0.x">svn://svn.berlios.de/darimasen/0.0.x</A>&quot;
++ESVN_PROJECT=&quot;darimasen&quot;
++ESVN_BOOTSTRAP=&quot;autogen.sh&quot;
++inherit subversion
++
++DESCRIPTION=&quot;A file manager with menu-based navigation&quot;
++HOMEPAGE=&quot;<A HREF="http://darimasen.berlios.de/">http://darimasen.berlios.de/</A>&quot;
++
++LICENSE=&quot;GPL-2&quot;
++SLOT=&quot;0&quot;
++KEYWORDS=&quot;~x86&quot;
++
++IUSE=&quot;&quot;
++SLOT=&quot;0&quot;
++
++DEPEND=&quot;&gt;=dev-libs/libsigc++-2.0.3
++        &gt;=dev-cpp/gtkmm-2.6.1
++        &gt;=dev-cpp/gnome-vfsmm-2.6.0
++        x11-themes/gnome-icon-theme&quot;
++RDEPEND=&quot;!x11-misc/darimasen&quot;
++
++
++subversion_svn_fetch() {
++
++	# ESVN_REPO_URI is empty.
++	[ -z &quot;${ESVN_REPO_URI}&quot; ] &amp;&amp; die &quot;subversion.eclass: ESVN_REPO_URI is empty.&quot;
++
++	# http and https only...
++	case ${ESVN_REPO_URI%%:*} in
++		http)	;;
++		https)	;;
++		svn)	;;
++		*)
++			die &quot;subversion.eclass: fetch from &quot;${ESVN_REPO_URI%:*}&quot; is not yet implemented.&quot;
++			;;
++	esac
++
++	# every time
++	addwrite &quot;${ESVN_STORE_DIR}&quot;
++	addwrite &quot;/etc/subversion&quot;
++
++	# -userpriv
++	addwrite &quot;/root/.subversion&quot;
++
++	if [ ! -d &quot;${ESVN_STORE_DIR}&quot; ]; then
++		mkdir -p &quot;${ESVN_STORE_DIR}&quot; || die &quot;subversion.eclass: can't mkdir ${ESVN_STORE_DIR}.&quot;
++		chmod -f o+rw &quot;${ESVN_STORE_DIR}&quot; || die &quot;subversion.eclass: can't chmod ${ESVN_STORE_DIR}.&quot;
++		einfo &quot;created store directory: ${ESVN_STORE_DIR}&quot;
++		einfo
++	fi
++
++	cd &quot;${ESVN_STORE_DIR}&quot;
++
++	if [ -z ${ESVN_REPO_URI##*/} ]; then
++		ESVN_REPO_FIX=&quot;${ESVN_REPO_URI%/}&quot;
++	else
++		ESVN_REPO_FIX=&quot;${ESVN_REPO_URI}&quot;
++	fi
++
++	ESVN_CO_DIR=&quot;${ESVN_PROJECT}/${ESVN_REPO_FIX##*/}&quot;
++
++	if [ ! -d &quot;${ESVN_CO_DIR}/.svn&quot; ]; then
++		# first check out
++		einfo &quot;subversion check out start --&gt;&quot;
++		einfo
++		einfo &quot;check out from: ${ESVN_REPO_URI}&quot;
++
++		mkdir -p &quot;${ESVN_PROJECT}&quot; || die &quot;subversion.eclass: can't mkdir ${ESVN_PROJECT}.&quot;
++		chmod -f o+rw &quot;${ESVN_PROJECT}&quot; || die &quot;subversion.eclass: can't chmod ${ESVN_PROJECT}.&quot;
++		cd &quot;${ESVN_PROJECT}&quot;
++		${ESVN_FETCH_CMD} &quot;${ESVN_REPO_URI}&quot; || die &quot;subversion.eclass: can't fetch from ${ESVN_REPO_URI}.&quot;
++		einfo &quot;     stored in: ${ESVN_STORE_DIR}/${ESVN_CO_DIR}&quot;
++
++	else
++		# update working copy
++		einfo &quot;subversion update start --&gt;&quot;
++		einfo
++		einfo &quot;   update from: ${ESVN_REPO_URI}&quot;
++
++		cd &quot;${ESVN_CO_DIR}&quot;
++		${ESVN_UPDATE_CMD} || die &quot;subversion.eclass: can't update from ${ESVN_REPO_URI}.&quot;
++		einfo &quot;    updated in: ${ESVN_STORE_DIR}/${ESVN_CO_DIR}&quot;
++	fi
++
++	# permission fix
++	chmod -Rf o+rw . 2&gt;/dev/null
++
++	# copy to the ${WORKDIR}
++	cp -Rf &quot;${ESVN_STORE_DIR}/${ESVN_CO_DIR}&quot; &quot;${WORKDIR}/${P}&quot; || die &quot;subversion.eclass: can't copy to ${WORKDIR}/${P}.&quot;
++	einfo
++
++}
++
++src_compile() {
++	export WANT_AUTOCONF=2.5
++
++	econf || die
++	emake || die
++}
++
++
++
++
++src_install() {
++	einfo &quot;Installing...&quot;
++	make DESTDIR=${D} install || die &quot;make install failed&quot;
++	dodoc README* AUTHORS TODO* COPYING
++}
++
+
+Deleted: 0.0.x/darimasen-svn-0.1.ebuild
+===================================================================
+--- 0.0.x/darimasen-svn-0.1.ebuild	2005-05-23 00:35:14 UTC (rev 76)
++++ 0.0.x/darimasen-svn-0.1.ebuild	2005-05-23 03:07:19 UTC (rev 77)
+@@ -1,114 +0,0 @@
+-# Copyright 1999-2004 Gentoo Technologies, Inc.
+-# Distributed under the terms of the GNU General Public License v2
+-# $Header: $
+-
+-
+-ESVN_REPO_URI=&quot;<A HREF="svn://svn.berlios.de/darimasen/trunk">svn://svn.berlios.de/darimasen/trunk</A>&quot;
+-ESVN_PROJECT=&quot;darimasen&quot;
+-ESVN_BOOTSTRAP=&quot;autogen.sh&quot;
+-inherit subversion
+-
+-DESCRIPTION=&quot;A file manager with menu-based navigation&quot;
+-HOMEPAGE=&quot;<A HREF="http://darimasen.berlios.de/">http://darimasen.berlios.de/</A>&quot;
+-
+-LICENSE=&quot;GPL-2&quot;
+-SLOT=&quot;0&quot;
+-KEYWORDS=&quot;~x86&quot;
+-
+-IUSE=&quot;&quot;
+-SLOT=&quot;0&quot;
+-
+-DEPEND=&quot;&gt;=dev-libs/libsigc++-2.0.3
+-        &gt;=dev-cpp/gtkmm-2.6.1
+-        &gt;=dev-cpp/gnome-vfsmm-2.6.0
+-        x11-themes/gnome-icon-theme&quot;
+-RDEPEND=&quot;!x11-misc/darimasen&quot;
+-
+-
+-subversion_svn_fetch() {
+-
+-	# ESVN_REPO_URI is empty.
+-	[ -z &quot;${ESVN_REPO_URI}&quot; ] &amp;&amp; die &quot;subversion.eclass: ESVN_REPO_URI is empty.&quot;
+-
+-	# http and https only...
+-	case ${ESVN_REPO_URI%%:*} in
+-		http)	;;
+-		https)	;;
+-		svn)	;;
+-		*)
+-			die &quot;subversion.eclass: fetch from &quot;${ESVN_REPO_URI%:*}&quot; is not yet implemented.&quot;
+-			;;
+-	esac
+-
+-	# every time
+-	addwrite &quot;${ESVN_STORE_DIR}&quot;
+-	addwrite &quot;/etc/subversion&quot;
+-
+-	# -userpriv
+-	addwrite &quot;/root/.subversion&quot;
+-
+-	if [ ! -d &quot;${ESVN_STORE_DIR}&quot; ]; then
+-		mkdir -p &quot;${ESVN_STORE_DIR}&quot; || die &quot;subversion.eclass: can't mkdir ${ESVN_STORE_DIR}.&quot;
+-		chmod -f o+rw &quot;${ESVN_STORE_DIR}&quot; || die &quot;subversion.eclass: can't chmod ${ESVN_STORE_DIR}.&quot;
+-		einfo &quot;created store directory: ${ESVN_STORE_DIR}&quot;
+-		einfo
+-	fi
+-
+-	cd &quot;${ESVN_STORE_DIR}&quot;
+-
+-	if [ -z ${ESVN_REPO_URI##*/} ]; then
+-		ESVN_REPO_FIX=&quot;${ESVN_REPO_URI%/}&quot;
+-	else
+-		ESVN_REPO_FIX=&quot;${ESVN_REPO_URI}&quot;
+-	fi
+-
+-	ESVN_CO_DIR=&quot;${ESVN_PROJECT}/${ESVN_REPO_FIX##*/}&quot;
+-
+-	if [ ! -d &quot;${ESVN_CO_DIR}/.svn&quot; ]; then
+-		# first check out
+-		einfo &quot;subversion check out start --&gt;&quot;
+-		einfo
+-		einfo &quot;check out from: ${ESVN_REPO_URI}&quot;
+-
+-		mkdir -p &quot;${ESVN_PROJECT}&quot; || die &quot;subversion.eclass: can't mkdir ${ESVN_PROJECT}.&quot;
+-		chmod -f o+rw &quot;${ESVN_PROJECT}&quot; || die &quot;subversion.eclass: can't chmod ${ESVN_PROJECT}.&quot;
+-		cd &quot;${ESVN_PROJECT}&quot;
+-		${ESVN_FETCH_CMD} &quot;${ESVN_REPO_URI}&quot; || die &quot;subversion.eclass: can't fetch from ${ESVN_REPO_URI}.&quot;
+-		einfo &quot;     stored in: ${ESVN_STORE_DIR}/${ESVN_CO_DIR}&quot;
+-
+-	else
+-		# update working copy
+-		einfo &quot;subversion update start --&gt;&quot;
+-		einfo
+-		einfo &quot;   update from: ${ESVN_REPO_URI}&quot;
+-
+-		cd &quot;${ESVN_CO_DIR}&quot;
+-		${ESVN_UPDATE_CMD} || die &quot;subversion.eclass: can't update from ${ESVN_REPO_URI}.&quot;
+-		einfo &quot;    updated in: ${ESVN_STORE_DIR}/${ESVN_CO_DIR}&quot;
+-	fi
+-
+-	# permission fix
+-	chmod -Rf o+rw . 2&gt;/dev/null
+-
+-	# copy to the ${WORKDIR}
+-	cp -Rf &quot;${ESVN_STORE_DIR}/${ESVN_CO_DIR}&quot; &quot;${WORKDIR}/${P}&quot; || die &quot;subversion.eclass: can't copy to ${WORKDIR}/${P}.&quot;
+-	einfo
+-
+-}
+-
+-src_compile() {
+-	export WANT_AUTOCONF=2.5
+-
+-	econf || die
+-	emake || die
+-}
+-
+-
+-
+-
+-src_install() {
+-	einfo &quot;Installing...&quot;
+-	make DESTDIR=${D} install || die &quot;make install failed&quot;
+-	dodoc README* AUTHORS TODO* COPYING
+-}
+-
+
+Deleted: trunk/darimasen-svn-0.1.ebuild
+===================================================================
+--- trunk/darimasen-svn-0.1.ebuild	2005-05-23 00:35:14 UTC (rev 76)
++++ trunk/darimasen-svn-0.1.ebuild	2005-05-23 03:07:19 UTC (rev 77)
+@@ -1,114 +0,0 @@
+-# Copyright 1999-2004 Gentoo Technologies, Inc.
+-# Distributed under the terms of the GNU General Public License v2
+-# $Header: $
+-
+-
+-ESVN_REPO_URI=&quot;<A HREF="svn://svn.berlios.de/darimasen/trunk">svn://svn.berlios.de/darimasen/trunk</A>&quot;
+-ESVN_PROJECT=&quot;darimasen&quot;
+-ESVN_BOOTSTRAP=&quot;autogen.sh&quot;
+-inherit subversion
+-
+-DESCRIPTION=&quot;A file manager with menu-based navigation&quot;
+-HOMEPAGE=&quot;<A HREF="http://darimasen.berlios.de/">http://darimasen.berlios.de/</A>&quot;
+-
+-LICENSE=&quot;GPL-2&quot;
+-SLOT=&quot;0&quot;
+-KEYWORDS=&quot;~x86&quot;
+-
+-IUSE=&quot;&quot;
+-SLOT=&quot;0&quot;
+-
+-DEPEND=&quot;&gt;=dev-libs/libsigc++-2.0.3
+-        &gt;=dev-cpp/gtkmm-2.6.1
+-        &gt;=dev-cpp/gnome-vfsmm-2.6.0
+-        x11-themes/gnome-icon-theme&quot;
+-RDEPEND=&quot;!x11-misc/darimasen&quot;
+-
+-
+-subversion_svn_fetch() {
+-
+-	# ESVN_REPO_URI is empty.
+-	[ -z &quot;${ESVN_REPO_URI}&quot; ] &amp;&amp; die &quot;subversion.eclass: ESVN_REPO_URI is empty.&quot;
+-
+-	# http and https only...
+-	case ${ESVN_REPO_URI%%:*} in
+-		http)	;;
+-		https)	;;
+-		svn)	;;
+-		*)
+-			die &quot;subversion.eclass: fetch from &quot;${ESVN_REPO_URI%:*}&quot; is not yet implemented.&quot;
+-			;;
+-	esac
+-
+-	# every time
+-	addwrite &quot;${ESVN_STORE_DIR}&quot;
+-	addwrite &quot;/etc/subversion&quot;
+-
+-	# -userpriv
+-	addwrite &quot;/root/.subversion&quot;
+-
+-	if [ ! -d &quot;${ESVN_STORE_DIR}&quot; ]; then
+-		mkdir -p &quot;${ESVN_STORE_DIR}&quot; || die &quot;subversion.eclass: can't mkdir ${ESVN_STORE_DIR}.&quot;
+-		chmod -f o+rw &quot;${ESVN_STORE_DIR}&quot; || die &quot;subversion.eclass: can't chmod ${ESVN_STORE_DIR}.&quot;
+-		einfo &quot;created store directory: ${ESVN_STORE_DIR}&quot;
+-		einfo
+-	fi
+-
+-	cd &quot;${ESVN_STORE_DIR}&quot;
+-
+-	if [ -z ${ESVN_REPO_URI##*/} ]; then
+-		ESVN_REPO_FIX=&quot;${ESVN_REPO_URI%/}&quot;
+-	else
+-		ESVN_REPO_FIX=&quot;${ESVN_REPO_URI}&quot;
+-	fi
+-
+-	ESVN_CO_DIR=&quot;${ESVN_PROJECT}/${ESVN_REPO_FIX##*/}&quot;
+-
+-	if [ ! -d &quot;${ESVN_CO_DIR}/.svn&quot; ]; then
+-		# first check out
+-		einfo &quot;subversion check out start --&gt;&quot;
+-		einfo
+-		einfo &quot;check out from: ${ESVN_REPO_URI}&quot;
+-
+-		mkdir -p &quot;${ESVN_PROJECT}&quot; || die &quot;subversion.eclass: can't mkdir ${ESVN_PROJECT}.&quot;
+-		chmod -f o+rw &quot;${ESVN_PROJECT}&quot; || die &quot;subversion.eclass: can't chmod ${ESVN_PROJECT}.&quot;
+-		cd &quot;${ESVN_PROJECT}&quot;
+-		${ESVN_FETCH_CMD} &quot;${ESVN_REPO_URI}&quot; || die &quot;subversion.eclass: can't fetch from ${ESVN_REPO_URI}.&quot;
+-		einfo &quot;     stored in: ${ESVN_STORE_DIR}/${ESVN_CO_DIR}&quot;
+-
+-	else
+-		# update working copy
+-		einfo &quot;subversion update start --&gt;&quot;
+-		einfo
+-		einfo &quot;   update from: ${ESVN_REPO_URI}&quot;
+-
+-		cd &quot;${ESVN_CO_DIR}&quot;
+-		${ESVN_UPDATE_CMD} || die &quot;subversion.eclass: can't update from ${ESVN_REPO_URI}.&quot;
+-		einfo &quot;    updated in: ${ESVN_STORE_DIR}/${ESVN_CO_DIR}&quot;
+-	fi
+-
+-	# permission fix
+-	chmod -Rf o+rw . 2&gt;/dev/null
+-
+-	# copy to the ${WORKDIR}
+-	cp -Rf &quot;${ESVN_STORE_DIR}/${ESVN_CO_DIR}&quot; &quot;${WORKDIR}/${P}&quot; || die &quot;subversion.eclass: can't copy to ${WORKDIR}/${P}.&quot;
+-	einfo
+-
+-}
+-
+-src_compile() {
+-	export WANT_AUTOCONF=2.5
+-
+-	econf || die
+-	emake || die
+-}
+-
+-
+-
+-
+-src_install() {
+-	einfo &quot;Installing...&quot;
+-	make DESTDIR=${D} install || die &quot;make install failed&quot;
+-	dodoc README* AUTHORS TODO* COPYING
+-}
+-
+
+Copied: trunk/darimasen-svn-0.2.ebuild (from rev 76, trunk/darimasen-svn-0.1.ebuild)
+===================================================================
+--- trunk/darimasen-svn-0.1.ebuild	2005-05-23 00:35:14 UTC (rev 76)
++++ trunk/darimasen-svn-0.2.ebuild	2005-05-23 03:07:19 UTC (rev 77)
+@@ -0,0 +1,112 @@
++# Copyright 1999-2004 Gentoo Technologies, Inc.
++# Distributed under the terms of the GNU General Public License v2
++# $Header: $
++
++
++ESVN_REPO_URI=&quot;<A HREF="svn://svn.berlios.de/darimasen/trunk">svn://svn.berlios.de/darimasen/trunk</A>&quot;
++ESVN_PROJECT=&quot;darimasen&quot;
++ESVN_BOOTSTRAP=&quot;autogen.sh&quot;
++inherit subversion
++
++DESCRIPTION=&quot;A file manager with menu-based navigation&quot;
++HOMEPAGE=&quot;<A HREF="http://darimasen.berlios.de/">http://darimasen.berlios.de/</A>&quot;
++
++LICENSE=&quot;GPL-2&quot;
++SLOT=&quot;0&quot;
++KEYWORDS=&quot;~x86&quot;
++
++IUSE=&quot;&quot;
++SLOT=&quot;0&quot;
++
++DEPEND=&quot;&gt;=dev-dotnet/gnomevfs-sharp
++        x11-themes/gnome-icon-theme&quot;
++RDEPEND=&quot;!x11-misc/darimasen&quot;
++
++
++subversion_svn_fetch() {
++
++	# ESVN_REPO_URI is empty.
++	[ -z &quot;${ESVN_REPO_URI}&quot; ] &amp;&amp; die &quot;subversion.eclass: ESVN_REPO_URI is empty.&quot;
++
++	# http and https only...
++	case ${ESVN_REPO_URI%%:*} in
++		http)	;;
++		https)	;;
++		svn)	;;
++		*)
++			die &quot;subversion.eclass: fetch from &quot;${ESVN_REPO_URI%:*}&quot; is not yet implemented.&quot;
++			;;
++	esac
++
++	# every time
++	addwrite &quot;${ESVN_STORE_DIR}&quot;
++	addwrite &quot;/etc/subversion&quot;
++
++	# -userpriv
++	addwrite &quot;/root/.subversion&quot;
++
++	if [ ! -d &quot;${ESVN_STORE_DIR}&quot; ]; then
++		mkdir -p &quot;${ESVN_STORE_DIR}&quot; || die &quot;subversion.eclass: can't mkdir ${ESVN_STORE_DIR}.&quot;
++		chmod -f o+rw &quot;${ESVN_STORE_DIR}&quot; || die &quot;subversion.eclass: can't chmod ${ESVN_STORE_DIR}.&quot;
++		einfo &quot;created store directory: ${ESVN_STORE_DIR}&quot;
++		einfo
++	fi
++
++	cd &quot;${ESVN_STORE_DIR}&quot;
++
++	if [ -z ${ESVN_REPO_URI##*/} ]; then
++		ESVN_REPO_FIX=&quot;${ESVN_REPO_URI%/}&quot;
++	else
++		ESVN_REPO_FIX=&quot;${ESVN_REPO_URI}&quot;
++	fi
++
++	ESVN_CO_DIR=&quot;${ESVN_PROJECT}/${ESVN_REPO_FIX##*/}&quot;
++
++	if [ ! -d &quot;${ESVN_CO_DIR}/.svn&quot; ]; then
++		# first check out
++		einfo &quot;subversion check out start --&gt;&quot;
++		einfo
++		einfo &quot;check out from: ${ESVN_REPO_URI}&quot;
++
++		mkdir -p &quot;${ESVN_PROJECT}&quot; || die &quot;subversion.eclass: can't mkdir ${ESVN_PROJECT}.&quot;
++		chmod -f o+rw &quot;${ESVN_PROJECT}&quot; || die &quot;subversion.eclass: can't chmod ${ESVN_PROJECT}.&quot;
++		cd &quot;${ESVN_PROJECT}&quot;
++		${ESVN_FETCH_CMD} &quot;${ESVN_REPO_URI}&quot; || die &quot;subversion.eclass: can't fetch from ${ESVN_REPO_URI}.&quot;
++		einfo &quot;     stored in: ${ESVN_STORE_DIR}/${ESVN_CO_DIR}&quot;
++
++	else
++		# update working copy
++		einfo &quot;subversion update start --&gt;&quot;
++		einfo
++		einfo &quot;   update from: ${ESVN_REPO_URI}&quot;
++
++		cd &quot;${ESVN_CO_DIR}&quot;
++		${ESVN_UPDATE_CMD} || die &quot;subversion.eclass: can't update from ${ESVN_REPO_URI}.&quot;
++		einfo &quot;    updated in: ${ESVN_STORE_DIR}/${ESVN_CO_DIR}&quot;
++	fi
++
++	# permission fix
++	chmod -Rf o+rw . 2&gt;/dev/null
++
++	# copy to the ${WORKDIR}
++	cp -Rf &quot;${ESVN_STORE_DIR}/${ESVN_CO_DIR}&quot; &quot;${WORKDIR}/${P}&quot; || die &quot;subversion.eclass: can't copy to ${WORKDIR}/${P}.&quot;
++	einfo
++
++}
++
++src_compile() {
++	export WANT_AUTOCONF=2.5
++
++	econf || die
++	emake || die
++}
++
++
++
++
++src_install() {
++	einfo &quot;Installing...&quot;
++	make DESTDIR=${D} install || die &quot;make install failed&quot;
++	dodoc README* AUTHORS TODO* COPYING
++}
++
+
+Modified: trunk/src/Makefile.am
+===================================================================
+--- trunk/src/Makefile.am	2005-05-23 00:35:14 UTC (rev 76)
++++ trunk/src/Makefile.am	2005-05-23 03:07:19 UTC (rev 77)
+@@ -2,21 +2,9 @@
+ bin_PROGRAMS = darimasen
+ 
+ darimasen_SOURCES = \
+-	darimasen.cpp \
+-	iconmodes.cpp \
+-	supplimental.cpp \
+-        firsttime.cpp \
+-	main.cpp \
+-	damenu.cpp \
+-        optionsManager.cpp
++
+ noinst_HEADERS = \
+-	darimasen.h \
+-	iconmodes.h \
+-	supplimental.h \
+-        firsttime.h \
+-	main.h \
+-	damenu.h \
+-        optionsManager.h
++
+ AM_CXXFLAGS = -I../.. @PKG_CFLAGS@
+ 
+ darimasen_LDADD = -lpthread @LIBS@ @PKG_LIBS@ 
+
+Deleted: trunk/src/damenu.cpp
+===================================================================
+--- trunk/src/damenu.cpp	2005-05-23 00:35:14 UTC (rev 76)
++++ trunk/src/damenu.cpp	2005-05-23 03:07:19 UTC (rev 77)
+@@ -1,619 +0,0 @@
+-/* Darimasen - damenu.cpp - Copyright (C) 2004 - 2005 Sudrien, GPL */
+-
+-/**********************/
+-
+-#include &quot;damenu.h&quot;
+-
+-/**********************/
+-
+-
+-// what actually builds the menus for each directory.
+-void DarimasenMenu::MenuForPath(
+-       int position,
+-       Glib::ustring path,
+-       Glib::ustring ext){
+-
+-  int entry = 0;
+-
+-MenuItemArray[position]-&gt;signal_activate().connect_notify(sigc::bind&lt;guint,Glib::ustring&gt;(sigc::mem_fun(*this,&amp;DarimasenMenu:: selection_reset),position,path));
+-
+-  if( position &lt; depth || ext != &quot;&quot;){
+-
+-    Gtk::MenuItem * subdir = Gtk::manage( new Gtk::MenuItem(menulevel[position] + &quot; &quot;));
+-    MenuArray[position]-&gt;attach(*subdir, 0 ,4, entry++, entry+1);
+-    subdir-&gt;show();
+-
+-          subdir-&gt;set_events(Gdk::BUTTON_RELEASE_MASK);
+-
+-    if ( ext != &quot;&quot; ){
+-          subdir-&gt;signal_button_press_event().connect(
+-            sigc::bind&lt;Glib::ustring,guint,bool&gt;(
+-              sigc::mem_fun(*this, &amp;DarimasenMenu::DaMenuSelect),
+-                 (path + menulevel[position]).substr(0, (path + menulevel[position]).length() - 1),position,true));
+-      }
+-    else {
+-          subdir-&gt;signal_button_press_event().connect(
+-            sigc::bind&lt;Glib::ustring,guint,bool&gt;(
+-              sigc::mem_fun(*this, &amp;DarimasenMenu::DaMenuSelect),
+-                 (path + menulevel[position]).substr(0, (path + menulevel[position]).length() - 1),position,false));
+-      }
+-
+-    Gtk::SeparatorMenuItem * sep = Gtk::manage( new Gtk::SeparatorMenuItem());
+-    MenuArray[position]-&gt;attach(*sep, 0 ,4, entry++, entry+1);
+-    sep-&gt;show();
+-    }
+-
+-  try{
+-    Gnome::Vfs::DirectoryHandle handle;
+-
+-    if(ext == &quot;&quot;){
+-      handle.open(path, Gnome::Vfs::FILE_INFO_DEFAULT | Gnome::Vfs::FILE_INFO_FOLLOW_LINKS);
+-      }
+-    else{
+-      handle.open(path + slash + ext, Gnome::Vfs::FILE_INFO_DEFAULT | Gnome::Vfs::FILE_INFO_FOLLOW_LINKS);
+-      }
+-
+-    bool file_exists = true;
+-    while(file_exists) {
+-      Glib::RefPtr&lt;Gnome::Vfs::FileInfo&gt; refFileInfo = handle.read_next(file_exists);
+-      if (refFileInfo-&gt;get_type() == Gnome::Vfs::FILE_TYPE_DIRECTORY
+-          &amp;&amp; ( (refFileInfo-&gt;get_name().substr(0,1) != &quot;.&quot;) || parent-&gt;get_hidden())
+-          &amp;&amp; refFileInfo-&gt;get_name() != &quot;.&quot;
+-          &amp;&amp; refFileInfo-&gt;get_name() != &quot;..&quot;
+-          ){ 
+-        Gtk::MenuItem * subdir;
+-        Glib::ustring SubSubCount;
+-        if(ext == &quot;&quot;){
+-          subdir = Gtk::manage( new Gtk::MenuItem(refFileInfo-&gt;get_name() + slash + &quot; &quot;));
+-          subdir-&gt;set_events(Gdk::BUTTON_RELEASE_MASK);
+-
+-          subdir-&gt;signal_button_press_event().connect(
+-            sigc::bind&lt;Glib::ustring,guint,bool&gt;(
+-              sigc::mem_fun(*this, &amp;DarimasenMenu::DaMenuSelect),
+-                 (path + refFileInfo-&gt;get_name()), position,false));
+-
+-          SubSubCount = CountSubdir(path + refFileInfo-&gt;get_name());
+-          }
+-        else{
+-          subdir = Gtk::manage( new Gtk::MenuItem(ext + slash + refFileInfo-&gt;get_name() + slash + &quot; &quot;));
+-          subdir-&gt;set_events(Gdk::BUTTON_RELEASE_MASK);
+-
+-          subdir-&gt;signal_button_press_event().connect(
+-            sigc::bind&lt;Glib::ustring,guint,bool&gt;(
+-              sigc::mem_fun(*this, &amp;DarimasenMenu::DaMenuSelect),
+-                (path + ext.substr(1) + slash + refFileInfo-&gt;get_name()), position,false));
+-
+-          SubSubCount = CountSubdir(path + ext + slash + refFileInfo-&gt;get_name());
+-          }
+-
+-        if (SubSubCount != &quot;0&quot;){
+-          Gtk::Label * SubSubLabel = Gtk::manage(new class Gtk::Label(SubSubCount + &quot; \342\226\272&quot;,1,0.5));
+-          SubSubLabel-&gt;show();
+-          Gtk::MenuItem * subsubdir = Gtk::manage( new Gtk::MenuItem(*SubSubLabel));
+-
+-          subsubdir-&gt;set_right_justified();
+-
+-          subsubdir-&gt;set_events(Gdk::BUTTON_RELEASE_MASK);
+-          subsubdir-&gt;signal_button_release_event().connect(
+-            sigc::bind&lt;int, Glib::ustring, Glib::ustring&gt;(
+-              sigc::mem_fun(*this, &amp;DarimasenMenu::SpecialMenuForPath),
+-                position, path, ext+ slash + refFileInfo-&gt;get_name()));
+-
+-          MenuArray[position]-&gt;attach(*subsubdir, 3 ,4, entry, entry+1);
+-          subsubdir-&gt;show();
+-          MenuArray[position]-&gt;attach(*subdir, 0 ,3, entry++, entry+1);
+-          subdir-&gt;show();
+-          }
+-        else {
+-          MenuArray[position]-&gt;attach(*subdir, 0 ,4, entry++, entry+1);
+-          subdir-&gt;show();            
+-          }
+-        }
+-      }
+-    }
+-  catch(const Gnome::Vfs::exception&amp; ex){}
+-
+-
+-  }
+-
+-/**********************/
+-
+-// the function called for sub-sub-directories - when an arrow is selected in another menu. 
+-bool DarimasenMenu::SpecialMenuForPath(GdkEventButton* event,
+-       int position,
+-       Glib::ustring path,
+-       Glib::ustring ext){
+-
+-  MenuItemArray[position]-&gt;remove_submenu();
+-  delete MenuArray[position];
+-  MenuArray[position] =  new Gtk::Menu();
+-  MenuItemArray[position]-&gt;set_submenu(*MenuArray[position]);
+-  MenuForPath(position, path, ext);
+-  MenuItemArray[position]-&gt;select();
+-
+-  needsRebuild[position] = true;
+-
+-  return true;
+-
+-  }
+-
+-/**********************/
+-
+-void DarimasenMenu:: selection_reset(guint position, Glib::ustring path){
+-  if ( needsRebuild[position] ){
+-    MenuItemArray[position]-&gt;remove_submenu();
+-    delete MenuArray[position];
+-    MenuArray[position] =  new Gtk::Menu();
+-    MenuItemArray[position]-&gt;set_submenu(*MenuArray[position]);
+-    MenuForPath(position, path, &quot;&quot;);
+-    MenuItemArray[position]-&gt;select();
+-
+-    needsRebuild[position] = false;
+-    }
+-}
+-
+-/**********************/
+-
+-//Decides the action of the menuItem, more sophisticated than the activate signal. 
+-//its comment should always be somewhere.
+-
+-bool DarimasenMenu::DaMenuSelect(
+-      GdkEventButton* event,
+-      const Glib::ustring path,
+-      guint pos,
+-      bool first){
+-
+-  if ((event-&gt;type == GDK_BUTTON_PRESS) &amp;&amp; (event-&gt;button == 2) ) //middle
+-  {
+-  parent-&gt;newTab(path);
+-  return true;
+-  }
+-  if ((event-&gt;type == GDK_BUTTON_PRESS) &amp;&amp; (event-&gt;button == 1) ) //left
+-  {
+-  parent-&gt;ChangeCurrentPath(path,true,first);
+-  return true;
+-  }
+-  if ((event-&gt;type == GDK_BUTTON_PRESS) &amp;&amp; (event-&gt;button == 3) ) //right
+-  {
+-
+-    for( int i=10; i &gt; 0; i--)
+-      prompt.items().pop_back();
+-
+-
+-    //prompt.items().push_back(
+-    //  Gtk::Menu_Helpers::MenuElem(&quot;Opening &quot; + path + &quot; from here consistently leads to errors&quot;));
+-
+-    prompt.items().push_back(
+-      Gtk::Menu_Helpers::MenuElem(&quot;Open In new Tab&quot;,
+-        sigc::bind&lt;Glib::ustring&gt;(
+-          sigc::mem_fun(*parent,&amp;Darimasen::newTab),path)));
+-
+-    prompt.items().push_back(
+-      Gtk::Menu_Helpers::SeparatorElem());
+-
+-    prompt.items().push_back(
+-      Gtk::Menu_Helpers::MenuElem(&quot;Copy...&quot;,
+-        sigc::bind&lt;Glib::ustring&gt;(
+-          sigc::mem_fun(*this,&amp;DarimasenMenu::copy),path)));
+-
+-    prompt.items().push_back(
+-      Gtk::Menu_Helpers::MenuElem(&quot;Move...&quot;,
+-        sigc::bind&lt;Glib::ustring&gt;(
+-          sigc::mem_fun(*this,&amp;DarimasenMenu::move),path)));
+-
+-    prompt.items().push_back(
+-      Gtk::Menu_Helpers::MenuElem(&quot;Link...&quot;,
+-        sigc::bind&lt;Glib::ustring&gt;(
+-          sigc::mem_fun(*this,&amp;DarimasenMenu::link),path)));
+-
+-    prompt.items().push_back(
+-      Gtk::Menu_Helpers::MenuElem(&quot;Delete...&quot;,
+-        sigc::bind&lt;Glib::ustring,gint&gt;(
+-          sigc::mem_fun(*this,&amp;DarimasenMenu::unlinkify),path,pos)));
+-
+-    /*
+-    prompt.items().push_back(
+-      Gtk::Menu_Helpers::SeparatorElem());
+-
+-    prompt.items().push_back(
+-      Gtk::Menu_Helpers::MenuElem(&quot;Add to location menu&quot;,
+-        sigc::bind&lt;Glib::ustring&gt;(
+-          sigc::mem_fun(*this,&amp;DarimasenMenu::bookmark),path)));
+-    */
+-    prompt.signal_selection_done().connect_notify(
+-      sigc::mem_fun(*MenuItemArray[pos],&amp;Gtk::MenuItem::deselect));
+-
+-	
+-    prompt.popup(event-&gt;button, event-&gt;time);
+-  return true;
+-   }
+-
+-  return false;
+-
+-  //DaFileLister(); //5:45pm, 24 Dec 2004, it worked! // leave this comment    
+-  }
+-
+-/**********************/
+-
+-void DarimasenMenu::bookmark(Glib::ustring path){
+-  }
+-
+-/**********************/
+-
+-void DarimasenMenu::copy(Glib::ustring path){
+-
+-  Gtk::Dialog copyDialogue;
+-  Gtk::Button * cancelbutton2 = Gtk::manage(new class Gtk::Button(Gtk::StockID(&quot;gtk-cancel&quot;)));
+-  Gtk::Button * okbutton2 = Gtk::manage(new class Gtk::Button(Gtk::StockID(&quot;gtk-ok&quot;)));
+-   
+-  Gtk::RadioButton::Group _RadioBGroup_radiobutton4;
+-  Gtk::RadioButton * radiobutton4 = Gtk::manage(
+-    new class Gtk::RadioButton(_RadioBGroup_radiobutton4, &quot;Copy Directory to ... (cp -R)&quot;));
+-  Gtk::RadioButton * radiobutton5 = Gtk::manage(
+-    new class Gtk::RadioButton(_RadioBGroup_radiobutton4, &quot;Copy files in directory to ... (cp *)&quot;));
+-  Gtk::RadioButton * radiobutton6 = Gtk::manage(
+-    new class Gtk::RadioButton(_RadioBGroup_radiobutton4, &quot;Copy everything in directory to ... (cp -R \*)&quot;));
+-  Gtk::Entry * entry2 = Gtk::manage(new class Gtk::Entry());
+-  cancelbutton2-&gt;set_flags(Gtk::CAN_FOCUS);
+-  cancelbutton2-&gt;set_flags(Gtk::CAN_DEFAULT);
+-  okbutton2-&gt;set_flags(Gtk::CAN_FOCUS);
+-
+-  copyDialogue.get_action_area()-&gt;property_layout_style().set_value(Gtk::BUTTONBOX_END);
+-  radiobutton4-&gt;set_flags(Gtk::CAN_FOCUS);
+-  radiobutton5-&gt;set_flags(Gtk::CAN_FOCUS);
+-  radiobutton6-&gt;set_flags(Gtk::CAN_FOCUS);
+-  entry2-&gt;set_flags(Gtk::CAN_FOCUS);
+-  entry2-&gt;set_editable(true);
+-  entry2-&gt;set_text(path);
+-  copyDialogue.get_vbox()-&gt;pack_start(*radiobutton4, Gtk::PACK_SHRINK, 0);
+-  copyDialogue.get_vbox()-&gt;pack_start(*radiobutton5, Gtk::PACK_SHRINK, 0);
+-  copyDialogue.get_vbox()-&gt;pack_start(*radiobutton6, Gtk::PACK_SHRINK, 0);
+-  copyDialogue.get_vbox()-&gt;pack_start(*entry2, Gtk::PACK_SHRINK, 0);
+-  copyDialogue.set_title(&quot;Copy (Directory)&quot;);
+-  copyDialogue.set_modal(true);
+-
+-  copyDialogue.set_resizable(true);
+-  copyDialogue.add_action_widget(*cancelbutton2, -6);
+-  copyDialogue.add_action_widget(*okbutton2, -5);
+-  copyDialogue.show_all_children();
+-
+-  switch(copyDialogue.run()){
+-    case(Gtk::RESPONSE_OK):{
+-      parent-&gt;set_message( path + &quot;moved&quot;);
+-  if(radiobutton4-&gt;get_active()){
+-  Glib::spawn_command_line_async((Glib::ustring)&quot;cp -R \&quot;&quot;  + path.c_str() + (Glib::ustring)&quot;\&quot; \&quot;&quot; + entry2-&gt;get_text().c_str()+ &quot;\&quot;&quot;);
+-}
+-  if(radiobutton5-&gt;get_active()){
+-  Glib::spawn_command_line_async((Glib::ustring)&quot;cp \&quot;&quot;  + path.c_str() + (Glib::ustring)&quot;\&quot; \&quot;&quot; + entry2-&gt;get_text().c_str()+ &quot;\&quot;*&quot;);
+-}
+-  if(radiobutton6-&gt;get_active()){
+-  Glib::spawn_command_line_async((Glib::ustring)&quot;cp -R \&quot;&quot;  + path.c_str() + (Glib::ustring)&quot;\&quot; \&quot;&quot; + entry2-&gt;get_text().c_str()+ &quot;\&quot;*&quot;);
+-
+-
+-}
+-      return;
+-      }
+-    default:{
+-      std::cout &lt;&lt; path &lt;&lt; &quot;not copied\n&quot;;
+-      return;
+-      }
+-    }
+-  }
+-
+-/**********************/
+-
+-void DarimasenMenu::move(Glib::ustring path){
+-
+-  Gtk::Dialog moveDialogue;
+-  Gtk::Button * cancelbutton1 = Gtk::manage(new class Gtk::Button(Gtk::StockID(&quot;gtk-cancel&quot;)));
+-  Gtk::Button * okbutton1 = Gtk::manage(new class Gtk::Button(Gtk::StockID(&quot;gtk-ok&quot;)));
+-   
+-  Gtk::RadioButton::Group _RadioBGroup_radiobutton1;
+-  Gtk::RadioButton * radiobutton1 = Gtk::manage(new class Gtk::RadioButton(
+-    _RadioBGroup_radiobutton1, &quot;Move &quot; + path + &quot; to ... (mv -R )&quot;));
+-  Gtk::RadioButton * radiobutton2 = Gtk::manage(new class Gtk::RadioButton(
+-    _RadioBGroup_radiobutton1, &quot;Move files in directory to... (mv *)&quot;));
+-  Gtk::RadioButton * radiobutton3 = Gtk::manage(new class Gtk::RadioButton(
+-    _RadioBGroup_radiobutton1, &quot;Move everything in directory to... (mv -R \*)&quot;));
+-  Gtk::Entry * entry1 = Gtk::manage(new class Gtk::Entry());
+-  cancelbutton1-&gt;set_flags(Gtk::CAN_FOCUS);
+-  cancelbutton1-&gt;set_flags(Gtk::CAN_DEFAULT);
+-  okbutton1-&gt;set_flags(Gtk::CAN_FOCUS);
+-  moveDialogue.get_action_area()-&gt;property_layout_style().set_value(Gtk::BUTTONBOX_END);
+-  radiobutton1-&gt;set_flags(Gtk::CAN_FOCUS);
+-  radiobutton2-&gt;set_flags(Gtk::CAN_FOCUS);
+-  radiobutton3-&gt;set_flags(Gtk::CAN_FOCUS);
+-  entry1-&gt;set_flags(Gtk::CAN_FOCUS);
+-  entry1-&gt;set_editable(true);
+-  entry1-&gt;set_text(path);
+-  moveDialogue.get_vbox()-&gt;pack_start(*radiobutton1, Gtk::PACK_SHRINK, 0);
+-  moveDialogue.get_vbox()-&gt;pack_start(*radiobutton2, Gtk::PACK_SHRINK, 0);
+-  moveDialogue.get_vbox()-&gt;pack_start(*radiobutton3, Gtk::PACK_SHRINK, 0);
+-  moveDialogue.get_vbox()-&gt;pack_start(*entry1, Gtk::PACK_SHRINK, 0);
+-  moveDialogue.set_title(&quot;Move (Directory)&quot;);
+-  moveDialogue.set_modal(true);
+-  moveDialogue.set_resizable(true);
+-  moveDialogue.property_destroy_with_parent().set_value(true);
+-  moveDialogue.add_action_widget(*cancelbutton1, -6);
+-  moveDialogue.add_action_widget(*okbutton1, -5);
+-  moveDialogue.show_all_children();
+-
+-  switch(moveDialogue.run()){
+-    case(Gtk::RESPONSE_OK):{
+-      parent-&gt;set_message( path + &quot;moved&quot;);
+-  if(radiobutton1-&gt;get_active()){
+-  Glib::spawn_command_line_async((Glib::ustring)&quot;mv -R \&quot;&quot;  + path.c_str() + (Glib::ustring)&quot;\&quot; \&quot;&quot; + entry1-&gt;get_text().c_str()+ &quot;\&quot;&quot;);
+-}
+-  if(radiobutton2-&gt;get_active()){
+-  Glib::spawn_command_line_async((Glib::ustring)&quot;mv \&quot;&quot;  + path.c_str() + (Glib::ustring)&quot;\&quot; \&quot;&quot; + entry1-&gt;get_text().c_str()+ &quot;\&quot;*&quot;);
+-}
+-  if(radiobutton3-&gt;get_active()){
+-  Glib::spawn_command_line_async((Glib::ustring)&quot;mv -R \&quot;&quot;  + path.c_str() + (Glib::ustring)&quot;\&quot; \&quot;&quot; + entry1-&gt;get_text().c_str()+ &quot;\&quot;*&quot;);
+-
+-
+-}
+-      // rebuild this menu if needed
+-      //check if any other menus effected, if so, set for rebuild
+-      return;
+-      }
+-    default:{
+-      std::cout &lt;&lt; path &lt;&lt; &quot;not moved\n&quot;;
+-      return;
+-      }
+-    }
+-  }
+-
+-
+-/**********************/
+-
+-void DarimasenMenu::link(Glib::ustring path){
+-  Gtk::Dialog linkDialogue;
+-  Gtk::Button * cancelbutton3 = Gtk::manage(new class Gtk::Button(Gtk::StockID(&quot;gtk-cancel&quot;)));
+-  Gtk::Button * okbutton3 = Gtk::manage(new class Gtk::Button(Gtk::StockID(&quot;gtk-ok&quot;)));
+-  Gtk::Label * label1 = Gtk::manage(new class Gtk::Label(&quot;Create link to &quot;+ path +&quot; at ...&quot;));
+-  Gtk::Entry * entry3 = Gtk::manage(new class Gtk::Entry());
+-  cancelbutton3-&gt;set_flags(Gtk::CAN_FOCUS);
+-  cancelbutton3-&gt;set_flags(Gtk::CAN_DEFAULT);
+-  okbutton3-&gt;set_flags(Gtk::CAN_FOCUS);
+-  linkDialogue.get_action_area()-&gt;property_layout_style().set_value(Gtk::BUTTONBOX_END);
+-  label1-&gt;set_alignment(0,0.5);
+-  label1-&gt;set_padding(2,2);
+-  label1-&gt;set_justify(Gtk::JUSTIFY_LEFT);
+-  label1-&gt;set_line_wrap(true);
+-  label1-&gt;set_use_markup(false);
+-  label1-&gt;set_selectable(false);
+-  entry3-&gt;set_flags(Gtk::CAN_FOCUS);
+-  entry3-&gt;set_visibility(true);
+-  entry3-&gt;set_editable(true);
+-  entry3-&gt;set_text(path);
+-  entry3-&gt;set_activates_default(false);
+-  linkDialogue.get_vbox()-&gt;pack_start(*label1, Gtk::PACK_SHRINK, 0);
+-  linkDialogue.get_vbox()-&gt;pack_start(*entry3, Gtk::PACK_SHRINK, 0);
+-  linkDialogue.set_title(&quot;Link (Directory)&quot;);
+-  linkDialogue.set_modal(true);
+-  linkDialogue.set_resizable(true);
+-  linkDialogue.property_destroy_with_parent().set_value(true);
+-  linkDialogue.add_action_widget(*cancelbutton3, -6);
+-  linkDialogue.add_action_widget(*okbutton3, -5);
+-
+-  linkDialogue.show_all_children();
+-
+-  switch(linkDialogue.run()){
+-    case(Gtk::RESPONSE_OK):{
+-
+-
+-  Glib::spawn_command_line_async((Glib::ustring)&quot;ln -s \&quot;&quot;  + label1-&gt;get_text().c_str() + (Glib::ustring)&quot;\&quot; \&quot;&quot; + entry3-&gt;get_text().c_str() + &quot;\&quot;&quot;);
+-
+-      parent-&gt;set_message( &quot;link created &quot; + path );
+-
+-      //check and see if link path is in any menus, set for rebuild if true.
+-      return;
+-      }
+-    default:{
+-      std::cout &lt;&lt; &quot;No link created &quot; + path &lt;&lt; &quot;\n&quot;;
+-      return;
+-      }
+-    }
+-  }
+-
+-/**********************/
+-
+-
+-void DarimasenMenu::unlinkify(Glib::ustring path, gint menu){
+-  Gtk::Dialog unlinkifyDialogue;
+-  Gtk::Button * cancelbutton4 = Gtk::manage(new class Gtk::Button(Gtk::StockID(&quot;gtk-cancel&quot;)));
+-  Gtk::Button * okbutton4 = Gtk::manage(new class Gtk::Button(Gtk::StockID(&quot;gtk-ok&quot;)));
+-  Gtk::Label * label2 = Gtk::manage(
+-    new class Gtk::Label(&quot;Are you sure you want to delete &quot; + path + &quot; and its contents?&quot;));
+-  cancelbutton4-&gt;set_flags(Gtk::CAN_FOCUS);
+-  cancelbutton4-&gt;set_flags(Gtk::CAN_DEFAULT);
+-  okbutton4-&gt;set_flags(Gtk::CAN_FOCUS);
+-  unlinkifyDialogue.get_action_area()-&gt;property_layout_style().set_value(Gtk::BUTTONBOX_END);
+-  label2-&gt;set_alignment(0,0.5);
+-  label2-&gt;set_padding(2,2);
+-  label2-&gt;set_justify(Gtk::JUSTIFY_LEFT);
+-  label2-&gt;set_line_wrap(true);
+-  unlinkifyDialogue.get_vbox()-&gt;pack_start(*label2, Gtk::PACK_SHRINK, 0);
+-  unlinkifyDialogue.set_title(&quot;Delete (Directory)&quot;);
+-  unlinkifyDialogue.set_modal(true);
+-  unlinkifyDialogue.property_window_position().set_value(Gtk::WIN_POS_NONE);
+-  unlinkifyDialogue.set_resizable(true);
+-  unlinkifyDialogue.property_destroy_with_parent().set_value(true);
+-  unlinkifyDialogue.add_action_widget(*cancelbutton4, -6);
+-  unlinkifyDialogue.add_action_widget(*okbutton4, -5);
+-  unlinkifyDialogue.show_all_children();
+-
+-  switch(unlinkifyDialogue.run()){
+-    case(Gtk::RESPONSE_OK):{
+-
+-      Glib::spawn_command_line_async((Glib::ustring)&quot;rm -Rf \&quot;&quot;  + path + &quot;\&quot;&quot;);
+-      needsRebuild[menu] = true;
+-      //check if any of the windows contain that path, do what? 
+-      parent-&gt;set_message(&quot;Deleted &quot; + path); 
+-      return;
+-      }
+-    default:{
+-      parent-&gt;set_message(&quot;nothing deleted&quot;);
+-      return;
+-      }
+-    }
+-  }
+-
+-/**********************/
+-
+-// provides the numbers by the arrows. 
+-Glib::ustring DarimasenMenu::CountSubdir(const Glib::ustring&amp; path){
+-  int j=0;
+-  try{
+-    Gnome::Vfs::DirectoryHandle handle;
+-    handle.open(path, Gnome::Vfs::FILE_INFO_DEFAULT | Gnome::Vfs::FILE_INFO_FOLLOW_LINKS);
+-
+-    bool file_exists = true;
+-    while(file_exists){
+-
+-      Glib::RefPtr&lt;Gnome::Vfs::FileInfo&gt; refFileInfo = handle.read_next(file_exists);
+-      if (refFileInfo-&gt;get_type() == Gnome::Vfs::FILE_TYPE_DIRECTORY
+-        &amp;&amp; ( (refFileInfo-&gt;get_name().substr(0,1) != &quot;.&quot;) || parent-&gt;get_hidden())
+-        &amp;&amp; refFileInfo-&gt;get_name() != &quot;.&quot;
+-        &amp;&amp; refFileInfo-&gt;get_name() != &quot;..&quot;){
+-        j++;
+-        }
+-      }
+-    }
+-  catch(const Gnome::Vfs::exception&amp; ex){}
+-  return int2ustr(j);
+-
+-}
+-
+-/**********************/
+-
+-// parses the path, builds the menu bar. 
+-DarimasenMenu::DarimasenMenu(const Glib::ustring &amp; path, Darimasen&amp; Myparent, guint pos){
+-
+-  depth = 0;
+-
+-  Glib::ustring shortpath = path; //home = Glib::get_home_dir();
+-
+-  parent = &Myparent;
+-  
+-  int startPos = 0 , i = 0;
+-
+-
+-  if ( path.find(Glib::get_home_dir()) != Glib::ustring::npos ){
+-    shortpath.replace(0,((Glib::ustring)Glib::get_home_dir()).length(),&quot;~&quot;);
+-    }
+-
+-  while ( (shortpath.find(slash,startPos) != Glib::ustring::npos) ) {
+-    startPos = shortpath.find(slash,startPos) + 1; depth++;
+-    }
+-
+-  menulevel =  new Glib::ustring[depth+1];
+-  needsRebuild = new bool[depth+1];
+-  for( int i=0; i&lt;=depth; i++)
+-        needsRebuild[i] = false;
+-
+-
+-  startPos = 0;
+-  for(i = 0; shortpath.find(slash,startPos) !=  Glib::ustring::npos ; i++ ){
+-    menulevel[i] = shortpath.substr(startPos,shortpath.find(slash,startPos) - startPos + 1 );
+-    startPos = shortpath.find(slash,startPos) + 1;
+-    };
+-  menulevel[depth] = &quot;.&quot;;
+-
+-  MenuArray = new Gtk::Menu*[depth+1];
+-  MenuItemArray = new Gtk::MenuItem*[depth+1];
+-
+-  for(int c = 0; c &lt; depth+1; c++){
+-    MenuArray[c] =  new Gtk::Menu();
+-    }
+- 
+-    Glib::ustring subin = CountSubdir(path);
+-    if ( subin != &quot;0&quot; ){
+-      MenuItemArray[depth] =  new Gtk::MenuItem( subin + &quot; \342\226\272&quot; );
+-      MenuItemArray[depth]-&gt;show();
+-      MenuItemArray[depth]-&gt;set_submenu(*MenuArray[depth]);
+-      prepend(*MenuItemArray[depth]);
+-      MenuForPath(depth, path, &quot;&quot;);
+-      }
+-  
+-  Glib::ustring crop = path;
+-
+-
+-  for(i = depth - 1; i&gt;0; i--){
+-    crop = crop.substr(0, crop.rfind(slash,crop.length()-2)) + slash;
+-
+-    MenuItemArray[i] = new Gtk::MenuItem(underscore_safe(menulevel[i]) );
+-    MenuItemArray[i]-&gt;show();
+-    MenuItemArray[i]-&gt;set_submenu(*MenuArray[i]);
+-    prepend(*MenuItemArray[i]);
+-    MenuForPath(i, crop, &quot;&quot;);
+-    }
+-
+-  MenuItemArray[i] = new Gtk::MenuItem(underscore_safe(menulevel[i] ));
+-  MenuItemArray[i]-&gt;show();
+-  prepend(*MenuItemArray[i]);
+-
+-
+-
+-// root stuff
+-    MenuItemArray[0]-&gt;set_submenu(*MenuArray[0]);
+-    MenuItemArray[0]-&gt;show();
+-    MenuArray[0]-&gt;show();
+-
+-    Gtk::MenuItem * subdir = Gtk::manage( new Gtk::MenuItem(&quot;/ (root)&quot;));
+-    MenuArray[0]-&gt;attach(*subdir, 0 ,1, 0, 1);
+-    subdir-&gt;show();
+-
+-          subdir-&gt;set_events(Gdk::BUTTON_RELEASE_MASK);
+-
+-          subdir-&gt;signal_button_press_event().connect(
+-            sigc::bind&lt;Glib::ustring,guint,bool&gt;(
+-              sigc::mem_fun(*this, &amp;DarimasenMenu::DaMenuSelect),
+-                 &quot;/&quot;,pos,false));
+-
+-
+-
+-    Gtk::MenuItem * subdir2 = Gtk::manage( new Gtk::MenuItem(&quot;~ (home)&quot;));
+-    MenuArray[0]-&gt;attach(*subdir2, 0 ,1, 1, 2);
+-    subdir2-&gt;show();
+-
+-          subdir2-&gt;set_events(Gdk::BUTTON_RELEASE_MASK);
+-
+-          subdir2-&gt;signal_button_press_event().connect(
+-            sigc::bind&lt;Glib::ustring,guint,bool&gt;(
+-              sigc::mem_fun(*this, &amp;DarimasenMenu::DaMenuSelect),
+-                Glib::get_home_dir(),pos,false));
+-
+-    Gtk::SeparatorMenuItem * sep = Gtk::manage( new Gtk::SeparatorMenuItem());
+-    MenuArray[0]-&gt;attach(*sep, 0 ,1, 2, 3);
+-    sep-&gt;show();
+-
+-    Gtk::MenuItem * subdir3 = Gtk::manage( new Gtk::MenuItem(&quot;Add a location to this list&quot;));
+-    MenuArray[0]-&gt;attach(*subdir3, 0 ,1, 3, 4);
+-    subdir3-&gt;set_sensitive(false);
+-    subdir3-&gt;show();
+-
+-
+-  show();
+-
+-  }
+-
+-/**********************/
+-
+-// cleanup on asile 9. More might me Gtk::manageable...
+-DarimasenMenu::~DarimasenMenu(){
+-  for(int c = 0; c &lt; depth+1; c++){
+-    delete MenuArray[c];
+-    }
+-  delete menulevel;
+-  delete needsRebuild;
+-  for (int i = 0; i &lt;=depth; i++){
+-    delete MenuArray[i];
+-    delete MenuItemArray[i];
+-    }
+-  
+-  }
+-
+-/**********************/
+-
+-
+
+Deleted: trunk/src/damenu.h
+===================================================================
+--- trunk/src/damenu.h	2005-05-23 00:35:14 UTC (rev 76)
++++ trunk/src/damenu.h	2005-05-23 03:07:19 UTC (rev 77)
+@@ -1,50 +0,0 @@
+-/* Darimasen - damenu.h - Copyright (C) 2004 - 2005 Sudrien, GPL */
+-
+-#ifndef DAMENU_H
+-#define DAMENU_H
+-
+-/**********************/
+-
+-#include &quot;main.h&quot;
+-#include &quot;darimasen.h&quot;
+-
+-/**********************/
+-
+-class DarimasenMenu : public Gtk::MenuBar {
+-
+-public:
+-
+-  DarimasenMenu(const Glib::ustring&amp;, class Darimasen&amp;, guint);
+-  ~DarimasenMenu();
+-
+-private:
+-
+-  class Darimasen * parent;
+-  int depth;
+-  Gtk::Menu ** MenuArray; 
+-  Gtk::MenuItem ** MenuItemArray;
+-  Glib::ustring * menulevel;
+-  Gtk::Menu prompt;
+-
+-
+-  void bookmark(Glib::ustring);
+-  void copy(Glib::ustring);
+-  Glib::ustring CountSubdir(const Glib::ustring&amp;);
+-  bool DaMenuSelect(GdkEventButton*, const Glib::ustring,guint,bool);
+-  void link(Glib::ustring);
+-  void MenuForPath(int, Glib::ustring , Glib::ustring);
+-  void move(Glib::ustring);
+-  bool * needsRebuild;
+-  bool SpecialMenuForPath(GdkEventButton* , int, Glib::ustring  , Glib::ustring);
+-  void selection_reset(guint, Glib::ustring);
+-  void unlinkify(Glib::ustring,gint);
+-
+-public:
+-
+-  void signal_deactivate ();
+-
+-  };
+-
+-/**********************/
+-
+-#endif //DAMENU_H
+
+Deleted: trunk/src/darimasen.cpp
+===================================================================
+--- trunk/src/darimasen.cpp	2005-05-23 00:35:14 UTC (rev 76)
++++ trunk/src/darimasen.cpp	2005-05-23 03:07:19 UTC (rev 77)
+@@ -1,574 +0,0 @@
+-/* Darimasen - darimasen.cpp - Copyright (C) 2004 - 2005 Sudrien, GPL */
+-
+-/**********************/
+-
+-#include &quot;darimasen.h&quot;
+-
+-/**********************/
+-
+-Darimasen::Darimasen(std::vector&lt;Glib::ustring&gt; paths){
+-  set_title(&quot;Darimasen&quot;);
+-  set_default_size(500, 330);
+-
+-  mode = 0;
+-
+-  try{
+-     windowIcon = Gdk::Pixbuf::create_from_file(&quot;/usr/share/icons/hicolor/48x48/apps/darimasen.png&quot;);
+-    set_icon(windowIcon);
+-    }
+-  catch(const Glib::Error) {
+-    try{
+-      windowIcon = Gdk::Pixbuf::create_from_file(&quot;../pixmaps/48x48/darimasen.png&quot;);
+-      set_icon(windowIcon);
+-      }
+-    catch(const Glib::Error) {}
+-    }
+-
+-  add(VerticalOrganizer);
+-  VerticalOrganizer.show();
+-
+-  VerticalOrganizer.pack_start(TopBar, Gtk::PACK_SHRINK);
+-  TopBar.show();
+-
+-  TopBar.set_toolbar_style(Gtk::TOOLBAR_ICONS); 
+-
+-
+-  CompactMenuContainer = new Gtk::ToolItem;
+-  TopBar.append(*CompactMenuContainer);
+-  CompactMenuContainer-&gt;show();
+-
+-  CompactMenu = new Gtk::MenuBar;
+-  m_Menu_File = new Gtk::Menu;
+-
+-
+-
+-  CompactMenu-&gt;items().push_back(Gtk::Menu_Helpers::MenuElem(
+-    &quot;\342\226\274&quot;, *m_Menu_File));
+-
+-  // glade-- told me to do it....
+-  m_Menu_File-&gt;items().push_back(Gtk::Menu_Helpers::CheckMenuElem(
+-    &quot;Show Hidden&quot;,Gtk::AccelKey(GDK_H, Gdk::CONTROL_MASK),
+-      sigc::mem_fun(*this, &amp;Darimasen::fShowHidden)));
+-
+-  optShowHidden = (Gtk::CheckMenuItem *)&amp;m_Menu_File-&gt;items().back();
+-
+-  m_Menu_File-&gt;items().push_back(Gtk::Menu_Helpers::MenuElem(
+-    &quot;Print history to Terminal&quot;,Gtk::AccelKey(GDK_P, Gdk::CONTROL_MASK),
+-      sigc::mem_fun(*this, &amp;Darimasen::fPrintHist)));
+-
+-  m_Menu_File-&gt;items().push_back( Gtk::Menu_Helpers::MenuElem(&quot;About...&quot;,
+-    sigc::mem_fun(*this, &amp;Darimasen::fAbout) ) );
+-
+-  m_Menu_File-&gt;items().push_back( Gtk::Menu_Helpers::SeparatorElem() ) ;
+-
+-  m_Menu_File-&gt;items().push_back( Gtk::Menu_Helpers::StockMenuElem(Gtk::Stock::QUIT,
+-    sigc::mem_fun(*this, &amp;Darimasen::fQuit) ) );
+-    
+-  TopBar.set_show_arrow(false);
+-  CompactMenuContainer-&gt;add(*CompactMenu); 
+-  CompactMenu-&gt;show();
+-
+-
+-  Gtk::SeparatorToolItem * sep1 = new Gtk::SeparatorToolItem;
+-  TopBar.append(*sep1);
+-  sep1-&gt;show();
+-
+-  DarimasenMenuContainer = new Gtk::ToolItem;
+-  TopBar.append(*DarimasenMenuContainer);
+-  DarimasenMenuContainer-&gt;set_expand(true);
+-  DarimasenMenuContainer-&gt;show();
+-
+-  Gtk::SeparatorToolItem * sep2  = new Gtk::SeparatorToolItem;
+-  TopBar.append(*sep2);
+-  sep2-&gt;show();
+-
+-  BackButton = new Gtk::MenuToolButton(Gtk::StockID(&quot;gtk-go-back&quot;));
+-  BackButton-&gt;signal_clicked().connect(sigc::mem_fun(*this, &amp;Darimasen::fBack));
+-  TopBar.append(*BackButton);
+-  BackButton-&gt;set_sensitive(false);
+-  BackButton-&gt;show();
+-  
+-  ChangeIconMode = new Gtk::ToolButton(Gtk::StockID(&quot;gtk-convert&quot;));
+-  ChangeIconMode-&gt;signal_clicked().connect(sigc::mem_fun(*this, &amp;Darimasen::fChangeIconMode));
+-  TopBar.append(*ChangeIconMode);
+-  //ChangeIconMode-&gt;set_sensitive(false);
+-  ChangeIconMode-&gt;show();
+-   
+-  //ViewTree = new Gtk::ToggleToolButton(Gtk::StockID(&quot;gtk-index&quot;));
+-  //ViewTree-&gt;signal_clicked().connect(sigc::mem_fun(*this, &amp;Darimasen::fViewTree));
+-  //TopBar.append(*ViewTree);
+-  //ViewTree-&gt;set_sensitive(false);
+-  //ViewTree -&gt; show();
+-
+-  NewTab = new Gtk::ToolButton(Gtk::StockID(&quot;gtk-new&quot;));
+-  NewTab-&gt;signal_clicked().connect(sigc::mem_fun(*this, &amp;Darimasen::fNewTab));
+-  TopBar.append(*NewTab);
+-  NewTab-&gt;show();
+-
+-  VerticalOrganizer.add(HideTreePane);
+-  HideTreePane.show();
+-
+-  HideTreePane.pack1(TreeScroller, Gtk::SHRINK);
+-
+-  Tabber = new Gtk::Notebook;
+-  Tabber-&gt;signal_switch_page().connect(sigc::mem_fun(*this, &amp;Darimasen::tabberSwitched));
+-  Tabber-&gt;set_show_border(false);
+-  Tabber-&gt;show();
+-
+-  HideTreePane.pack2(*Tabber, Gtk::EXPAND|Gtk::SHRINK);
+-   
+-  Info.set_has_resize_grip();
+-  Info.show();
+-  VerticalOrganizer.pack_start(Info, Gtk::PACK_SHRINK);
+-
+-  show();
+-
+-  for(int i = 0; i &lt; paths.size(); i++){
+-    set_history(i,paths[i]);
+-    addTab(Tabber-&gt;get_n_pages());
+-    }
+-
+-
+-  myOptions = new optionsQuery(Glib::get_home_dir() + get_choices_dir() + &quot;/Darimasen/Options&quot;);
+- }
+-
+-/**********************/
+-
+-Darimasen::~Darimasen(){
+-  fQuit();
+-  }
+-
+-/**********************/
+-
+-// all the stuff for a well rounded tab
+-void Darimasen::addTab(guint pos){
+-
+-  if( Tabber-&gt;get_n_pages() == 0 )
+-    Tabber-&gt;set_show_tabs(false);
+-  else
+-    Tabber-&gt;set_show_tabs(true);
+-
+-
+-  Gtk::Image * xed = 
+-    new Gtk::Image(&quot;/usr/share/icons/hicolor/16x16/stock/generic/stock_close.png&quot;);
+-  xed-&gt;show();
+-
+-  Gtk::Label * tabNum;
+-
+-  if ( get_history(pos) == slash)
+-    tabNum = new Gtk::Label(slash + &quot; &quot;);
+-  else if ( get_history(pos) == (Glib::get_home_dir() + slash))
+-    tabNum = new Gtk::Label(&quot;~ &quot;);
+-  else
+-    tabNum = new Gtk::Label(
+-      get_history(pos).substr(get_history(pos).rfind(slash,get_history(pos).length() - 2  ) + 1));
+-
+-
+-  Gtk::HBox * arrangement= new Gtk::HBox() ;
+-  Gtk::Button * closeButton = new Gtk::Button();
+-
+-  closeButton-&gt;add(*xed);
+-  closeButton-&gt;set_relief(Gtk::RELIEF_NONE); 
+-  closeButton-&gt;show();
+-
+-
+-
+-
+-  tabNum-&gt;show();
+-  arrangement-&gt;show();
+-
+-  arrangement-&gt;pack_start(*tabNum);
+-  arrangement-&gt;pack_end(*closeButton);
+-
+-  Gtk::EventBox * MainEventBox = new class Gtk::EventBox;
+-
+-
+-  MainEventBox-&gt;modify_bg(Gtk::STATE_NORMAL, Gdk::Color(&quot;#ffffff&quot;));
+-  MainEventBox-&gt;show();
+-
+-  DaIconModes * foo;
+-  foo = new class DaIconModes(pos, *this);
+-
+-
+-  // pos can't be the thing passed here, it changes... (segfault: 3 tabs, close 2nd then 3rd)
+-  closeButton-&gt;signal_clicked().connect(
+-    sigc::bind&lt;DaIconModes*&gt;(sigc::mem_fun(*this, &amp;Darimasen::removeTab), foo) );
+-
+-
+-
+-  if ( IconModeList.size() == pos ){
+-    IconModeList.push_back(foo);
+-    EventBoxList.push_back(MainEventBox);
+-    }
+-  else {
+-    delete IconModeList[pos];
+-    IconModeList[pos] = foo;
+-    delete EventBoxList[pos];
+-    EventBoxList[pos] = MainEventBox;
+-    }
+-
+-  Gtk::ScrolledWindow * MainScroller = new Gtk::ScrolledWindow;
+-  MainScroller-&gt;show();
+-  MainScroller-&gt;set_shadow_type(Gtk::SHADOW_NONE);
+-  MainScroller-&gt;add(*MainEventBox);
+-  MainEventBox-&gt;add(*foo);
+-  MainScroller-&gt;set_policy(Gtk::POLICY_ALWAYS, Gtk::POLICY_AUTOMATIC);
+-  foo-&gt;show();
+-  Tabber-&gt;insert_page( *MainScroller, *arrangement, pos);
+-  }
+-
+-/**********************/
+-
+-void Darimasen::fAbout(){
+-
+-  about = new Gtk::Window();
+-
+-  Gtk::Image * image1;
+-  try{
+-    image1 = new class Gtk::Image(  Gdk::Pixbuf::create_from_file( 
+-      &quot;/usr/share/pixmaps/darimasenInfo.svg&quot; ) );
+-    }
+-  catch(const Glib::Error) {
+-    try{
+-    image1 = new class Gtk::Image(  Gdk::Pixbuf::create_from_file( 
+-      &quot;../pixmaps/darimasenInfo.svg&quot; ) );
+-      }
+-  catch(const Glib::Error) {}
+-    }
+-
+-
+-  Gtk::EventBox * closer = new Gtk::EventBox;
+-  closer-&gt;add(*image1);
+-  closer-&gt;signal_button_press_event().connect(
+-    sigc::mem_fun(*this, &amp;Darimasen::fAbout_ch0wned));
+-
+-  about-&gt;add(*closer);
+-  about-&gt;set_title(&quot;About Darimasen&quot;);
+-  about-&gt;set_modal(true);
+-  about-&gt;set_resizable(false);
+-  about-&gt;set_decorated (false);
+-  about-&gt;set_position(Gtk::WIN_POS_CENTER);
+-
+-  about-&gt;show_all_children();
+-
+-
+-  Gtk::Main::run(*about); 
+-
+-  delete image1;
+-  delete closer;
+-  delete about;
+-  }
+-
+-/**********************/
+-
+-bool Darimasen::fAbout_ch0wned(GdkEventButton*){
+-  about-&gt;hide();
+-  }
+-
+-/**********************/
+-
+-void Darimasen::fBack(){
+-  del_history(Tabber-&gt;get_current_page());
+-
+-  ChangeCurrentPath(get_history(Tabber-&gt;get_current_page()),false,false);
+-
+-  if (history[Tabber-&gt;get_current_page()].size() == 1)
+-    BackButton-&gt;set_sensitive(false);
+-  }
+-
+-/**********************/
+-
+-void Darimasen::fChangeIconMode(){
+-  mode = (mode + 1) % 3; // increment, mod of possibilities.
+-  for(int i = 0; i &lt; history.size(); i++){
+-      ChangeCurrentPath(get_history(i),false,false);
+-    } 
+-  }
+-
+-/**********************/
+-
+-// anything prefixed with 'f' corresponds with a button. 'nuff said.
+-void Darimasen::fNewTab(){
+-  set_history(Tabber-&gt;get_n_pages(), Glib::get_home_dir() + slash);
+-  addTab(Tabber-&gt;get_n_pages());
+-  }
+-
+-/**********************/
+-
+-void Darimasen::fPrintHist(){
+-  std::vector&lt; std::vector&lt;Glib::ustring&gt; &gt; destroy = history;
+-  
+-  std::cout &lt;&lt; &quot;There are &quot; &lt;&lt; destroy.size() &lt;&lt; &quot; tabs here.\n&quot;;
+-  
+-  for (int i = 0; i &lt; destroy.size(); i++){
+-    for (; destroy[i].size() &gt; 0; destroy[i].pop_back()){
+-      std::cout &lt;&lt; &quot;history[&quot; &lt;&lt; i &lt;&lt; &quot;].end() = &quot; &lt;&lt; destroy[i][destroy[i].size() -1] &lt;&lt; &quot;\n&quot;;
+-      }
+-    }
+-  }
+-
+-/**********************/
+-
+-void Darimasen::fQuit(){
+-
+-  delete Tabber;
+-
+-  delete BackButton;
+-  delete ChangeIconMode;
+-  //delete ViewTree;
+-  delete NewTab;
+-  DarimasenMenuContainer-&gt;remove();
+-
+-  delete DarimasenMenuContainer;
+-  delete m_Menu_File;
+-  delete CompactMenu;
+-  delete CompactMenuContainer;
+-
+-  windowIcon.clear();
+-  for (int i=0; i &lt; IconModeList.size(); i++){
+-     delete IconModeList[i];
+-     delete EventBoxList[i];
+-     }
+-
+-  delete myOptions;
+-
+-  hide();
+-  }
+-
+-/**********************/
+-
+-void Darimasen::fShowHidden(){
+-  DarimasenMenuContainer-&gt;remove();
+-  DaMenu = Gtk::manage( new DarimasenMenu(
+-    get_history(Tabber-&gt;get_current_page()), *this, Tabber-&gt;get_current_page()));
+-  DarimasenMenuContainer-&gt;add(*DaMenu);
+-
+-  for( int i = 0; IconModeList.size() &gt; i; i++)
+-    IconModeList[i]-&gt;SwitchHidden(i);
+-  }
+-
+-/**********************/
+-
+-// removing a tab has some cleanup involved...
+-void Darimasen::removeTab(DaIconModes*&amp; toRemove){
+-
+-  guint pos = toRemove-&gt;get_position();
+-
+-  if( Tabber-&gt;get_n_pages() == 2 )
+-    Tabber-&gt;set_show_tabs(false);
+-  else
+-    Tabber-&gt;set_show_tabs(true);
+-
+-  guint tmp = pos;
+-  Tabber-&gt;remove_page(pos);
+-  
+-  while ( del_history(pos) &gt; 0 );
+-
+-  delete IconModeList[pos];
+-  IconModeList.erase(IconModeList.begin()+pos,IconModeList.begin()+pos+1 );
+-
+-  delete EventBoxList[pos];
+-  EventBoxList.erase(EventBoxList.begin()+pos,EventBoxList.begin()+pos+1 );
+-
+-  for(guint i = 0; i &lt; Tabber-&gt;get_n_pages(); i++){
+-    IconModeList[i]-&gt;update_position(i);
+-    std::cout &lt;&lt; i &lt;&lt; &quot;\n&quot;;
+-    }
+-  }
+-
+-/**********************/
+-
+-// this is for a signal handler.
+-void Darimasen::tabberSwitched(GtkNotebookPage* sig, guint n){
+-
+-
+-  DarimasenMenuContainer-&gt;remove();
+-  DaMenu = Gtk::manage(new class DarimasenMenu(get_history(n), *this, n));
+-  DarimasenMenuContainer-&gt;add(*DaMenu);
+-
+-  if (history[n].size() == 1)
+-    BackButton-&gt;set_sensitive(false);
+-  else
+-    BackButton-&gt;set_sensitive(true);
+-
+-  buildHistoryMenu(n);
+-  }
+-
+-/**********************/
+-
+-void Darimasen::buildHistoryMenu(gint tab){
+-  if(BackButton-&gt;get_menu() != NULL){
+-    delete BackButton-&gt;get_menu();
+-    }
+-
+-  history_menu = new Gtk::Menu();
+-  BackButton-&gt;set_menu(*history_menu);
+-
+-  for( int i = 1; i &lt;  history[tab].size(); i++){
+-    history_menu-&gt;items().push_back(Gtk::Menu_Helpers::MenuElem(
+-      get_history(tab,i),sigc::bind&lt;gint,gint&gt;(sigc::mem_fun(*this, &amp;Darimasen::fHistoryMenu), tab, i)));
+-    }
+-  }
+-
+-/**********************/
+-
+-// changing directories actually is making a new tab to substitute for the old one.
+-void Darimasen::ChangeCurrentPath(Glib::ustring pathin, bool addPath, bool menuOnly){
+-  guint nth = Tabber-&gt;get_current_page();
+-
+-  if (addPath &amp;&amp; !menuOnly){
+-    if (pathin.substr(pathin.length()-1) != &quot;/&quot;)
+-      set_history(nth, pathin + slash);
+-    else
+-      set_history(nth, pathin);
+-    }
+-
+-  if  (!menuOnly){
+-    if ( history[nth].size() &gt; 1)
+-      BackButton-&gt;set_sensitive(true);
+-    else
+-      BackButton-&gt;set_sensitive(false);
+-
+-      Tabber-&gt;remove_page(nth);
+-      addTab(nth);
+-      Tabber-&gt;set_current_page(nth);
+-    }
+-
+-  DarimasenMenuContainer-&gt;remove();
+-  DaMenu = Gtk::manage( new DarimasenMenu( get_history(nth), *this,nth));
+-  DarimasenMenuContainer-&gt;add(*DaMenu);
+-
+-  }
+-
+-/**********************/
+-
+-bool Darimasen::del_history(gint tab){
+-  history[tab].pop_back();
+-  if ( history[tab].size() == 0 ){
+-    history.erase(history.begin()+tab,history.begin()+tab+1 );
+-    return 0;
+-    }
+-  return history[tab].size();
+-  }
+-
+-/**********************/
+-
+-bool Darimasen::get_hidden(){
+-  return optShowHidden-&gt;get_active();
+-  }
+-
+-/**********************/
+-
+-Glib::ustring Darimasen::get_history(gint tab, gint level){
+-  return history[tab][history[tab].size()-level-1];
+-  }
+-
+-/**********************/
+-
+-Glib::RefPtr&lt;Gdk::Pixbuf&gt; Darimasen::get_icon(Glib::ustring mime){
+-  int i;
+-
+-  for(i = 0; i&lt; mimeList.size(); i++){
+-    if( mime == mimeList[i] ){
+-      return unsizedImg[i];
+-      }
+-    }
+-   // pic doesn't exist.
+-
+-    Glib::ustring ico;
+-  try{
+-    ico = &quot;/usr/share/icons/gnome/48x48/mimetypes/gnome-mime-&quot;;
+-    ico += mime.replace(mime.find(&quot;/&quot;), 1, &quot;-&quot;);
+-    ico += &quot;.png&quot;;
+-
+-    Glib::file_get_contents(ico);
+-    }
+-  catch(const Glib::Error) {
+-    try{
+-      ico = &quot;/usr/share/icons/gnome/48x48/mimetypes/gnome-mime-&quot;;
+-      ico += mime.substr(0,mime.find(&quot;-&quot;));
+-      ico += &quot;.png&quot;;
+-      Glib::file_get_contents(ico);
+-      }
+-    catch(const Glib::Error) {
+-     ico = &quot;/usr/share/icons/gnome/48x48/filesystems/gnome-fs-loading-icon.png&quot;;
+-     }
+-    }
+-
+-  mimeList.push_back(mime);
+-  Glib::RefPtr&lt;Gdk::Pixbuf&gt; xe = Gdk::Pixbuf::create_from_file(ico);
+-  unsizedImg.push_back(xe);
+-  return unsizedImg[i]; 
+-  }
+-
+-/**********************/
+-
+-short Darimasen::get_mode(){
+-  return mode;
+-  }
+-
+-/**********************/
+-
+-void Darimasen::fHistoryMenu(gint tab, gint iterations){
+-  for(int i = 0; i &lt; iterations; i++)
+-    del_history(Tabber-&gt;get_current_page());
+-
+-  ChangeCurrentPath(get_history(Tabber-&gt;get_current_page()),false,false);
+-
+-  if (history[Tabber-&gt;get_current_page()].size() == 1)
+-    BackButton-&gt;set_sensitive(false);
+-  }
+-
+-/**********************/
+-
+-// ...and there was already one with an f.
+-void Darimasen::newTab(Glib::ustring newpath){
+-  if( newpath.substr(newpath.length() - 1) != slash)
+-    newpath += slash;
+-
+-  set_history(Tabber-&gt;get_n_pages(), newpath);
+-  addTab(Tabber-&gt;get_n_pages());
+-  }
+-
+-/**********************/
+-
+-void Darimasen::set_message(Glib::ustring in){
+-  Info.pop();
+-  Info.push(in);
+-  }
+-
+-/**********************/
+-
+-void Darimasen::set_history(gint tab, Glib::ustring path){
+-  if (Tabber-&gt;get_n_pages() == tab){
+-    std::vector&lt;Glib::ustring&gt; empty;
+-    history.push_back(empty);
+-    history[tab].push_back(path);
+-    }
+-  else {
+-    history[tab].push_back(path);
+-    }
+-  }
+-
+-/**********************/
+-
+-// this is called on file operations - since there is more then one tab,
+-// all of them should be checked to see if they should be updated.
+-void Darimasen::updateView(Glib::ustring sourceDir, Glib::ustring targetDir){
+-
+-  for(int i = 0; i &lt; history.size(); i++){
+-    if( get_history(i) == sourceDir || get_history(i) == targetDir ){
+-
+-/*
+-if (!Gnome::Vfs::Uri::create(get_history(i))-&gt;uri_exists()){
+-  Glib::ustring temp = get_history(i);
+-  del_history(i);
+-  set_history(i, temp.substr(0, temp.rfind(slash)) + slash);
+-}*/
+-
+-      ChangeCurrentPath(get_history(i),false,false);
+-      }
+-    }
+-  }
+-
+-/**********************/
+
+Deleted: trunk/src/darimasen.h
+===================================================================
+--- trunk/src/darimasen.h	2005-05-23 00:35:14 UTC (rev 76)
++++ trunk/src/darimasen.h	2005-05-23 03:07:19 UTC (rev 77)
+@@ -1,118 +0,0 @@
+-/* Darimasen - darimasen.h - Copyright (C) 2004 - 2005 Sudrien, GPL
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 2
+- * as published by the Free Software Foundation.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+- */
+-
+-
+-#ifndef DARIMASEN_H
+-#define DARIMASEN_H
+-
+-/**********************/
+-
+-#include &quot;main.h&quot;
+-#include &lt;sys/types.h&gt;
+-#include &lt;gtkmm/menutoolbutton.h&gt;
+-
+-#include &quot;optionsManager.h&quot;
+-#include &quot;damenu.h&quot;
+-#include &quot;iconmodes.h&quot;
+-
+-/**********************/
+-
+-class Darimasen : public Gtk::Window {
+-
+-public:
+-
+-  Darimasen(std::vector&lt;Glib::ustring&gt;);
+-  ~Darimasen();
+-
+-private:
+-
+-  Glib::RefPtr&lt;Gdk::Pixbuf&gt; windowIcon;
+-  short mode;
+-
+-
+-  Gtk::VBox VerticalOrganizer;
+-  Gtk::Toolbar TopBar;
+-
+-  Gtk::ToolItem * CompactMenuContainer;
+-  Gtk::MenuBar * CompactMenu;
+-  Gtk::Menu * m_Menu_File;
+-  Gtk::CheckMenuItem * optShowHidden;
+-
+-  Gtk::SeparatorToolItem * sep1;
+-
+-  Gtk::ToolItem * DarimasenMenuContainer;
+-  class DarimasenMenu * DaMenu;
+-
+-  Gtk::SeparatorToolItem * sep2;
+-
+-  Gtk::MenuToolButton * BackButton;
+-  Gtk::Menu * history_menu;
+-  Gtk::ToolButton * ChangeIconMode;
+-  //Gtk::ToggleToolButton * ViewTree;
+-  Gtk::ToolButton * NewTab;
+-
+-  Gtk::HPaned HideTreePane;
+-  Gtk::ScrolledWindow TreeScroller;
+-  Gtk::Notebook * Tabber;
+-
+-  Gtk::Statusbar Info;
+-
+-
+-  std::vector&lt; class DaIconModes* &gt; IconModeList;
+-  std::vector&lt; class Gtk::EventBox* &gt; EventBoxList;
+-  std::vector&lt; std::vector&lt;Glib::ustring&gt; &gt; history;
+-  std::vector &lt;Glib::ustring&gt; mimeList;
+-  std::vector &lt;Glib::RefPtr&lt;Gdk::Pixbuf&gt; &gt; unsizedImg;
+-
+-  class optionsQuery * myOptions;
+-
+-Gtk::Window * about;
+-
+-  void addTab(guint);
+-  void fAbout();
+-  bool fAbout_ch0wned(GdkEventButton*);
+-  void fBack();
+-  void fChangeIconMode();
+-  void fNewTab();
+-  void fPrintHist();
+-  void fQuit();
+-  void fShowHidden();
+-  void removeTab(DaIconModes*&amp;);
+-  void tabberSwitched(GtkNotebookPage*, guint);
+-
+-
+-public:
+-
+-
+-  void buildHistoryMenu(gint);
+-  //rework so the bools mean somthing consistant
+-  void ChangeCurrentPath(Glib::ustring path, bool, bool);
+-  bool del_history(gint);
+-  bool get_hidden();
+-  Glib::ustring get_history(gint, gint = 0);
+-  Glib::RefPtr&lt;Gdk::Pixbuf&gt; get_icon(Glib::ustring mime);
+-  short get_mode();
+-  void fHistoryMenu(gint, gint);
+-  void newTab(Glib::ustring);
+-  void set_message(Glib::ustring);
+-  void set_history(gint, Glib::ustring);
+-  void updateView(Glib::ustring, Glib::ustring);
+-
+-  };
+-
+-/**********************/
+-
+-#endif //DARIMASEN_H
+
+Deleted: trunk/src/firsttime.cpp
+===================================================================
+--- trunk/src/firsttime.cpp	2005-05-23 00:35:14 UTC (rev 76)
++++ trunk/src/firsttime.cpp	2005-05-23 03:07:19 UTC (rev 77)
+@@ -1,147 +0,0 @@
+-/* Darimasen - firsttime.cpp - Copyright (C) 2004 - 2005 Sudrien, GPL */
+-
+-/**********************/
+-
+-#include &quot;firsttime.h&quot;
+-
+-/**********************/
+-
+-firsttime::firsttime(){  
+-
+-   okbutton1 = Gtk::manage(new class Gtk::Button(Gtk::StockID(&quot;gtk-ok&quot;)));
+-   image1 = Gtk::manage(new class Gtk::Image(Gtk::StockID(&quot;gtk-dialog-question&quot;), Gtk::IconSize(6)));
+-   label1 = Gtk::manage(new class Gtk::Label(&quot;It looks like this is your first time\n&quot;
+-		&quot;running Darimasen (and you \n&quot;
+-		&quot;have not used ROX).\n\n&quot;
+-		&quot;This is a good time to set up\n&quot;
+-		&quot;some default \&quot;Run Actions\&quot;\n\n&quot;
+-		&quot;Simply replace the wildcard (*)\n&quot;
+-		&quot;with your preferred program.&quot;));
+-   hbox1 = Gtk::manage(new class Gtk::HBox(false, 0));
+-   textlabel = Gtk::manage(new class Gtk::Label(&quot;Text Files:&quot;));
+-   musiclabel = Gtk::manage(new class Gtk::Label(&quot;Music Files:&quot;));
+-   videolabel = Gtk::manage(new class Gtk::Label(&quot;Video Files:&quot;));
+-   imagelabel = Gtk::manage(new class Gtk::Label(&quot;Image Files:&quot;));
+-   textentry = Gtk::manage(new class Gtk::Entry());
+-   musicentry = Gtk::manage(new class Gtk::Entry());
+-   videoentry = Gtk::manage(new class Gtk::Entry());
+-   imageentry = Gtk::manage(new class Gtk::Entry());
+-   table1 = Gtk::manage(new class Gtk::Table(2, 2, false));
+-   hbox2 = Gtk::manage(new class Gtk::HBox(false, 0));
+-   vbox1 = Gtk::manage(new class Gtk::VBox(false, 0));
+-   okbutton1-&gt;set_flags(Gtk::CAN_FOCUS);
+-   okbutton1-&gt;set_flags(Gtk::CAN_DEFAULT);
+-   okbutton1-&gt;set_relief(Gtk::RELIEF_NORMAL);
+-   get_action_area()-&gt;property_layout_style().set_value(Gtk::BUTTONBOX_END);
+-   image1-&gt;set_alignment(0.5,0.5);
+-   image1-&gt;set_padding(6,0);
+-   label1-&gt;set_alignment(0.5,0.5);
+-   label1-&gt;set_padding(0,0);
+-   label1-&gt;set_justify(Gtk::JUSTIFY_LEFT);
+-   label1-&gt;set_line_wrap(true);
+-   label1-&gt;set_use_markup(false);
+-   label1-&gt;set_selectable(false);
+-   hbox1-&gt;pack_start(*image1, Gtk::PACK_SHRINK, 0);
+-   hbox1-&gt;pack_start(*label1);
+-
+-   textlabel-&gt;set_alignment(0.96,0.5);
+-
+-   textentry-&gt;set_flags(Gtk::CAN_FOCUS);
+-   textentry-&gt;set_text(&quot;* \&quot;$@\&quot;&quot;);
+-
+-   musicentry-&gt;set_flags(Gtk::CAN_FOCUS);
+-   musicentry-&gt;set_text(&quot;* \&quot;$@\&quot;&quot;);
+-
+-   videoentry-&gt;set_flags(Gtk::CAN_FOCUS);
+-   videoentry-&gt;set_text(&quot;* \&quot;$@\&quot;&quot;);
+-
+-   imageentry-&gt;set_flags(Gtk::CAN_FOCUS);
+-   imageentry-&gt;set_text(&quot;* \&quot;$@\&quot;&quot;);
+-
+-   table1-&gt;set_border_width(2);
+-   table1-&gt;set_row_spacings(5);
+-   table1-&gt;set_col_spacings(4);
+-   table1-&gt;attach(*textlabel, 0, 1, 0, 1, Gtk::FILL);
+-   table1-&gt;attach(*musiclabel, 0, 1, 1, 2, Gtk::FILL);
+-   table1-&gt;attach(*videolabel, 0, 1, 2, 3, Gtk::FILL);
+-   table1-&gt;attach(*imagelabel, 0, 1, 3, 4, Gtk::FILL);
+-   table1-&gt;attach(*textentry, 1, 2, 0, 1, Gtk::EXPAND|Gtk::FILL);
+-   table1-&gt;attach(*musicentry, 1, 2, 1, 2, Gtk::EXPAND|Gtk::FILL);
+-   table1-&gt;attach(*videoentry, 1, 2, 2, 3, Gtk::EXPAND|Gtk::FILL);
+-   table1-&gt;attach(*imageentry, 1, 2, 3, 4, Gtk::EXPAND|Gtk::FILL);
+-   hbox2-&gt;pack_start(*table1);
+-   vbox1-&gt;pack_start(*hbox1);
+-   vbox1-&gt;pack_start(*hbox2);
+-
+-   get_vbox()-&gt;pack_start(*vbox1);
+-   set_title(&quot;Darimasen: first run&quot;);
+-
+-
+-   add_action_widget(*okbutton1, -5);
+-
+-
+-   okbutton1-&gt;signal_clicked().connect(sigc::mem_fun(*this, &amp;firsttime::confirm));
+-
+-
+-   show_all_children();
+-  }
+-
+-
+-/**********************/
+-
+-void firsttime::confirm(){
+-
+-  Glib::ustring choicesdir=&quot;/.choices&quot;;
+-
+-  if ( textentry-&gt;get_text() != &quot;* \&quot;$@\&quot;&quot;){ //don't intentionally make a broken script.
+-    Glib::ustring command = &quot;#! /bin/sh\nexec &quot; + textentry-&gt;get_text() + &quot;\n&quot;;
+-    try {
+-      Glib::ustring exec1 = (Glib::get_home_dir() +  (Glib::ustring)(choicesdir + &quot;/MIME-types/text&quot;));
+-      Gnome::Vfs::Handle write_handle;
+-      write_handle.create(exec1, Gnome::Vfs::OPEN_WRITE, false, 0755);
+-      write_handle.seek(Gnome::Vfs::SEEK_POS_START, 0);
+-      GnomeVFSFileSize bytes_written = write_handle.write(command.data(), command.size());
+-      }
+-    catch(const Gnome::Vfs::exception) {}
+-    }
+-
+-  if ( musicentry-&gt;get_text() != &quot;* \&quot;$@\&quot;&quot;){ //don't intentionally make a broken script.
+-    Glib::ustring command = &quot;#! /bin/sh\nexec &quot; + musicentry-&gt;get_text() + &quot;\n&quot;;
+-    try {
+-      Glib::ustring exec1 = (Glib::get_home_dir() +  (Glib::ustring)(choicesdir + &quot;/MIME-types/audio&quot;));
+-      Gnome::Vfs::Handle write_handle;
+-      write_handle.create(exec1, Gnome::Vfs::OPEN_WRITE, false, 0755);
+-      write_handle.seek(Gnome::Vfs::SEEK_POS_START, 0);
+-      GnomeVFSFileSize bytes_written = write_handle.write(command.data(), command.size());
+-      }
+-    catch(const Gnome::Vfs::exception) {}
+-    }
+-
+-  if ( videoentry-&gt;get_text() != &quot;* \&quot;$@\&quot;&quot;){ //don't intentionally make a broken script.
+-    Glib::ustring command = &quot;#! /bin/sh\nexec &quot; + videoentry-&gt;get_text() + &quot;\n&quot;;
+-    try {
+-      Glib::ustring exec1 = (Glib::get_home_dir() +  (Glib::ustring)(choicesdir + &quot;/MIME-types/video&quot;));
+-      Gnome::Vfs::Handle write_handle;
+-      write_handle.create(exec1, Gnome::Vfs::OPEN_WRITE, false, 0755);
+-      write_handle.seek(Gnome::Vfs::SEEK_POS_START, 0);
+-      GnomeVFSFileSize bytes_written = write_handle.write(command.data(), command.size());
+-      }
+-    catch(const Gnome::Vfs::exception) {}
+-    }
+-
+-  if ( imageentry-&gt;get_text() != &quot;* \&quot;$@\&quot;&quot;){ //don't intentionally make a broken script.
+-    Glib::ustring command = &quot;#! /bin/sh\nexec &quot; + imageentry-&gt;get_text() + &quot;\n&quot;;
+-    try {
+-      Glib::ustring exec1 = (Glib::get_home_dir() +  (Glib::ustring)(choicesdir + &quot;/MIME-types/image&quot;));
+-      Gnome::Vfs::Handle write_handle;
+-      write_handle.create(exec1, Gnome::Vfs::OPEN_WRITE, false, 0755);
+-      write_handle.seek(Gnome::Vfs::SEEK_POS_START, 0);
+-      GnomeVFSFileSize bytes_written = write_handle.write(command.data(), command.size());
+-      }
+-    catch(const Gnome::Vfs::exception) {}
+-    }
+-
+-  hide();
+-  }
+-
+-/**********************/
+
+Deleted: trunk/src/firsttime.h
+===================================================================
+--- trunk/src/firsttime.h	2005-05-23 00:35:14 UTC (rev 76)
++++ trunk/src/firsttime.h	2005-05-23 03:07:19 UTC (rev 77)
+@@ -1,40 +0,0 @@
+-/* Darimasen - firsttime.h - Copyright (C) 2004 - 2005 Sudrien, GPL */
+-
+-#ifndef FIRSTTIME_H
+-#define FIRSTTIME_H
+-
+-#include &quot;main.h&quot;
+-
+-/**********************/
+-
+-class firsttime : public Gtk::Dialog{  
+-
+-public:
+-        
+-  firsttime();
+-
+-private:
+-
+-  Gtk::Button * okbutton1;
+-  Gtk::Image * image1;
+-  Gtk::Label * label1;
+-  Gtk::HBox * hbox1;
+-  Gtk::Label * textlabel;
+-  Gtk::Label * imagelabel;
+-  Gtk::Label * videolabel;
+-  Gtk::Label * musiclabel;
+-  Gtk::Entry * textentry;
+-  Gtk::Entry * imageentry;
+-  Gtk::Entry * videoentry;
+-  Gtk::Entry * musicentry;
+-  Gtk::Table * table1;
+-  Gtk::HBox * hbox2;
+-  Gtk::VBox * vbox1;
+-
+-  void confirm();
+-  };
+-
+-
+-/**********************/
+-
+-#endif //FIRSTTIME_H
+
+Deleted: trunk/src/iconmodes.cpp
+===================================================================
+--- trunk/src/iconmodes.cpp	2005-05-23 00:35:14 UTC (rev 76)
++++ trunk/src/iconmodes.cpp	2005-05-23 03:07:19 UTC (rev 77)
+@@ -1,1082 +0,0 @@
+-/* Darimasen - iconmodes.cpp - Copyright (C) 2004 - 2005 Sudrien, GPL */
+-
+-/**********************/
+-
+-#include &quot;iconmodes.h&quot;
+-
+-/**********************/
+-
+-DaIconModes::DaIconModes(guint pos, Darimasen&amp; myParent) {
+-
+-  parent = &myParent;
+-  position = pos; //where we are in the world
+-  mode = parent-&gt;get_mode();
+-
+-  lastclick = 0;  // a double-click detector. 
+-  filesAtPath = 0; // count files in directory
+-
+-  try{  //count up the files in the directory. 
+-    Gnome::Vfs::DirectoryHandle handle;
+-    handle.open(parent-&gt;get_history(position), Gnome::Vfs::FILE_INFO_DEFAULT);
+-    bool file_exists = true;
+-    while(file_exists){
+-      handle.read_next(file_exists);
+-      filesAtPath++;
+-      }
+-    }
+-  catch(const Gnome::Vfs::exception&amp;){}
+-
+-  set_visible_window(false);
+-
+-  iconlist = new proto_icon*[filesAtPath];
+-  slotsUsed = 0;
+-  IconsHigh = 0;
+-  try { // make all those files into proto_icons
+-    Gnome::Vfs::DirectoryHandle::visit(
+-      parent-&gt;get_history(position),
+-      Gnome::Vfs::FILE_INFO_GET_MIME_TYPE |
+-      Gnome::Vfs::FILE_INFO_FOLLOW_LINKS ,
+-      Gnome::Vfs::DIRECTORY_VISIT_LOOPCHECK,
+-      sigc::mem_fun(*this,&amp;DaIconModes::addEntry));
+-    }
+-  catch(const Gnome::Vfs::exception&amp; ex){}
+-  }
+-
+-/**********************/
+-
+-DaIconModes::~DaIconModes(){
+-  while( slotsUsed &gt; 0)
+-    delete iconlist[--slotsUsed];
+-  }
+-
+-/**********************/
+-
+-DaIconModes::proto_icon::proto_icon(
+-      DaIconModes&amp; getParent,
+-      Glib::ustring getPath,
+-      const Glib::RefPtr&lt;const Gnome::Vfs::FileInfo&gt; getFile) {
+-
+-  path = getPath;
+-  parent = &getParent;
+-
+-  Glib::RefPtr&lt;Gnome::Vfs::Uri&gt; x = Gnome::Vfs::Uri::create( getPath + &quot;.DirIcon&quot;);
+-  if (x-&gt;uri_exists() &amp;&amp; Glib::str_has_suffix(getPath,getFile-&gt;get_name() + slash)){
+-    icon = Gdk::Pixbuf::create_from_file(getPath + &quot;.DirIcon&quot;);
+-    FileMime = &quot;AppDir&quot;;
+-    }
+-  else {
+-    icon = parent-&gt;parent-&gt;get_icon(getFile-&gt;get_mime_type());
+-    FileMime = getFile-&gt;get_mime_type();
+-    }
+-
+-  FileName = getFile-&gt;get_name();
+-
+-  if (getFile-&gt;get_name().length() &gt; 25){
+-    int last = getFile-&gt;get_name().rfind(&quot;.&quot;);
+-    if (last != -1){
+-      ShortFileName = getFile-&gt;get_name().substr(0, 20) + &quot;..&quot; + getFile-&gt;get_name().substr(last);
+-      }
+-    else {
+-      ShortFileName = getFile-&gt;get_name().substr(0,22) + &quot;...&quot;;
+-      }
+-    }
+-  else {
+-    ShortFileName = getFile-&gt;get_name();
+-    }
+-
+-  guint size = getFile-&gt;get_size();
+-  if(size &lt; 1024)
+-    FileSize = int2ustr(size) + &quot; B&quot;;
+-  else if (size &lt; 1048576)
+-    FileSize = int2ustr(size / 1024) + &quot; KB&quot;;
+-  else
+-    FileSize = int2ustr(size / 1048576) + &quot; MB&quot;;
+-
+-  hidden = (getFile-&gt;get_name().substr(0,1) == &quot;.&quot;);
+-  };
+-
+-/**********************/
+-
+-DaIconModes::proto_icon::~proto_icon(){
+-  icon.clear();
+-  }
+-
+-/**********************/
+-
+-void DaIconModes::proto_icon::copy() {
+-  CopyDialogue * cp =  new CopyDialogue( path + FileName , *parent-&gt;parent);
+-  cp-&gt;show();
+-  }
+-
+-/**********************/
+-
+-void DaIconModes::proto_icon::link() {
+-  LinkDialogue * ln =  new LinkDialogue( path + FileName , *parent-&gt;parent);
+-  ln-&gt;show();
+-  }
+-
+-/**********************/
+-
+-void DaIconModes::proto_icon::move() {
+-  MoveDialogue * mv =  new MoveDialogue( path + FileName , *parent-&gt;parent);
+-  mv-&gt;show();
+-  }
+-
+-/**********************/
+-
+-void DaIconModes::proto_icon::run() const{
+-
+-  Glib::RefPtr&lt;Gnome::Vfs::Uri&gt; x = Gnome::Vfs::Uri::create(path + FileName);
+-
+-  if (!x-&gt;uri_exists()){
+-    std::cout &lt;&lt; &quot;Is not a file - &quot;;
+-    x = Gnome::Vfs::Uri::create(path);
+-    if (!x-&gt;uri_exists()){
+-      std::cout &lt;&lt; &quot;is not an appdir either. Bogus.\n&quot;;
+-      }
+-    else {
+-      std::cout &lt;&lt; &quot;it is a appdir.\n&quot;;
+-    Glib::spawn_command_line_async(path + &quot;AppRun&quot;);
+-
+-    parent-&gt;parent-&gt;set_message(path + &quot; was executed.&quot;);
+-	return;
+-      }
+-    }
+-
+-  Gnome::Vfs::Handle exec_handle;
+-
+-//check the choices dir
+-Glib::ustring choicesdir = get_choices_dir();
+-Glib::ustring exec = Glib::get_home_dir();
+-  try{
+-    exec += choicesdir;
+-    exec += &quot;/MIME-types/&quot;;
+-    Glib::ustring tmp = FileMime;
+-    exec += tmp.replace(tmp.find(&quot;/&quot;),1,&quot;_&quot;);
+-    exec_handle.open(exec, Gnome::Vfs::OPEN_READ);
+-
+-    exec += &quot; \&quot;&quot;  + path + FileName + &quot;\&quot;&quot;;
+-    exec_command(exec,path);
+-
+-    parent-&gt;parent-&gt;set_message(FileName + &quot; was run as &quot; + FileMime);
+-    return;
+-
+-    }
+-  catch(const Gnome::Vfs::exception&amp; ex){
+-    }
+-
+-
+-  try{
+-    exec = exec.substr(0, exec.rfind(&quot;_&quot;));
+-    exec_handle.open(exec, Gnome::Vfs::OPEN_READ);
+-    exec += &quot; \&quot;&quot;  + path + FileName + &quot;\&quot;&quot;;
+-    exec_command(exec,path);
+-
+-    parent-&gt;parent-&gt;set_message(FileName + &quot; was run as &quot; + FileMime.substr(0,FileMime.find(&quot;/&quot;)));
+-    return;
+-    }
+-  catch(const Gnome::Vfs::exception&amp; ex){
+-    }
+-
+-  try{
+-    if (Gnome::Vfs::Mime::can_be_executable(FileMime)){
+-      parent-&gt;parent-&gt;set_message( &quot;Running &quot; + path + FileName);
+-      exec_command(exec,path);
+-      return;
+-      }
+-   }
+-      catch(const Glib::Error) {}
+-
+-  Gtk::MessageDialog dialog(
+-    &quot;This mimetype does not have any action associated with it.\n&quot;
+-    &quot;should it be opened as text?&quot;,
+-    false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK_CANCEL);
+-
+-
+-  //Handle the response:
+-  switch(dialog.run()) {
+-    case(Gtk::RESPONSE_OK):
+-      {
+-        Glib::ustring exec = Glib::get_home_dir();
+-	exec += choicesdir;
+-        exec += &quot;/MIME-types/text&quot;;
+-        exec += &quot; \&quot;&quot;  + path + FileName + &quot;\&quot;&quot;;
+-        Glib::spawn_command_line_async(exec);
+-        parent-&gt;parent-&gt;set_message(FileName + &quot; was run as a text file.&quot;);
+-        return;
+-        }
+-      break;
+-    default:
+-      parent-&gt;parent-&gt;set_message(&quot;Well, that was useful.&quot;);
+-      break;
+-    }
+-  }
+-
+-/**********************/
+-
+-void DaIconModes::proto_icon::runAsText() const{
+-
+-  // double checking the file exists
+-  Glib::RefPtr&lt;const Gnome::Vfs::FileInfo&gt; info;
+-  Gnome::Vfs::Handle read_handle;
+-  try{
+-    read_handle.open( path + FileName, Gnome::Vfs::OPEN_READ);
+-    info = read_handle.get_file_info(
+-      Gnome::Vfs::FILE_INFO_GET_MIME_TYPE );
+-    }
+-  catch(const Gnome::Vfs::exception&amp; ex){
+-    std::cout &lt;&lt; &quot;Does not exist.\n&quot;;
+-    return;
+-    }
+-
+-  Glib::ustring choicesdir = get_choices_dir();
+-  Gnome::Vfs::Handle exec_handle;
+-  Glib::ustring exec = Glib::get_home_dir();
+-  try{
+-    exec += choicesdir;
+-    exec += &quot;/MIME-types/text&quot;;
+-    exec_handle.open(exec, Gnome::Vfs::OPEN_READ);
+-    exec += &quot; \&quot;&quot;  + path + FileName + &quot;\&quot;&quot;;
+-    Glib::spawn_command_line_async(exec);
+-
+-    parent-&gt;parent-&gt;set_message(exec + &quot; was run as text&quot;);
+-    return;
+-    }
+-  catch(const Gnome::Vfs::exception&amp; ex){}
+-  }
+-
+-/**********************/
+-
+-void DaIconModes::proto_icon::setRunAction() const{
+-
+-  Gnome::Vfs::Handle read_handle;
+-  Glib::RefPtr&lt;const Gnome::Vfs::FileInfo&gt; info;
+-  Glib::ustring exec_subtype;
+-  Glib::ustring exec_mimetype;
+-
+-  try {
+-    read_handle.open( path + FileName, Gnome::Vfs::OPEN_READ);
+-    info = read_handle.get_file_info(
+-        Gnome::Vfs::FILE_INFO_GET_MIME_TYPE |
+-        Gnome::Vfs::FILE_INFO_FORCE_SLOW_MIME_TYPE );
+-
+-    exec_subtype  = info-&gt;get_mime_type();
+-    exec_subtype  = exec_subtype.replace( exec_subtype.find(&quot;/&quot;), 1, &quot;_&quot; );
+-    exec_mimetype = exec_subtype.substr( 0, exec_subtype.rfind(&quot;_&quot;) );
+-
+-    ChooseActionDialogue * chooseAction;
+-    chooseAction = new ChooseActionDialogue(exec_subtype);
+-    chooseAction-&gt;show();
+-    }
+-  catch(const Gnome::Vfs::exception&amp; ex) {
+-    parent-&gt;parent-&gt;set_message(&quot;Err... Setting error?&quot;);
+-    }
+-  }
+-
+-/**********************/
+-
+-void DaIconModes::proto_icon::setPermissions() const{
+-
+-
+-  Gnome::Vfs::Handle read_handle;
+-  Glib::RefPtr&lt;Gnome::Vfs::FileInfo&gt; info;
+-
+-  try {
+-    read_handle.open( path + FileName, Gnome::Vfs::OPEN_READ);
+-    info = read_handle.get_file_info(Gnome::Vfs::FILE_INFO_GET_ACCESS_RIGHTS);
+-
+-    setPermissionsDialogue * setPermissions;
+-    setPermissions = new setPermissionsDialogue(info,path);
+-    setPermissions-&gt;show();
+-    }
+-  catch(const Gnome::Vfs::exception&amp; ex) {
+-    parent-&gt;parent-&gt;set_message(&quot;Err... Setting error?&quot;);
+-    }
+-  }
+-
+-/**********************/
+-
+-void DaIconModes::proto_icon::unlinkify() {
+-  DeleteDialogue * del =  new DeleteDialogue( path + FileName , *parent-&gt;parent);
+-  del-&gt;show();
+-  }
+-
+-/**********************/
+-
+-void DaIconModes::proto_icon::press_select(GdkEventButton* event){
+-  if ((event-&gt;type == GDK_BUTTON_PRESS) &amp;&amp; (event-&gt;button == 3)){
+-
+-    for( int i=10; i &gt; 0; i--)
+-      parent-&gt;prompt.items().pop_back();
+-
+-    parent-&gt;prompt.items().push_back(
+-      Gtk::Menu_Helpers::MenuElem(&quot;Open \&quot;&quot; + FileName + &quot;\&quot;&quot;,
+-        sigc::mem_fun(*this,&amp;DaIconModes::proto_icon::run)));
+-
+-    parent-&gt;prompt.items().push_back(
+-      Gtk::Menu_Helpers::MenuElem(&quot;Open as text &quot;,
+-        sigc::mem_fun(*this, &amp;DaIconModes::proto_icon::runAsText)));
+-
+-    parent-&gt;prompt.items().push_back(
+-      Gtk::Menu_Helpers::SeparatorElem());
+-
+-    parent-&gt;prompt.items().push_back(
+-      Gtk::Menu_Helpers::MenuElem(&quot;Set Run Action...&quot;,
+-        sigc::mem_fun(*this, &amp;DaIconModes::proto_icon::setRunAction)));
+-
+-    parent-&gt;prompt.items().push_back(
+-      Gtk::Menu_Helpers::MenuElem(&quot;Permissions...&quot;,
+-        sigc::mem_fun(*this, &amp;DaIconModes::proto_icon::setPermissions)));
+-
+-
+-    parent-&gt;prompt.items().push_back( Gtk::Menu_Helpers::SeparatorElem());
+-
+-    parent-&gt;prompt.items().push_back(
+-      Gtk::Menu_Helpers::MenuElem(&quot;Copy To...&quot;,
+-        sigc::mem_fun(*this, &amp;DaIconModes::proto_icon::copy)));
+-
+-    parent-&gt;prompt.items().push_back(
+-      Gtk::Menu_Helpers::MenuElem(&quot;Move To...&quot;,
+-        sigc::mem_fun(*this, &amp;DaIconModes::proto_icon::move)));
+-
+-    parent-&gt;prompt.items().push_back(
+-      Gtk::Menu_Helpers::MenuElem(&quot;Link To...&quot;,
+-        sigc::mem_fun(*this, &amp;DaIconModes::proto_icon::link)));
+-
+-    parent-&gt;prompt.items().push_back(
+-      Gtk::Menu_Helpers::MenuElem(&quot;Delete &quot;,
+-        sigc::mem_fun(*this, &amp;DaIconModes::proto_icon::unlinkify)));
+-
+-    if (FileMime != &quot;AppDir&quot;){
+-      parent-&gt;prompt.popup(event-&gt;button, event-&gt;time);
+-      }
+-    }
+-  }
+-
+-/**********************/
+-
+-void DaIconModes::proto_icon::release_select(GdkEventButton* event){
+-
+-  if ((event-&gt;type == GDK_BUTTON_RELEASE) &amp;&amp; (event-&gt;button == 1)  &amp;&amp; (parent-&gt;lastclick &lt; event-&gt;time)){
+-    parent-&gt;lastclick = event-&gt;time + 1000;
+-    run();
+-    }
+-  }
+-
+-/**********************/
+-
+-DaIconModes::Sidecon::Sidecon(proto_icon &amp; in){
+-
+-  Arrange = new Gtk::Table();
+-  source = &in;
+-
+-  Icon = new Gtk::Image(source-&gt;icon-&gt;scale_simple(48,48,Gdk::INTERP_TILES));
+-  Arrange-&gt;attach(*Icon, 0, 1, 0, 3, Gtk::FILL, Gtk::FILL, 0, 0);
+-
+-  ShortName = new Gtk::Label(&quot; &quot; + source-&gt;ShortFileName);
+-  ShortName-&gt;set_alignment(0,0.5);
+-  Arrange-&gt;attach(*ShortName, 1, 2, 0, 1, Gtk::FILL, Gtk::AttachOptions(), 0, 0);
+-
+-  Mime = new Gtk::Label(&quot; &quot; + source-&gt;FileMime);
+-  Mime-&gt;set_alignment(0,0.5);
+-  Arrange-&gt;attach(*Mime, 1, 2, 1, 2, Gtk::FILL, Gtk::AttachOptions(), 0, 0);
+-
+-  Size = new Gtk::Label(&quot; &quot; + source-&gt;FileSize);
+-  Size-&gt;set_alignment(0,0.5);
+-  Arrange-&gt;attach(*Size, 1, 2, 2, 3, Gtk::FILL, Gtk::AttachOptions(), 0, 0);
+-
+-  add(*Arrange);
+-  show_all_children();
+-
+-  signal_button_press_event().connect_notify(
+-    sigc::mem_fun(*source, &amp;DaIconModes::proto_icon::press_select));
+-  signal_button_release_event().connect_notify(
+-    sigc::mem_fun(*source, &amp;DaIconModes::proto_icon::release_select));
+-
+-  }
+-
+-/**********************/
+-
+-DaIconModes::Sidecon::~Sidecon(){
+-  }
+-
+-/**********************/
+-
+-DaIconModes::Listview::Listview(proto_icon &amp; in){
+-
+-  source = &in;
+-  Arrange = new Gtk::Table();
+-
+-  Icon = new Gtk::Image(source-&gt;icon-&gt;scale_simple(16,16,Gdk::INTERP_TILES));
+-  Arrange-&gt;attach(*Icon, 0, 1, 0, 1, Gtk::FILL, Gtk::FILL, 0, 0);
+-
+-  Name = new Gtk::Label(&quot; &quot; + source-&gt;ShortFileName);
+-  Name-&gt;set_alignment(0,0.5);
+-  Arrange-&gt;attach(*Name, 1, 2, 0, 1, Gtk::FILL, Gtk::AttachOptions(), 0, 0);
+-
+-  add(*Arrange);
+-  show_all_children();
+-
+-  signal_button_press_event().connect_notify(
+-    sigc::mem_fun(*source, &amp;DaIconModes::proto_icon::press_select));
+-  signal_button_release_event().connect_notify(
+-    sigc::mem_fun(*source, &amp;DaIconModes::proto_icon::release_select));
+-  }
+-
+-/**********************/
+-
+-DaIconModes::Listview::~Listview(){
+-  }
+-
+-/**********************/
+-
+-DaIconModes::ChooseActionDialogue::ChooseActionDialogue(Glib::ustring mimeType){
+-
+-  mime = mimeType;
+-  cancelbutton1 = new class Gtk::Button(Gtk::StockID(&quot;gtk-close&quot;));
+-  okbutton1 = new class Gtk::Button(Gtk::StockID(&quot;gtk-apply&quot;));
+-  label1 = new class Gtk::Label(&quot;Enter a Shell command:&quot;);
+-  entry1 = new class Gtk::Entry();
+-  vbox1  = new class Gtk::VBox(false, 0);
+-
+-
+-  radiobutton1 = new class Gtk::RadioButton(_RadioBGroup_radiobutton1, 
+-    &quot;Set Action For \&quot;&quot; + mimeType.substr(0, mimeType.find(&quot;_&quot;)) + &quot;\&quot;&quot; );
+-
+-  radiobutton1-&gt;signal_clicked().connect(
+-      sigc::bind&lt;Glib::ustring &gt;( sigc::mem_fun(*this,
+-      &amp;DaIconModes::ChooseActionDialogue::getCurrentAction), mimeType.substr(0, mimeType.find(&quot;_&quot;)) ));
+-
+-  radiobutton2 = new class Gtk::RadioButton(_RadioBGroup_radiobutton1,
+-      &quot;Set Action For \&quot;&quot; + mimeType + &quot;\&quot;&quot;)  ;
+-
+-  radiobutton2-&gt;signal_clicked().connect(
+-      sigc::bind&lt;Glib::ustring &gt;( sigc::mem_fun(*this,
+-      &amp;DaIconModes::ChooseActionDialogue::getCurrentAction), mimeType ));
+-
+-  cancelbutton1-&gt;set_flags(Gtk::CAN_FOCUS);
+-  cancelbutton1-&gt;set_flags(Gtk::CAN_DEFAULT);
+-  cancelbutton1-&gt;signal_clicked().connect(
+-      sigc::mem_fun(*this, &amp;DaIconModes::ChooseActionDialogue::cancled) );
+-  okbutton1-&gt;set_flags(Gtk::CAN_FOCUS);
+-  okbutton1-&gt;set_flags(Gtk::CAN_DEFAULT);
+-  okbutton1-&gt;signal_clicked().connect(
+-      sigc::mem_fun(*this, &amp;DaIconModes::ChooseActionDialogue::modifyAction) );
+-  get_action_area()-&gt;property_layout_style().set_value(Gtk::BUTTONBOX_END);
+-  radiobutton1-&gt;set_flags(Gtk::CAN_FOCUS);
+-  radiobutton1-&gt;set_mode(true);
+-  radiobutton1-&gt;set_active(false);
+-  radiobutton2-&gt;set_flags(Gtk::CAN_FOCUS);
+-  radiobutton2-&gt;set_mode(true);
+-  radiobutton2-&gt;set_active(true);
+-  label1-&gt;set_padding(2,4);
+-  label1-&gt;set_justify(Gtk::JUSTIFY_LEFT);
+-  entry1-&gt;set_flags(Gtk::CAN_FOCUS);
+-  entry1-&gt;set_has_frame(true);
+-  vbox1-&gt;pack_start(*radiobutton1, Gtk::PACK_SHRINK, 0);
+-  vbox1-&gt;pack_start(*radiobutton2, Gtk::PACK_SHRINK, 0);
+-  vbox1-&gt;pack_start(*label1, Gtk::PACK_SHRINK, 0);
+-  vbox1-&gt;pack_start(*entry1, Gtk::PACK_SHRINK, 0);
+-  get_vbox()-&gt;set_homogeneous(false);
+-  get_vbox()-&gt;set_spacing(5);
+-  get_vbox()-&gt;set_border_width(6);
+-  get_vbox()-&gt;pack_start(*vbox1);
+-  set_border_width(6);
+-  set_title(&quot;Set Run Action&quot;);
+-  set_modal(true);
+-  property_window_position().set_value(Gtk::WIN_POS_CENTER_ON_PARENT);
+-  set_resizable(true);
+-  property_destroy_with_parent().set_value(false);
+-  set_has_separator(false);
+-  add_action_widget(*cancelbutton1, Gtk::RESPONSE_CANCEL);
+-  add_action_widget(*okbutton1, Gtk::RESPONSE_OK);
+-  set_default_response(Gtk::RESPONSE_OK);
+-
+-  show_all_children();
+-  }
+-
+-/**********************/
+-
+-DaIconModes::ChooseActionDialogue::~ChooseActionDialogue(){
+-  delete cancelbutton1;
+-  delete okbutton1;
+-  delete label1;
+-  delete entry1;
+-  delete vbox1;
+-  delete radiobutton1;
+-  delete radiobutton2;
+-  }
+-
+-/**********************/
+-
+-void DaIconModes::ChooseActionDialogue::cancled(){
+-  hide();
+-  return;
+-  }
+-
+-/**********************/
+-
+-void DaIconModes::ChooseActionDialogue::getCurrentAction(Glib::ustring mimeType){
+-  Glib::ustring contents, exec1 = Glib::get_home_dir();
+-  exec1 += get_choices_dir();
+-  exec1 += (Glib::ustring)(&quot;/MIME-types/&quot;);
+-  exec1 += mimeType;
+-
+-  try {
+-    contents = Glib::file_get_contents(exec1);
+-    contents = contents.substr(contents.find(&quot;exec &quot;) + 5);
+-    contents = contents.substr(0,contents.find(&quot;\n&quot;));
+-    }
+-  catch(const Glib::Error) {
+-    contents = &quot;* \&quot;$@\&quot;&quot; ;
+-    }
+-  entry1-&gt;set_text(contents);
+-  }
+-
+-/**********************/
+-
+-void DaIconModes::ChooseActionDialogue::modifyAction(){
+-
+-  if ( entry1-&gt;get_text() != &quot;* \&quot;$@\&quot;&quot;){ //don't intentionally make a broken script.
+-    Glib::ustring command = &quot;#! /bin/sh\nexec &quot;;
+-    command += entry1-&gt;get_text();
+-    command += &quot;\n&quot;;
+-
+-    try {
+-      Glib::ustring exec1 = Glib::get_home_dir();
+-      Glib::ustring choicesdir = get_choices_dir();
+-      exec1 += choicesdir;
+-      exec1 += (Glib::ustring)(&quot;/MIME-types/&quot;);
+-      if(radiobutton2-&gt;get_active()) exec1 += mime;
+-      if(radiobutton1-&gt;get_active())exec1 += mime.substr(0, mime.find(&quot;_&quot;));
+-      Gnome::Vfs::Handle write_handle;
+-
+-      // Now write the data we read out to the output uri
+-      write_handle.create(exec1, Gnome::Vfs::OPEN_WRITE, false, 0755);
+-      write_handle.seek(Gnome::Vfs::SEEK_POS_START, 0);
+-      GnomeVFSFileSize bytes_written = write_handle.write(command.data(), command.size());
+-      }
+-    catch(const Gnome::Vfs::exception) {
+-      //  parent-&gt;set_message(&quot;Couldn't write new definition.&quot;);
+-      hide();
+-      return;
+-      }
+-    }
+-  hide();
+-  return;
+-  }
+-
+-/**********************/
+-
+-DaIconModes::setPermissionsDialogue::setPermissionsDialogue(Glib::RefPtr&lt;Gnome::Vfs::FileInfo&gt; info,
+-                                                            Glib::ustring path){
+-  fullPath = path;
+-  set_title(&quot;Set file permissions&quot;);
+-  set_modal(true);
+-
+-   read = new class Gtk::Label(&quot;R&quot;);
+-   write = new class Gtk::Label(&quot;W&quot;);
+-   run = new class Gtk::Label(&quot;X&quot;);
+-   user = new class Gtk::Label(&quot;User&quot;);
+-   group = new class Gtk::Label(&quot;Group&quot;);
+-   others = new class Gtk::Label(&quot;Everybody&quot;);
+-
+-   user-&gt;set_alignment(0.96,0.5);
+-   group-&gt;set_alignment(0.96,0.5);
+-
+-   explaination = new class Gtk::Label(&quot;for \&quot;&quot;+ info-&gt;get_name() + &quot;\&quot;...&quot;);
+-
+-   layout = new class Gtk::Table(5, 6, false);
+-
+-   u_r = new class Gtk::CheckButton(&quot;&quot;);
+-   if((info-&gt;get_permissions() &amp; Gnome::Vfs::PERM_USER_READ) != 0)  u_r-&gt;set_active(true);
+-   u_w = new class Gtk::CheckButton(&quot;&quot;);
+-   if((info-&gt;get_permissions() &amp; Gnome::Vfs::PERM_USER_WRITE) != 0)  u_w-&gt;set_active(true);
+-   u_x = new class Gtk::CheckButton(&quot;&quot;);
+-   if((info-&gt;get_permissions() &amp; Gnome::Vfs::PERM_USER_EXEC) != 0)  u_x-&gt;set_active(true);
+-   g_r = new class Gtk::CheckButton(&quot;&quot;);
+-   if((info-&gt;get_permissions() &amp; Gnome::Vfs::PERM_GROUP_READ) != 0)  g_r-&gt;set_active(true);
+-   g_w = new class Gtk::CheckButton(&quot;&quot;);
+-   if((info-&gt;get_permissions() &amp; Gnome::Vfs::PERM_GROUP_WRITE) != 0)  g_w-&gt;set_active(true);
+-   g_x = new class Gtk::CheckButton(&quot;&quot;);
+-   if((info-&gt;get_permissions() &amp; Gnome::Vfs::PERM_GROUP_EXEC) != 0)  g_x-&gt;set_active(true);
+-   o_r = new class Gtk::CheckButton(&quot;&quot;);
+-   if((info-&gt;get_permissions() &amp; Gnome::Vfs::PERM_OTHER_READ) != 0)  o_r-&gt;set_active(true);
+-   o_w = new class Gtk::CheckButton(&quot;&quot;);
+-   if((info-&gt;get_permissions() &amp; Gnome::Vfs::PERM_OTHER_WRITE) != 0)  o_w-&gt;set_active(true);
+-   o_x = new class Gtk::CheckButton(&quot;&quot;);
+-   if((info-&gt;get_permissions() &amp; Gnome::Vfs::PERM_OTHER_EXEC) != 0)  o_x-&gt;set_active(true);
+-
+-   extra = new  Gtk::VSeparator;
+-
+-   sticky = new class Gtk::CheckButton(&quot;Sticky&quot;);
+-   if((info-&gt;get_permissions() &amp; Gnome::Vfs::PERM_STICKY) != 0)  sticky-&gt;set_active(true);
+-   GID = new class Gtk::CheckButton(&quot;Group ID&quot;);
+-   if((info-&gt;get_permissions() &amp; Gnome::Vfs::PERM_SGID) != 0)  GID-&gt;set_active(true);
+-   UID = new class Gtk::CheckButton(&quot;User ID&quot;);
+-   if((info-&gt;get_permissions() &amp; Gnome::Vfs::PERM_SUID) != 0)  UID-&gt;set_active(true);
+-
+-   layout-&gt;attach(*u_r, 1, 2, 2, 3, Gtk::FILL, Gtk::FILL, 0, 0);
+-   layout-&gt;attach(*u_w, 2, 3, 2, 3, Gtk::FILL, Gtk::FILL, 0, 0);
+-   layout-&gt;attach(*u_x, 3, 4, 2, 3, Gtk::FILL, Gtk::FILL, 0, 0);
+-   layout-&gt;attach(*g_r, 1, 2, 3, 4, Gtk::FILL, Gtk::FILL, 0, 0);
+-   layout-&gt;attach(*g_w, 2, 3, 3, 4, Gtk::FILL, Gtk::FILL, 0, 0);
+-   layout-&gt;attach(*g_x, 3, 4, 3, 4, Gtk::FILL, Gtk::FILL, 0, 0);
+-   layout-&gt;attach(*o_r, 1, 2, 4, 5, Gtk::FILL, Gtk::FILL, 0, 0);
+-   layout-&gt;attach(*o_w, 2, 3, 4, 5, Gtk::FILL, Gtk::FILL, 0, 0);
+-   layout-&gt;attach(*o_x, 3, 4, 4, 5, Gtk::FILL, Gtk::FILL, 0, 0);
+-
+-   layout-&gt;attach(*extra,4,5,1,5, Gtk::FILL | Gtk::EXPAND, Gtk::FILL, 10, 0);
+-
+-   layout-&gt;attach(*sticky, 5, 6, 2, 3, Gtk::FILL, Gtk::FILL, 0, 0);
+-   layout-&gt;attach(*GID, 5, 6, 3, 4, Gtk::FILL, Gtk::FILL, 0, 0);
+-   layout-&gt;attach(*UID, 5, 6, 4, 5, Gtk::FILL, Gtk::FILL, 0, 0);
+-
+-   layout-&gt;attach(*read, 1, 2, 1, 2, Gtk::FILL, Gtk::FILL, 0, 0);
+-   layout-&gt;attach(*write, 2, 3, 1, 2, Gtk::FILL, Gtk::FILL, 0, 0);
+-   layout-&gt;attach(*run, 3, 4, 1, 2, Gtk::FILL, Gtk::FILL, 0, 0);
+-   layout-&gt;attach(*user, 0, 1, 2, 3, Gtk::FILL , Gtk::FILL, 0, 0);
+-   layout-&gt;attach(*group, 0, 1, 3, 4, Gtk::FILL , Gtk::FILL, 0, 0);
+-   layout-&gt;attach(*others, 0, 1, 4, 5, Gtk::FILL , Gtk::FILL, 0, 0);
+-   layout-&gt;attach(*explaination, 0, 6, 0, 1, Gtk::FILL | Gtk::EXPAND, Gtk::FILL, 10, 0);
+-
+-
+-  get_vbox()-&gt;pack_start(*layout);
+-  button1 = new class Gtk::Button(Gtk::StockID(&quot;gtk-cancel&quot;));
+-  button1-&gt;signal_clicked().connect(
+-      sigc::mem_fun(*this, &amp;DaIconModes::setPermissionsDialogue::cancled) );
+-
+-
+-  button2 = new class Gtk::Button(Gtk::StockID(&quot;gtk-apply&quot;));
+-  button2-&gt;signal_clicked().connect(
+-    sigc::bind&lt;Glib::RefPtr&lt;Gnome::Vfs::FileInfo&gt; &gt;(
+-      sigc::mem_fun(*this, &amp;DaIconModes::setPermissionsDialogue::apply), info ));
+-
+-
+-  get_action_area()-&gt;property_layout_style().set_value(Gtk::BUTTONBOX_END);
+-  add_action_widget(*button1, -6);
+-  add_action_widget(*button2, -10);
+-
+-  set_modal(true);
+-  show_all_children();
+-  show();
+-  }
+-
+-/**********************/
+-
+-DaIconModes::setPermissionsDialogue::~setPermissionsDialogue(){
+-      delete read, write, run;
+-      delete user, group, others;
+-      delete explaination;
+-      delete layout;
+-      delete u_r, u_w, u_x, g_r, g_w, g_x, o_r, o_w, o_x;
+-      delete extra;
+-      delete sticky;
+-      delete GID;
+-      delete UID;
+-      delete button1, button2;
+-      }
+-
+-/**********************/
+-
+-void DaIconModes::setPermissionsDialogue::cancled(){
+-  hide();
+-  }
+-
+-/**********************/
+-
+-void DaIconModes::setPermissionsDialogue::apply(Glib::RefPtr&lt;Gnome::Vfs::FileInfo&gt; info){
+-
+-  // *nix and *BSD only, blah blah blah.
+-  int permissions = 0;
+-
+-  if(UID-&gt;get_active()) permissions += 2048;
+-  if(GID-&gt;get_active()) permissions += 1024;
+-  if(sticky-&gt;get_active()) permissions += 512;
+-
+-  if(u_r-&gt;get_active()) permissions += 256;
+-  if(u_w-&gt;get_active()) permissions += 128;
+-  if(u_x-&gt;get_active()) permissions += 64;
+-
+-  if(g_r-&gt;get_active()) permissions += 32;
+-  if(g_w-&gt;get_active()) permissions += 16;
+-  if(g_x-&gt;get_active()) permissions += 8;
+-
+-  if(o_r-&gt;get_active()) permissions += 4;
+-  if(o_w-&gt;get_active()) permissions += 2;
+-  if(o_x-&gt;get_active()) permissions += 1;
+-
+-  chmod((fullPath + info-&gt;get_name()).c_str(), permissions);
+-
+-  hide();
+-  }
+-
+-/**********************/
+-
+-DaIconModes::CopyDialogue::CopyDialogue(Glib::ustring file, Darimasen&amp; parent){
+-
+-grandparent = &parent;
+-   cancelbutton = Gtk::manage(new class Gtk::Button(Gtk::StockID(&quot;gtk-cancel&quot;)));
+-   okbutton = Gtk::manage(new class Gtk::Button(Gtk::StockID(&quot;gtk-ok&quot;)));
+-   label = Gtk::manage(new class Gtk::Label(file));
+-   entry = Gtk::manage(new class Gtk::Entry());
+-
+-   okbutton-&gt;set_flags(Gtk::CAN_FOCUS);
+-   okbutton-&gt;set_flags(Gtk::CAN_DEFAULT);
+-   cancelbutton-&gt;set_flags(Gtk::CAN_FOCUS);
+-
+-   set_title(&quot;Copy File to&quot;);
+-   set_modal(true);
+-
+-   get_vbox()-&gt;pack_start(*label, Gtk::PACK_SHRINK, 0);
+-   get_vbox()-&gt;pack_start(*entry, Gtk::PACK_SHRINK, 0);
+-
+-
+-   entry-&gt;set_text(file);
+-
+-   add_action_widget(*cancelbutton, -6);
+-   add_action_widget(*okbutton, -5);
+-
+-
+-   okbutton-&gt;signal_clicked().connect_notify(sigc::mem_fun(*this, &amp;DaIconModes::CopyDialogue::onOk));
+-   cancelbutton-&gt;signal_clicked().connect_notify(sigc::mem_fun(*this, &amp;DaIconModes::CopyDialogue::onCancel));
+-
+-
+-   show_all_children();
+-  }
+-
+-/**********************/
+-
+-DaIconModes::CopyDialogue::~CopyDialogue(){}
+-
+-/**********************/
+-
+-void DaIconModes::CopyDialogue::onCancel(){
+-  hide();
+-  }
+-
+-/**********************/
+-
+-void DaIconModes::CopyDialogue::onOk(){
+-  Glib::spawn_command_line_async((Glib::ustring)&quot;cp \&quot;&quot;  + label-&gt;get_text().c_str() + (Glib::ustring)&quot;\&quot; \&quot;&quot; + entry-&gt;get_text().c_str()+ &quot;\&quot;&quot;);
+-
+-  grandparent-&gt;updateView(
+-    label-&gt;get_text().substr(0, label-&gt;get_text().rfind(slash,label-&gt;get_text().length())+1),
+-    entry-&gt;get_text().substr(0, entry-&gt;get_text().rfind(slash,entry-&gt;get_text().length())+1));
+-
+-  hide();
+-  }
+-
+-/**********************/
+-
+-DaIconModes::LinkDialogue::LinkDialogue(Glib::ustring file, Darimasen&amp; parent){
+-
+-grandparent = &parent;
+-   cancelbutton = Gtk::manage(new class Gtk::Button(Gtk::StockID(&quot;gtk-cancel&quot;)));
+-   okbutton = Gtk::manage(new class Gtk::Button(Gtk::StockID(&quot;gtk-ok&quot;)));
+-   label = Gtk::manage(new class Gtk::Label(file));
+-   entry = Gtk::manage(new class Gtk::Entry());
+-
+-   okbutton-&gt;set_flags(Gtk::CAN_FOCUS);
+-   okbutton-&gt;set_flags(Gtk::CAN_DEFAULT);
+-   cancelbutton-&gt;set_flags(Gtk::CAN_FOCUS);
+-
+-   set_title(&quot;Link File to&quot;);
+-   set_modal(true);
+-
+-   get_vbox()-&gt;pack_start(*label, Gtk::PACK_SHRINK, 0);
+-   get_vbox()-&gt;pack_start(*entry, Gtk::PACK_SHRINK, 0);
+-
+-
+-   entry-&gt;set_text(file);
+-
+-   add_action_widget(*cancelbutton, -6);
+-   add_action_widget(*okbutton, -5);
+-
+-
+-   okbutton-&gt;signal_clicked().connect_notify(sigc::mem_fun(*this, &amp;DaIconModes::LinkDialogue::onOk));
+-   cancelbutton-&gt;signal_clicked().connect_notify(sigc::mem_fun(*this, &amp;DaIconModes::LinkDialogue::onCancel));
+-
+-
+-   show_all_children();
+-  }
+-
+-/**********************/
+-
+-DaIconModes::LinkDialogue::~LinkDialogue(){}
+-
+-/**********************/
+-
+-void DaIconModes::LinkDialogue::onCancel(){
+-  hide();
+-  }
+-
+-/**********************/
+-
+-void DaIconModes::LinkDialogue::onOk(){
+-  Glib::spawn_command_line_async((Glib::ustring)&quot;ln -s \&quot;&quot;  + label-&gt;get_text().c_str() + (Glib::ustring)&quot;\&quot; \&quot;&quot; + entry-&gt;get_text().c_str() + &quot;\&quot;&quot;);
+-
+-  grandparent-&gt;updateView(
+-    label-&gt;get_text().substr(0, label-&gt;get_text().rfind(slash,label-&gt;get_text().length())+1),
+-    entry-&gt;get_text().substr(0, entry-&gt;get_text().rfind(slash,entry-&gt;get_text().length())+1));
+-
+-  hide();
+-  }
+-
+-/**********************/
+-
+-DaIconModes::MoveDialogue::MoveDialogue(Glib::ustring file, Darimasen&amp; parent){
+-
+-grandparent = &parent;
+-   cancelbutton = Gtk::manage(new class Gtk::Button(Gtk::StockID(&quot;gtk-cancel&quot;)));
+-   okbutton = Gtk::manage(new class Gtk::Button(Gtk::StockID(&quot;gtk-ok&quot;)));
+-   label = Gtk::manage(new class Gtk::Label(file));
+-   entry = Gtk::manage(new class Gtk::Entry());
+-
+-   okbutton-&gt;set_flags(Gtk::CAN_FOCUS);
+-   okbutton-&gt;set_flags(Gtk::CAN_DEFAULT);
+-   cancelbutton-&gt;set_flags(Gtk::CAN_FOCUS);
+-
+-   set_title(&quot;Move File to&quot;);
+-   set_modal(true);
+-
+-   get_vbox()-&gt;pack_start(*label, Gtk::PACK_SHRINK, 0);
+-   get_vbox()-&gt;pack_start(*entry, Gtk::PACK_SHRINK, 0);
+-
+-
+-   entry-&gt;set_text(file);
+-
+-   add_action_widget(*cancelbutton, -6);
+-   add_action_widget(*okbutton, -5);
+-
+-
+-   okbutton-&gt;signal_clicked().connect_notify(sigc::mem_fun(*this, &amp;DaIconModes::MoveDialogue::onOk));
+-   cancelbutton-&gt;signal_clicked().connect_notify(sigc::mem_fun(*this, &amp;DaIconModes::MoveDialogue::onCancel));
+-
+-
+-   show_all_children();
+-  }
+-
+-/**********************/
+-
+-DaIconModes::MoveDialogue::~MoveDialogue(){}
+-
+-/**********************/
+-
+-void DaIconModes::MoveDialogue::onCancel(){
+-  hide();
+-  }
+-
+-/**********************/
+-
+-void DaIconModes::MoveDialogue::onOk(){
+-  Glib::spawn_command_line_async((Glib::ustring)&quot;mv \&quot;&quot;  + label-&gt;get_text().c_str() + (Glib::ustring)&quot;\&quot; \&quot;&quot; + entry-&gt;get_text().c_str()+ &quot;\&quot;&quot;);
+-/*
+-  try
+-  {
+-    Gnome::Vfs::Transfer::transfer(label-&gt;get_text().c_str(), entry-&gt;get_text().c_str());  
+-  }
+-  catch(const Gnome::Vfs::exception&amp; ex)
+-  {
+-    // if the operation was not successful, print the error
+-    std::cout &lt;&lt; &quot;Error occurred: &quot; &lt;&lt; label-&gt;get_text() &lt;&lt; &quot;, &quot; &lt;&lt; ex.what() &lt;&lt; std::endl;
+-  }*/
+-
+-  grandparent-&gt;updateView(
+-    label-&gt;get_text().substr(0, label-&gt;get_text().rfind(slash,label-&gt;get_text().length())+1),
+-    entry-&gt;get_text().substr(0, entry-&gt;get_text().rfind(slash,entry-&gt;get_text().length())+1));
+-
+-  hide();
+-  }
+-
+-/**********************/
+-
+-DaIconModes::DeleteDialogue::DeleteDialogue(Glib::ustring file, Darimasen&amp; parent){
+-
+-grandparent = &parent;
+-   cancelbutton = Gtk::manage(new class Gtk::Button(Gtk::StockID(&quot;gtk-cancel&quot;)));
+-   okbutton = Gtk::manage(new class Gtk::Button(Gtk::StockID(&quot;gtk-ok&quot;)));
+-   label = Gtk::manage(new class Gtk::Label(file));
+-
+-   okbutton-&gt;set_flags(Gtk::CAN_FOCUS);
+-   okbutton-&gt;set_flags(Gtk::CAN_DEFAULT);
+-   cancelbutton-&gt;set_flags(Gtk::CAN_FOCUS);
+-
+-   set_title(&quot;Delete File&quot;);
+-   set_modal(true);
+-
+-   get_vbox()-&gt;pack_start(*label, Gtk::PACK_SHRINK, 0);
+-
+-   add_action_widget(*cancelbutton, -6);
+-   add_action_widget(*okbutton, -5);
+-
+-
+-   okbutton-&gt;signal_clicked().connect_notify(sigc::mem_fun(*this, &amp;DaIconModes::DeleteDialogue::onOk));
+-   cancelbutton-&gt;signal_clicked().connect_notify(sigc::mem_fun(*this, &amp;DaIconModes::DeleteDialogue::onCancel));
+-
+-
+-   show_all_children();
+-  }
+-
+-/**********************/
+-
+-DaIconModes::DeleteDialogue::~DeleteDialogue(){}
+-
+-/**********************/
+-
+-void DaIconModes::DeleteDialogue::onCancel(){
+-  hide();
+-  }
+-
+-/**********************/
+-
+-void DaIconModes::DeleteDialogue::onOk(){
+-  Glib::spawn_command_line_async((Glib::ustring)&quot;rm \&quot;&quot;  + label-&gt;get_text().c_str() + &quot;\&quot;&quot;);
+-
+-/*  try
+-  {
+-    Gnome::Vfs::Transfer::remove(label-&gt;get_text().c_str());  
+-  }
+-  catch(const Gnome::Vfs::exception&amp; ex)
+-  {
+-    // if the operation was not successful, print the error
+-    std::cout &lt;&lt; &quot;Error occurred: &quot; &lt;&lt; label-&gt;get_text() &lt;&lt; &quot;, &quot; &lt;&lt; ex.what() &lt;&lt; std::endl;
+-  }*/
+-
+-  grandparent-&gt;updateView(
+-    label-&gt;get_text().substr(0, label-&gt;get_text().rfind(slash,label-&gt;get_text().length())+1),
+-    label-&gt;get_text().substr(0, label-&gt;get_text().rfind(slash,label-&gt;get_text().length())+1));
+-  hide();
+-  }
+-
+-/**********************/
+-
+-bool DaIconModes::addEntry(
+-    Glib::ustring rel_path,
+-    Glib::RefPtr&lt;const Gnome::Vfs::FileInfo&gt; info,
+-    bool recursing_will_loop,
+-    bool recurse) {
+-
+-  if (info-&gt;get_type() != Gnome::Vfs::FILE_TYPE_DIRECTORY){
+-    iconlist[slotsUsed++] = new proto_icon(*this, parent-&gt;get_history(position), info);
+-    }
+-  else {
+-    Glib::RefPtr&lt;Gnome::Vfs::Uri&gt; x = Gnome::Vfs::Uri::create(
+-      parent-&gt;get_history(position) + info-&gt;get_name() + slash + &quot;.DirIcon&quot;);
+-      if (x-&gt;uri_exists()){
+-        iconlist[slotsUsed++] = new proto_icon(
+-          *this, parent-&gt;get_history(position) + info-&gt;get_name() + slash, info);
+-        }
+-    }
+-
+-  return true;
+-  }
+-
+-/**********************
+-
+-bool on_transfer_progress(const Gnome::Vfs::Transfer::ProgressInfo&amp; info){
+-//if (info-&gt;get_vfs_status() == Gnome::Vfs::OK)
+-//  parent-&gt;set_message(&quot;OK!&quot;);
+-
+-
+-    }
+-
+-/**********************/
+-
+-void DaIconModes::on_size_allocate(Gtk::Allocation&amp; allocation){
+-
+-  int oldie = IconsHigh;
+-
+-  switch(mode){
+-    case 0:
+-      IconsHigh = allocation.get_height() / 57;
+-      break;
+-    case 1:
+-      IconsHigh = allocation.get_height() / 25;
+-      break;
+-    }
+-  if ( oldie != IconsHigh ){ //if resize is needed
+-    Gtk::Widget * tmp = get_child();
+-    redraw();
+-    }
+-
+-  Gtk::EventBox::on_size_allocate(allocation);
+-  }
+-
+-/**********************/
+-
+-void DaIconModes::redraw(){
+-  Gtk::Widget * tmp = get_child();
+-  
+-  if (tmp)
+-    delete tmp; // actually DisposableTable, but segfaulted otherwise
+-
+-  Gtk::Table * DisposableTable = new Gtk::Table((slotsUsed)/IconsHigh+1,IconsHigh);
+-  add(*DisposableTable);
+-
+-  int y_pos = 0;
+-  int x_pos = 0;
+-
+-  for(int i = 0; i &lt; slotsUsed; i++){
+-    if(  !iconlist[i]-&gt;hidden || parent-&gt;get_hidden()){
+-      switch(mode){
+-        case 0: {
+-          Sidecon * tmpSidecon = new Sidecon(*iconlist[i]);
+-          Gtk::Alignment * alignment1 = Gtk::manage(
+-            new class Gtk::Alignment(Gtk::ALIGN_LEFT, Gtk::ALIGN_CENTER, 0, 0));
+-          alignment1-&gt;add(*tmpSidecon);
+-          DisposableTable-&gt;attach( *alignment1, x_pos, x_pos+1, y_pos, y_pos+1,
+-            Gtk::FILL, Gtk::FILL , 4, 4);
+-            }
+-          break;
+-        case 1: {
+-          Listview * tmpListview = new Listview(*iconlist[i]);
+-          Gtk::Alignment * alignment1 = Gtk::manage(
+-            new class Gtk::Alignment(Gtk::ALIGN_LEFT, Gtk::ALIGN_CENTER, 0, 0));
+-          alignment1-&gt;add(*tmpListview);
+-          DisposableTable-&gt;attach( *alignment1, x_pos, x_pos+1, y_pos, y_pos+1,
+-            Gtk::FILL, Gtk::FILL, 4, 4);
+-            }
+-          break;
+-        }
+-
+-      y_pos++; 
+-      if(parent-&gt;get_mode() == 0 || parent-&gt;get_mode() == 1){
+-        if ( y_pos + 1 &gt; IconsHigh){
+-          y_pos = 0;
+-          x_pos++;
+-          }
+-        }
+-      }
+-    }
+-  DisposableTable-&gt;show();
+-  DisposableTable-&gt;show_all_children();
+-  }
+-
+-/**********************/
+-
+-guint DaIconModes::get_position(){
+-  return position;
+-  }
+-
+-/**********************/
+-
+-void DaIconModes::SwitchHidden(guint pos){
+-
+-  position = pos;
+-  if (parent-&gt;get_hidden())
+-    parent-&gt;set_message(&quot;Showing Hidden Files&quot;);
+-  else
+-    parent-&gt;set_message(&quot;Hidden Files are hidden again&quot;);
+-
+-  redraw();
+-  }
+-
+-/**********************/
+-
+-void DaIconModes::update_position(guint pos){
+-  position = pos;
+-  }
+-
+-/**********************/
+-
+
+Deleted: trunk/src/iconmodes.h
+===================================================================
+--- trunk/src/iconmodes.h	2005-05-23 00:35:14 UTC (rev 76)
++++ trunk/src/iconmodes.h	2005-05-23 03:07:19 UTC (rev 77)
+@@ -1,252 +0,0 @@
+-/* Darimasen - iconmodes.h - Copyright (C) 2004 - 2005 Sudrien, GPL */
+-
+-#ifndef ICONMODES_H
+-#define ICONMODES_H
+-
+-
+-#include &quot;main.h&quot;
+-#include &quot;darimasen.h&quot;
+-
+-/**********************/
+-
+-class DaIconModes : public Gtk::EventBox {
+-
+-public:
+-
+-  DaIconModes(guint, class Darimasen&amp;);
+-  ~DaIconModes();
+-
+-private:
+-
+-  /****/
+-
+-  class proto_icon {
+-  public:
+-
+-    proto_icon(DaIconModes&amp;, Glib::ustring, const Glib::RefPtr&lt;const Gnome::Vfs::FileInfo&gt;);
+-    ~proto_icon();
+-
+-  private:
+-
+-    Glib::ustring path;
+    DaIconModes * parent;
+-
+-    void copy();
+-    void link();
+-    void move();
+-    void run() const;
+-    void runAsText() const;
+-    void setRunAction() const;
+-    void setPermissions() const;
+-    void unlinkify();
+-
+-  public:
+-
+-    Glib::RefPtr&lt;Gdk::Pixbuf&gt; icon;
+-    Glib::ustring FileName;
+-    Glib::ustring ShortFileName;
+-    Glib::ustring FileMime;
+-    Glib::ustring FileSize;
+-
+-    bool hidden;
+-
+-    void press_select(GdkEventButton*);
+-    void release_select(GdkEventButton*);
+-    };
+-
+-  /****/
+-
+-  class Sidecon : public Gtk::EventBox {
+-  public:
+-
+-    Sidecon(proto_icon&amp;);
+-    ~Sidecon();
+-
+-  private:
+-    proto_icon * source;
+-    Gtk::Table * Arrange;
+-    Gtk::Image * Icon;
+-    Gtk::Label * ShortName;
+-    Gtk::Label * Mime;
+-    Gtk::Label * Size;
+-  };
+-
+-  /****/
+-
+-  class Listview : public Gtk::EventBox {
+-  public:
+-
+-    Listview(proto_icon&amp;);
+-    ~Listview();
+-
+-  private:
+-
+-    proto_icon * source;
+-    Gtk::Table * Arrange;
+-    Gtk::Image * Icon;
+-    Gtk::Label * Name;
+-  };
+-
+-  /****/
+-
+-  class ChooseActionDialogue : public Gtk::Dialog {
+-  public:
+-
+-    ChooseActionDialogue(Glib::ustring);
+-    ~ChooseActionDialogue();
+-
+-  private:
+-
+-    Gtk::RadioButton::Group _RadioBGroup_radiobutton1;
+-    Gtk::Button *cancelbutton1, *okbutton1;
+-    Gtk::RadioButton *radiobutton1, *radiobutton2;
+-    Gtk::Label       * label1;
+-    Gtk::Entry       * entry1;
+-    Gtk::VBox        * vbox1;
+-    Glib::ustring mime;
+-    void cancled();
+-    void getCurrentAction(Glib::ustring);
+-    void modifyAction();
+-
+-    };
+-
+-  /****/
+-
+-  class setPermissionsDialogue : public Gtk::Dialog {
+-
+-  public:
+-
+-    setPermissionsDialogue(Glib::RefPtr&lt;Gnome::Vfs::FileInfo&gt; , Glib::ustring);
+-    ~setPermissionsDialogue();
+-
+-  private:
+-
+-    Glib::ustring fullPath;
+-    Gtk::Button * button1;
+-    Gtk::Button * button2;
+-
+-    Gtk::CheckButton * u_r, * u_w, * u_x;
+-    Gtk::CheckButton * g_r, * g_w, * g_x;
+-    Gtk::CheckButton * o_r, * o_w, * o_x;
+-    
+-    Gnome::Vfs::Handle info;
+-
+-    Gtk::VSeparator * extra;
+-    Gtk::CheckButton * sticky, * GID, * UID;
+-
+-    Gtk::Label * user, * group, * others;
+-    Gtk::Label * read, * write, * run;
+-    Gtk::Label * explaination;
+-
+-    Gtk::Table * layout;
+-
+-    void cancled();
+-    void apply(Glib::RefPtr&lt;Gnome::Vfs::FileInfo&gt;);
+-    };
+-
+-  /****/
+-
+-  class CopyDialogue : public Gtk::Dialog {
+-
+-  public:
+-
+-    CopyDialogue(Glib::ustring, Darimasen&amp;);
+-    ~CopyDialogue();
+-
+-  private:
+-
+-    class Darimasen * grandparent;
+-
+-    class Gtk::Button * cancelbutton;
+-    class Gtk::Button * okbutton;
+-    class Gtk::Label * label;
+-    class Gtk::Entry * entry;
+-
+-    void onCancel();
+-    void onOk();
+-    };
+-
+-  /****/
+-
+-  class LinkDialogue : public Gtk::Dialog {
+-  public:
+-
+-    LinkDialogue(Glib::ustring, Darimasen&amp;);
+-    ~LinkDialogue();
+-
+-  private:
+-
+-    class Gtk::Button * cancelbutton;
+-    class Gtk::Button * okbutton;
+-    class Gtk::Label * label;
+-    class Gtk::Entry * entry;
+-    void onOk();
+-    void onCancel();
+-
+-    class Darimasen * grandparent;
+-
+-
+-    };
+-
+-  /****/
+-
+-  class MoveDialogue : public Gtk::Dialog {
+-  public:
+-    MoveDialogue(Glib::ustring, Darimasen&amp;);
+-    ~MoveDialogue();
+-
+-  private:
+-
+-    class Gtk::Button * cancelbutton;
+-    class Gtk::Button * okbutton;
+-    class Gtk::Label * label;
+-    class Gtk::Entry * entry;
+-    void onOk();
+-    void onCancel();
+-    class Darimasen * grandparent;
+-    };
+-
+-  /****/
+-
+-  class DeleteDialogue : public Gtk::Dialog {
+-  public:
+-    DeleteDialogue(Glib::ustring, Darimasen&amp;);
+-    ~DeleteDialogue();
+-
+-  private:
+-
+-    class Gtk::Button * cancelbutton;
+-    class Gtk::Button * okbutton;
+-    class Gtk::Label * label;
+-    void onOk();
+-    void onCancel();
+-
+-    class Darimasen * grandparent;
+-    };
+-
+-  /****/
+-
+-  bool addEntry(Glib::ustring, Glib::RefPtr&lt;const Gnome::Vfs::FileInfo&gt;, bool, bool);
+-  void on_size_allocate(Gtk::Allocation&amp;);
+- // bool on_transfer_progress(const Gnome::Vfs::Transfer::ProgressInfo&amp;);
+-  void redraw();
+-
+-  class Darimasen * parent;
+-  guint position;
+-  guint32 lastclick;
+-  guint filesAtPath;
+-  gshort mode;
+-  proto_icon ** iconlist;
+-  guint slotsUsed;
+-  guint IconsHigh;
+-  Gtk::Menu prompt;
+-
+-public:
+-
+-  guint get_position();
+-  void SwitchHidden(guint);
+-  void update_position(guint);
+-};
+-
+-/**********************/
+-
+-#endif //ICONMODES_H
+
+Deleted: trunk/src/main.cpp
+===================================================================
+--- trunk/src/main.cpp	2005-05-23 00:35:14 UTC (rev 76)
++++ trunk/src/main.cpp	2005-05-23 03:07:19 UTC (rev 77)
+@@ -1,89 +0,0 @@
+-/* Darimasen - main.cpp - Copyright (C) 2004 - 2005 Sudrien, GPL */
+-   
+-/**********************/
+-  
+-#include &quot;main.h&quot;
+-
+-#include &quot;firsttime.h&quot;
+-#include &quot;darimasen.h&quot;
+-
+-/**********************/
+-  
+-int main(int argc, char *argv[])
+-{
+-  Gtk::Main kit(argc, argv);
+-  Gnome::Vfs::init();
+-
+-  //The new get_choices_dir() really speeds this up...
+-  //Glib::get_home_dir() + get_choices_dir(); -- will be ~/Choices if exists, ~/.choices otherwise
+-  {
+-    // make .choices if nothing available
+-    if (!Gnome::Vfs::Uri::create(Glib::get_home_dir() + get_choices_dir())-&gt;uri_exists()){
+-      gnome_vfs_make_directory((Glib::get_home_dir() + get_choices_dir()).c_str(),493);
+-      }
+-
+-    // make MIME-types if nothing available, set up basics
+-    if (!Gnome::Vfs::Uri::create(Glib::get_home_dir() + get_choices_dir() + &quot;/MIME-types&quot;)-&gt;uri_exists()){
+-      gnome_vfs_make_directory((Glib::get_home_dir() + get_choices_dir() + &quot;/MIME-types&quot;).c_str(),493);
+-      firsttime window; 
+-      Gtk::Main::run(window);
+-      }
+-
+-    // make our own settings folder if nothing available
+-    if (!Gnome::Vfs::Uri::create(Glib::get_home_dir() + get_choices_dir() + &quot;/Darimasen&quot;)-&gt;uri_exists()){
+-      gnome_vfs_make_directory((Glib::get_home_dir() + get_choices_dir() + &quot;/Darimasen&quot;).c_str(),493);
+-      }
+-    }
+-
+-  std::vector&lt;Glib::ustring&gt; path;
+-
+-  // parse all the possible paths on the command line
+-  for( int i=1; i &lt; argc; i++){
+-    if((argv[i][0]!='-') &amp;&amp; (argv[i-1][0]!='-')){ // some quick anti-argument logic
+-      Glib::ustring tmp = argv[i];
+-      if(tmp.substr(tmp.length()-1,1) != slash )
+-        tmp += slash;
+-       Glib::RefPtr&lt;Gnome::Vfs::Uri&gt; x = Gnome::Vfs::Uri::create(tmp);
+-      // case that URL is Absolute, and works:
+-      if (x-&gt;uri_exists()){
+-        path.push_back(x-&gt;get_path());
+-        }
+-      // case that URL is Absolute, but pointing to a file
+-      else if (tmp.substr(0,1) == slash){
+-        x = x-&gt;get_parent();
+-        if (x-&gt;uri_exists()){
+-          path.push_back(x-&gt;get_path()+slash);
+-          }
+-        }
+-      // URL can only be relative. 
+-      else {
+-        x = x-&gt;resolve_relative (get_current_dir_name() + slash + tmp);
+-        //URL was relative, and works.
+-        if (x-&gt;uri_exists()){
+-          path.push_back(x-&gt;get_path());
+-          }
+-        // URL is relative, but pointing to file
+-        else{
+-            x = x-&gt;get_parent();
+-            path.push_back(x-&gt;get_path()+slash);
+-          }
+-        }
+-      }
+-    }
+-
+-  if(path.empty())
+-    path.push_back(Glib::get_home_dir() + slash);
+-
+-
+-  std::cout &lt;&lt; &quot;Tabs opened should be for:\n&quot;;
+-  for(int i =0; i&lt; path.size();i++)
+-      std::cout &lt;&lt; path[i] &lt;&lt;  &quot;\n&quot;;
+-
+-  Darimasen window(path);
+-  Gtk::Main::run(window); 
+-
+-  return 0;
+-  }
+-
+-
+-/**********************/
+
+Deleted: trunk/src/main.h
+===================================================================
+--- trunk/src/main.h	2005-05-23 00:35:14 UTC (rev 76)
++++ trunk/src/main.h	2005-05-23 03:07:19 UTC (rev 77)
+@@ -1,27 +0,0 @@
+-/* Darimasen - main.h - Copyright (C) 2004 - 2005 Sudrien, GPL */
+-
+-#ifndef MAIN_H
+-#define MAIN_H
+-
+-/**********************/
+-
+-#include &lt;vector&gt;
+-#include &lt;iostream&gt;
+-#include &lt;libgnomevfsmm.h&gt;
+-#include &lt;gtkmm.h&gt;
+-
+-#include &quot;supplimental.h&quot;
+-
+-/**********************/
+-
+-#ifdef WIN32
+-const Glib::ustring slash = &quot;\\&quot;;
+-#else
+-const Glib::ustring slash = &quot;/&quot;;
+-#endif
+-
+-//const unsigned short AvailableModes = 2;
+-
+-/**********************/
+-
+-#endif //MAIN_H
+
+Deleted: trunk/src/optionsManager.cpp
+===================================================================
+--- trunk/src/optionsManager.cpp	2005-05-23 00:35:14 UTC (rev 76)
++++ trunk/src/optionsManager.cpp	2005-05-23 03:07:19 UTC (rev 77)
+@@ -1,57 +0,0 @@
+-/* Darimasen - optionsManager.cpp - Copyright (C) 2004 - 2005 Sudrien, GPL */
+-
+-/**********************/
+-
+-#include &quot;optionsManager.h&quot;
+-
+-/**********************/
+-
+-// get the contents out of one of our XML settings files
+-optionsQuery::optionsQuery(Glib::ustring toParse){
+-
+-  DumpParser parser;
+-  Glib::Markup::ParseContext context (parser);
+-
+-  try{
+-    context.parse(Glib::file_get_contents(toParse));
+-    context.end_parse();
+-    }
+-  catch(const Glib::Error) {
+-    //std::cout&lt;&lt; &quot;Error! Settings file &quot; &lt;&lt; toParse &lt;&lt; &quot; not found.\n&quot;;
+-    }
+-  }
+-
+-/**********************/ 
+-
+-// write out to file
+-optionsQuery::~optionsQuery(){
+-  }
+-
+-/**********************/ 
+-
+-void optionsQuery::DumpParser::on_start_element(Glib::Markup::ParseContext&amp;,
+-                                  const Glib::ustring&amp;,
+-                                  const AttributeMap&amp;  attributes){
+-  for(AttributeMap::const_iterator p = attributes.begin(); p != attributes.end(); ++p){
+-    std::cout &lt;&lt;  p-&gt;second ;
+-    }
+-  }
+-
+-/**********************/
+-
+-void optionsQuery::DumpParser::on_text(Glib::Markup::ParseContext&amp;, const Glib::ustring&amp; text){
+-  Glib::ustring trimmed_text = trim_whitespace(text);
+-  if (!trimmed_text.empty()) std::cout &lt;&lt; &quot; &quot; &lt;&lt; trimmed_text &lt;&lt; &quot;\n&quot;;
+-  }
+-
+-/**********************/ 
+-
+-//return set values
+-  Glib::ustring optionsQuery::get_option(Glib::ustring){}
+-
+-/**********************/ 
+-
+-//set values in out vectors
+-  bool optionsQuery::set_option(Glib::ustring, Glib::ustring){}
+-
+-/**********************/ 
+
+Deleted: trunk/src/optionsManager.h
+===================================================================
+--- trunk/src/optionsManager.h	2005-05-23 00:35:14 UTC (rev 76)
++++ trunk/src/optionsManager.h	2005-05-23 03:07:19 UTC (rev 77)
+@@ -1,41 +0,0 @@
+-/* Darimasen - optionsManager.h - Copyright (C) 2004 - 2005 Sudrien, GPL */
+-
+-
+-
+-#ifndef OPTIONS_H
+-#define OPTIONS_H
+-
+-/**********************/
+-
+-#include &quot;main.h&quot;
+-
+-/**********************/
+-
+-class optionsQuery{
+-public:
+-
+-  optionsQuery(Glib::ustring);
+-  ~optionsQuery();
+-
+-private:
+-
+-
+-  class DumpParser : public Glib::Markup::Parser {
+-    void on_start_element(Glib::Markup::ParseContext&amp;, const Glib::ustring&amp;, const AttributeMap&amp;);
+-    void on_text(Glib::Markup::ParseContext&amp; context, const Glib::ustring&amp; text);
+-    };
+-  struct optionholder {
+-    Glib::ustring name;
+-    Glib::ustring value;
+-    };
+-  
+-  std::vector&lt;optionholder&gt; optionVector;
+-public:
+-
+-  Glib::ustring get_option(Glib::ustring);
+-  bool set_option(Glib::ustring, Glib::ustring);
+-  };
+-
+-/**********************/
+-
+-#endif //SUPPLIMENTAL_H
+
+Deleted: trunk/src/supplimental.cpp
+===================================================================
+--- trunk/src/supplimental.cpp	2005-05-23 00:35:14 UTC (rev 76)
++++ trunk/src/supplimental.cpp	2005-05-23 03:07:19 UTC (rev 77)
+@@ -1,66 +0,0 @@
+-/* Darimasen - supplimental.cpp - Copyright (C) 2004 - 2005 Sudrien, GPL */
+-
+-/**********************/
+-
+-#include &quot;supplimental.h&quot;
+-/**********************/
+-
+-Glib::ustring int2ustr(int x){
+-  Glib::ustring tmp =&quot;&quot;;
+-  char tmp2 =' ';
+-  
+-  do{
+-    tmp2 = static_cast&lt;char&gt;((x % 10)+48);
+-    tmp = tmp2 + tmp;
+-    x = static_cast&lt;int&gt;(x/10.0);
+-    }while (x &gt; 0);          
+-  return tmp;
+-  }
+-
+-/**********************/
+-
+-//check which choices dir to use
+-Glib::ustring get_choices_dir(){
+-  if (Gnome::Vfs::Uri::create(Glib::get_home_dir() + &quot;/Choices&quot;)-&gt;uri_exists()) return &quot;/Choices&quot;;
+-  else return &quot;/.choices&quot;;
+-  }
+-
+-/**********************/
+-
+-//execute a command in the correct working directory
+-void exec_command(Glib::ustring exec, Glib::ustring path){
+-    Glib::spawn_async(path, Glib::shell_parse_argv(exec), Glib::SPAWN_SEARCH_PATH);
+-  }
+-
+-/**********************/
+-
+-Glib::ustring trim_whitespace(const Glib::ustring&amp; text){
+-  Glib::ustring::const_iterator pbegin (text.begin());
+-  Glib::ustring::const_iterator pend   (text.end());
+-
+-  while(pbegin != pend &amp;&amp; Glib::Unicode::isspace(*pbegin))
+-    ++pbegin;
+-
+-  Glib::ustring::const_iterator temp (pend);
+-
+-  while(pbegin != temp &amp;&amp; Glib::Unicode::isspace(*--temp))
+-    pend = temp;
+-
+-  return Glib::ustring(pbegin, pend);
+-}
+-
+-/**********************/
+-
+-Glib::ustring underscore_safe(Glib::ustring x){
+-  int startAtPos = 0, found = 0;
+-  Glib::ustring tmp = x;
+-
+-  while (x.find(&quot;_&quot;,startAtPos) != -1){
+-          startAtPos = x.find(&quot;_&quot;, startAtPos);
+-          tmp.replace(startAtPos++ + found++, 1, &quot;__&quot;);  
+-          }
+-   
+-  return tmp;
+-  }
+-
+-/**********************/ 
+
+Deleted: trunk/src/supplimental.h
+===================================================================
+--- trunk/src/supplimental.h	2005-05-23 00:35:14 UTC (rev 76)
++++ trunk/src/supplimental.h	2005-05-23 03:07:19 UTC (rev 77)
+@@ -1,25 +0,0 @@
+-/* Darimasen - supplimental.h - Copyright (C) 2004 - 2005 Sudrien, GPL */
+-
+-#ifndef SUPPLIMENTAL_H
+-#define SUPPLIMENTAL_H
+-
+-/**********************/
+-
+-#include &quot;main.h&quot;
+-
+-/**********************/
+-
+-Glib::ustring int2ustr(int);
+-
+-Glib::ustring get_choices_dir();
+-
+-void exec_command(Glib::ustring, Glib::ustring);
+-
+-Glib::ustring trim_whitespace(const Glib::ustring&amp;);
+-
+-Glib::ustring underscore_safe(Glib::ustring);
+-
+-/**********************/
+-
+-#endif //SUPPLIMENTAL_H
+-
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000025.html">[Darimasen-svn] r76 - /
+</A></li>
+	<LI>Next message: <A HREF="000027.html">[Darimasen-svn] r78 - trunk/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#26">[ date ]</a>
+              <a href="thread.html#26">[ thread ]</a>
+              <a href="subject.html#26">[ subject ]</a>
+              <a href="author.html#26">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/darimasen-svn">More information about the Darimasen-svn
+mailing list</a><br>
+</body></html>

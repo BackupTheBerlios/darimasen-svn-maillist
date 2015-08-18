@@ -1,0 +1,614 @@
+From darimasen-svn-admin at lists.berlios.de  Thu Sep  8 04:47:43 2005
+From: darimasen-svn-admin at lists.berlios.de (darimasen-svn-admin at lists.berlios.de)
+Date: Thu, 8 Sep 2005 04:47:43 +0200
+Subject: [Darimasen-svn] r81 - trunk/src
+Message-ID: <200509080247.j882lhUt016730@sheep.berlios.de>
+
+Author: sudrien
+Date: 2005-09-08 04:47:26 +0200 (Thu, 08 Sep 2005)
+New Revision: 81
+
+Modified:
+   trunk/src/darimasen.cpp
+   trunk/src/darimasen.h
+   trunk/src/directory.cpp
+   trunk/src/menu.cpp
+   trunk/src/menu.h
+   trunk/src/menu.txt
+   trunk/src/tabs.cpp
+   trunk/src/tabs.h
+Log:
+Syncing for no obvious reason
+
+Modified: trunk/src/darimasen.cpp
+===================================================================
+--- trunk/src/darimasen.cpp	2005-05-29 03:47:07 UTC (rev 80)
++++ trunk/src/darimasen.cpp	2005-09-08 02:47:26 UTC (rev 81)
+@@ -12,9 +12,10 @@
+   add(*vert);
+ 
+ 
+-  darimasen_menu * da_menu = Gtk::manage(new class darimasen_menu());
+-  tabs * tabber = Gtk::manage(new class tabs(paths));
+ 
++  tabber = Gtk::manage(new class tabs(*this,paths));
++  da_menu = Gtk::manage(new class darimasen_menu(*this));
++
+   vert->pack_start(*da_menu, Gtk::PACK_SHRINK, 0);
+   vert->pack_start(*tabber);
+ 
+
+Modified: trunk/src/darimasen.h
+===================================================================
+--- trunk/src/darimasen.h	2005-05-29 03:47:07 UTC (rev 80)
++++ trunk/src/darimasen.h	2005-09-08 02:47:26 UTC (rev 81)
+@@ -13,8 +13,10 @@
+   public:
+     darimasen_window(std::vector<Glib::ustring> );
+     ~darimasen_window();
+-
+-
++  private:
++  public:
++    class tabs * tabber;
++    class darimasen_menu * da_menu;
+   };
+ 
+ #endif
+
+Modified: trunk/src/directory.cpp
+===================================================================
+--- trunk/src/directory.cpp	2005-05-29 03:47:07 UTC (rev 80)
++++ trunk/src/directory.cpp	2005-09-08 02:47:26 UTC (rev 81)
+@@ -21,8 +21,9 @@
+ 
+ 
+   tree_view.set_model(tree_model_filtered);
++tree_view.set_item_width(240);
++tree_view.set_orientation(Gtk::ORIENTATION_HORIZONTAL);
+ 
+-
+   tree_view.set_pixbuf_column (icon_list.icon_pixmap);
+   tree_view.set_text_column (icon_list.file_name);
+ 
+
+Modified: trunk/src/menu.cpp
+===================================================================
+--- trunk/src/menu.cpp	2005-05-29 03:47:07 UTC (rev 80)
++++ trunk/src/menu.cpp	2005-09-08 02:47:26 UTC (rev 81)
+@@ -2,9 +2,44 @@
+ 
+ #include "menu.h"
+ 
+-darimasen_menu::darimasen_menu(){
+-Gtk::MenuBar::MenuBar();
+-items().push_back(Gtk::Menu_Helpers::MenuElem(
+-    "\342\226\274"));
++darimasen_menu::darimasen_menu(class darimasen_window& ancestor){
++  parent = &ancestor;
++
++
++  
++
++  
++  Gtk::MenuBar * compact = Gtk::manage(new Gtk::MenuBar);
++  compact->items().push_back(Gtk::Menu_Helpers::MenuElem("\342\226\274"));
++
++
++  Glib::ustring path = parent->tabber->get_history(parent->tabber->get_current_page());
++  Glib::ustring shortened = path;
++  
++
++  if ( path.find( Glib::get_home_dir()) != Glib::ustring::npos ) 
++    shortened = "~" + path.substr(Glib::get_home_dir().length());
++   std::cout << shortened << "\n";
++
++  compact->items().push_back(Gtk::Menu_Helpers::MenuElem(shortened));
++
++    
++
++
++
++  compact->show();
++
++  //Glib::RefPtr<Gtk::RcStyle> compact_style = compact->get_modifier_style();
++  Glib::RefPtr<Gtk::Style> compact_style = compact->get_style();
++  compact_style->set_xthickness(0);
++  compact_style->set_ythickness(0);
++  compact->set_style(compact_style);
++
++
++  compact->show();
++  Gtk::ToolItem * compact_container = Gtk::manage(new Gtk::ToolItem);
++  compact_container->add(*compact);
++  compact_container->show();
++  append(*compact_container);
+   show();
+   }
+
+Modified: trunk/src/menu.h
+===================================================================
+--- trunk/src/menu.h	2005-05-29 03:47:07 UTC (rev 80)
++++ trunk/src/menu.h	2005-09-08 02:47:26 UTC (rev 81)
+@@ -6,11 +6,14 @@
+ #include <glibmm.h>
+ #include <gtkmm.h>
+ #include <libgnomevfsmm.h>
++#include <iostream>
++#include "darimasen.h"
+ 
+-class darimasen_menu : public Gtk::MenuBar{
++class darimasen_menu : public Gtk::Toolbar{
+   public:
+-    darimasen_menu();
++    darimasen_menu(class darimasen_window&);
+ 
+-
++  private:
++    class darimasen_window * parent;
+ };
+ #endif
+
+Modified: trunk/src/menu.txt
+===================================================================
+--- trunk/src/menu.txt	2005-05-29 03:47:07 UTC (rev 80)
++++ trunk/src/menu.txt	2005-09-08 02:47:26 UTC (rev 81)
+@@ -3,7 +3,7 @@
+ It puts this into an array of strings, starting with root/home and ending
+ with the current directory.
+ 
+-Each memeber of the array gets a menu, showing the sibling directories and 
++Each member of the array gets a menu, showing the sibling directories and 
+ how many subdirectories each of them have. The directory itself is at the top of
+  the list, and not present in its normal space below.
+ 
+@@ -12,3 +12,8 @@
+ 
+ THe last menu is in the form #>, where the # is the number of subdirectories
+  of the current dir, and the menu has those subdirectories and their counts. 
++
++
++The difference between this and the previous version is that submenus will be build only in an on-demand basis. THe whole file system will not need to be scanned to get a menu; only the current folder, to count the number of subdirectories. 
++
++Strictly speaking, this is not just the menu to manage, but the whole top toolbar. 
+
+Modified: trunk/src/tabs.cpp
+===================================================================
+--- trunk/src/tabs.cpp	2005-05-29 03:47:07 UTC (rev 80)
++++ trunk/src/tabs.cpp	2005-09-08 02:47:26 UTC (rev 81)
+@@ -5,9 +5,9 @@
+ 
+ /**********************/
+ 
+-tabs::tabs(const std::vector<Glib::ustring>& input){
++tabs::tabs(class darimasen_window& ancestor, const std::vector<Glib::ustring>& input){
+ 
+-  set_tab_pos(Gtk::POS_BOTTOM);
++  //set_tab_pos(Gtk::POS_BOTTOM);
+ 
+   // begin the history  
+   for(gint i = 0; i < input.size(); i++){
+
+Modified: trunk/src/tabs.h
+===================================================================
+--- trunk/src/tabs.h	2005-05-29 03:47:07 UTC (rev 80)
++++ trunk/src/tabs.h	2005-09-08 02:47:26 UTC (rev 81)
+@@ -10,7 +10,7 @@
+ 
+ class tabs : public Gtk::Notebook {
+   public:
+-    tabs(const std::vector<Glib::ustring>&);
++    tabs(class darimasen_window&, const std::vector<Glib::ustring>&);
+     ~tabs();
+ 
+ 
+
+
+
+From darimasen-svn-admin at lists.berlios.de  Tue Sep 27 04:48:20 2005
+From: darimasen-svn-admin at lists.berlios.de (darimasen-svn-admin at lists.berlios.de)
+Date: Tue, 27 Sep 2005 04:48:20 +0200
+Subject: [Darimasen-svn] r82 - in 0.0.x: . src
+Message-ID: <200509270248.j8R2mKYu011497@sheep.berlios.de>
+
+Author: sudrien
+Date: 2005-09-27 04:48:05 +0200 (Tue, 27 Sep 2005)
+New Revision: 82
+
+Added:
+   0.0.x/darimasen-0.0.8a.ebuild
+Removed:
+   0.0.x/darimasen-0.0.8.ebuild
+Modified:
+   0.0.x/configure.in
+   0.0.x/distribute.sh
+   0.0.x/src/Makefile.am
+Log:
+Possible PKG_CHECK_MODULES Fix
+
+Modified: 0.0.x/configure.in
+===================================================================
+--- 0.0.x/configure.in	2005-09-08 02:47:26 UTC (rev 81)
++++ 0.0.x/configure.in	2005-09-27 02:48:05 UTC (rev 82)
+@@ -16,9 +16,9 @@
+ 
+ AC_LANG_CPLUSPLUS
+ 
+-PKG_CHECK_MODULES([PKG], [sigc++-2.0 >= 2.0 gtkmm-2.4 >= 2.6.0 gnome-vfsmm-2.6 >= 2.5.0])
+-AC_SUBST([PKG_CFLAGS])
+-AC_SUBST([PKG_LIBS])
++PKG_CHECK_MODULES(GTKMM, [sigc++-2.0 >= 2.0 gtkmm-2.4 >= 2.6.0 gnome-vfsmm-2.6 >= 2.5.0])
++AC_SUBST([GTKMM_CFLAGS])
++AC_SUBST([GTKMM_LIBS])
+ 
+ 
+ 
+
+Deleted: 0.0.x/darimasen-0.0.8.ebuild
+===================================================================
+--- 0.0.x/darimasen-0.0.8.ebuild	2005-09-08 02:47:26 UTC (rev 81)
++++ 0.0.x/darimasen-0.0.8.ebuild	2005-09-27 02:48:05 UTC (rev 82)
+@@ -1,40 +0,0 @@
+-# Copyright 1999-2004 Gentoo Technologies, Inc.
+-# Distributed under the terms of the GNU General Public License v2
+-# $Header: $
+-
+-
+-DESCRIPTION="A file manager with menu-based navigation"
+-HOMEPAGE="http://darimasen.berlios.de/"
+-SRC_URI="http://download.berlios.de/darimasen/${P}.tar.bz2"
+-
+-LICENSE="GPL-2"
+-SLOT="0"
+-KEYWORDS="x86"
+-
+-IUSE=""
+-SLOT="0"
+-
+-DEPEND=">=dev-libs/libsigc++-2.0.3
+-        >=dev-cpp/gtkmm-2.6.1
+-        >=dev-cpp/gnome-vfsmm-2.6.0
+-        x11-themes/gnome-icon-theme"
+-
+-RDEPEND="!x11-misc/darimasen-svn"
+-
+-src_compile() {
+-
+-	elibtoolize
+-	econf || die
+-	elibtoolize
+-	emake || die
+-}
+-
+-
+-
+-
+-src_install() {
+-	einfo "Installing..."
+-	make DESTDIR=${D} install || die "make install failed"
+-	dodoc README* AUTHORS TODO* COPYING
+-}
+-
+
+Copied: 0.0.x/darimasen-0.0.8a.ebuild (from rev 81, 0.0.x/darimasen-0.0.8.ebuild)
+
+Modified: 0.0.x/distribute.sh
+===================================================================
+--- 0.0.x/distribute.sh	2005-09-08 02:47:26 UTC (rev 81)
++++ 0.0.x/distribute.sh	2005-09-27 02:48:05 UTC (rev 82)
+@@ -1,9 +1,9 @@
+ #!/bin/sh
+ 
+ cd ..
+-mkdir darimasen-0.0.8
+-cp -R trunk/* darimasen-0.0.8/
+-cd darimasen-0.0.8/
++mkdir darimasen-0.0.8a
++cp -R trunk/* darimasen-0.0.8a/
++cd darimasen-0.0.8a/
+ 
+ rm -Rf .svn/
+ rm -Rf src/.svn/
+@@ -26,4 +26,4 @@
+ 
+ cd ..
+ 
+-tar -cjvf darimasen-0.0.8.tar.bz2 darimasen-0.0.8/
++tar -cjvf darimasen-0.0.8a.tar.bz2 darimasen-0.0.8a/
+
+Modified: 0.0.x/src/Makefile.am
+===================================================================
+--- 0.0.x/src/Makefile.am	2005-09-08 02:47:26 UTC (rev 81)
++++ 0.0.x/src/Makefile.am	2005-09-27 02:48:05 UTC (rev 82)
+@@ -17,6 +17,6 @@
+ 	main.h \
+ 	damenu.h \
+         optionsManager.h
+-AM_CXXFLAGS = -I../.. @PKG_CFLAGS@
++AM_CXXFLAGS = -I../.. @GTKMM_CFLAGS@
+ 
+-darimasen_LDADD = -lpthread @LIBS@ @PKG_LIBS@ 
++darimasen_LDADD = -lpthread @LIBS@ @GTKMM_LIBS@ 
+
+
+
+From darimasen-svn-admin at lists.berlios.de  Tue Sep 27 04:48:47 2005
+From: darimasen-svn-admin at lists.berlios.de (darimasen-svn-admin at lists.berlios.de)
+Date: Tue, 27 Sep 2005 04:48:47 +0200
+Subject: [Darimasen-svn] r83 - in trunk: . src
+Message-ID: <200509270248.j8R2mlrU011561@sheep.berlios.de>
+
+Author: sudrien
+Date: 2005-09-27 04:48:44 +0200 (Tue, 27 Sep 2005)
+New Revision: 83
+
+Modified:
+   trunk/configure.in
+   trunk/src/Makefile.am
+Log:
+Possible PKG_CHECK_MODULES Fix
+
+Modified: trunk/configure.in
+===================================================================
+--- trunk/configure.in	2005-09-27 02:48:05 UTC (rev 82)
++++ trunk/configure.in	2005-09-27 02:48:44 UTC (rev 83)
+@@ -16,9 +16,9 @@
+ 
+ AC_LANG_CPLUSPLUS
+ 
+-PKG_CHECK_MODULES([PKG], [sigc++-2.0 >= 2.0 gtkmm-2.4 >= 2.6.0 gnome-vfsmm-2.6 >= 2.5.0])
+-AC_SUBST([PKG_CFLAGS])
+-AC_SUBST([PKG_LIBS])
++PKG_CHECK_MODULES(GTKMM, [sigc++-2.0 >= 2.0 gtkmm-2.4 >= 2.6.0 gnome-vfsmm-2.6 >= 2.5.0])
++AC_SUBST([GTKMM_CFLAGS])
++AC_SUBST([GTKMM_LIBS])
+ 
+ 
+ 
+
+Modified: trunk/src/Makefile.am
+===================================================================
+--- trunk/src/Makefile.am	2005-09-27 02:48:05 UTC (rev 82)
++++ trunk/src/Makefile.am	2005-09-27 02:48:44 UTC (rev 83)
+@@ -22,6 +22,6 @@
+   supplimental.h
+ 
+ 
+-AM_CXXFLAGS = -I../.. @PKG_CFLAGS@
++AM_CXXFLAGS = -I../.. @GTKMM_CFLAGS@
+ 
+-darimasen_LDADD = -lpthread @LIBS@ @PKG_LIBS@ 
++darimasen_LDADD = -lpthread @LIBS@ @GTKMM_LIBS@ 
+
+
+
+From darimasen-svn-admin at lists.berlios.de  Tue Sep 27 21:22:41 2005
+From: darimasen-svn-admin at lists.berlios.de (darimasen-svn-admin at lists.berlios.de)
+Date: Tue, 27 Sep 2005 21:22:41 +0200
+Subject: [Darimasen-svn] r84 - 0.0.x
+Message-ID: <200509271922.j8RJMfLY007195@sheep.berlios.de>
+
+Author: sudrien
+Date: 2005-09-27 21:22:41 +0200 (Tue, 27 Sep 2005)
+New Revision: 84
+
+Added:
+   0.0.x/darimasen-svn-0.1-r2.ebuild
+Removed:
+   0.0.x/darimasen-svn-0.1-r1.ebuild
+Modified:
+   0.0.x/distribute.sh
+Log:
+Cleanup for 0.0.8a
+
+Deleted: 0.0.x/darimasen-svn-0.1-r1.ebuild
+===================================================================
+--- 0.0.x/darimasen-svn-0.1-r1.ebuild	2005-09-27 02:48:44 UTC (rev 83)
++++ 0.0.x/darimasen-svn-0.1-r1.ebuild	2005-09-27 19:22:41 UTC (rev 84)
+@@ -1,114 +0,0 @@
+-# Copyright 1999-2004 Gentoo Technologies, Inc.
+-# Distributed under the terms of the GNU General Public License v2
+-# $Header: $
+-
+-
+-ESVN_REPO_URI="svn://svn.berlios.de/darimasen/0.0.x"
+-ESVN_PROJECT="darimasen"
+-ESVN_BOOTSTRAP="autogen.sh"
+-inherit subversion
+-
+-DESCRIPTION="A file manager with menu-based navigation"
+-HOMEPAGE="http://darimasen.berlios.de/"
+-
+-LICENSE="GPL-2"
+-SLOT="0"
+-KEYWORDS="~x86"
+-
+-IUSE=""
+-SLOT="0"
+-
+-DEPEND=">=dev-libs/libsigc++-2.0.3
+-        >=dev-cpp/gtkmm-2.6.1
+-        >=dev-cpp/gnome-vfsmm-2.6.0
+-        x11-themes/gnome-icon-theme"
+-RDEPEND="!x11-misc/darimasen"
+-
+-
+-subversion_svn_fetch() {
+-
+-	# ESVN_REPO_URI is empty.
+-	[ -z "${ESVN_REPO_URI}" ] && die "subversion.eclass: ESVN_REPO_URI is empty."
+-
+-	# http and https only...
+-	case ${ESVN_REPO_URI%%:*} in
+-		http)	;;
+-		https)	;;
+-		svn)	;;
+-		*)
+-			die "subversion.eclass: fetch from "${ESVN_REPO_URI%:*}" is not yet implemented."
+-			;;
+-	esac
+-
+-	# every time
+-	addwrite "${ESVN_STORE_DIR}"
+-	addwrite "/etc/subversion"
+-
+-	# -userpriv
+-	addwrite "/root/.subversion"
+-
+-	if [ ! -d "${ESVN_STORE_DIR}" ]; then
+-		mkdir -p "${ESVN_STORE_DIR}" || die "subversion.eclass: can't mkdir ${ESVN_STORE_DIR}."
+-		chmod -f o+rw "${ESVN_STORE_DIR}" || die "subversion.eclass: can't chmod ${ESVN_STORE_DIR}."
+-		einfo "created store directory: ${ESVN_STORE_DIR}"
+-		einfo
+-	fi
+-
+-	cd "${ESVN_STORE_DIR}"
+-
+-	if [ -z ${ESVN_REPO_URI##*/} ]; then
+-		ESVN_REPO_FIX="${ESVN_REPO_URI%/}"
+-	else
+-		ESVN_REPO_FIX="${ESVN_REPO_URI}"
+-	fi
+-
+-	ESVN_CO_DIR="${ESVN_PROJECT}/${ESVN_REPO_FIX##*/}"
+-
+-	if [ ! -d "${ESVN_CO_DIR}/.svn" ]; then
+-		# first check out
+-		einfo "subversion check out start -->"
+-		einfo
+-		einfo "check out from: ${ESVN_REPO_URI}"
+-
+-		mkdir -p "${ESVN_PROJECT}" || die "subversion.eclass: can't mkdir ${ESVN_PROJECT}."
+-		chmod -f o+rw "${ESVN_PROJECT}" || die "subversion.eclass: can't chmod ${ESVN_PROJECT}."
+-		cd "${ESVN_PROJECT}"
+-		${ESVN_FETCH_CMD} "${ESVN_REPO_URI}" || die "subversion.eclass: can't fetch from ${ESVN_REPO_URI}."
+-		einfo "     stored in: ${ESVN_STORE_DIR}/${ESVN_CO_DIR}"
+-
+-	else
+-		# update working copy
+-		einfo "subversion update start -->"
+-		einfo
+-		einfo "   update from: ${ESVN_REPO_URI}"
+-
+-		cd "${ESVN_CO_DIR}"
+-		${ESVN_UPDATE_CMD} || die "subversion.eclass: can't update from ${ESVN_REPO_URI}."
+-		einfo "    updated in: ${ESVN_STORE_DIR}/${ESVN_CO_DIR}"
+-	fi
+-
+-	# permission fix
+-	chmod -Rf o+rw . 2>/dev/null
+-
+-	# copy to the ${WORKDIR}
+-	cp -Rf "${ESVN_STORE_DIR}/${ESVN_CO_DIR}" "${WORKDIR}/${P}" || die "subversion.eclass: can't copy to ${WORKDIR}/${P}."
+-	einfo
+-
+-}
+-
+-src_compile() {
+-	export WANT_AUTOCONF=2.5
+-
+-	econf || die
+-	emake || die
+-}
+-
+-
+-
+-
+-src_install() {
+-	einfo "Installing..."
+-	make DESTDIR=${D} install || die "make install failed"
+-	dodoc README* AUTHORS TODO* COPYING
+-}
+-
+
+Copied: 0.0.x/darimasen-svn-0.1-r2.ebuild (from rev 83, 0.0.x/darimasen-svn-0.1-r1.ebuild)
+===================================================================
+--- 0.0.x/darimasen-svn-0.1-r1.ebuild	2005-09-27 02:48:44 UTC (rev 83)
++++ 0.0.x/darimasen-svn-0.1-r2.ebuild	2005-09-27 19:22:41 UTC (rev 84)
+@@ -0,0 +1,38 @@
++# Copyright 1999-2005 Gentoo Foundation
++# Distributed under the terms of the GNU General Public License v2
++# $Header: $
++
++inherit subversion
++
++DESCRIPTION="A file manager with menu-based navigation"
++HOMEPAGE="http://darimasen.berlios.de/"
++LICENSE="GPL-2"
++SLOT="0"
++KEYWORDS="~x86 ~amd64 ~ppc"
++IUSE=""
++SLOT="0"
++
++DEPEND=">=dev-libs/libsigc++-2.0.3
++        >=dev-cpp/gtkmm-2.6.1
++        >=dev-cpp/gnome-vfsmm-2.6.0
++        x11-themes/gnome-icon-theme"
++RDEPEND="!x11-misc/darimasen"
++
++
++ESVN_REPO_URI="svn://svn.berlios.de/darimasen/0.0.x"
++ESVN_PROJECT="darimasen"
++ESVN_BOOTSTRAP="autogen.sh"
++
++
++src_compile() {
++	export WANT_AUTOCONF=2.5
++	econf || die
++	emake || die
++}
++
++src_install() {
++	einfo "Installing..."
++	make DESTDIR=${D} install || die "make install failed"
++	dodoc README* AUTHORS TODO* COPYING
++}
++
+
+Modified: 0.0.x/distribute.sh
+===================================================================
+--- 0.0.x/distribute.sh	2005-09-27 02:48:44 UTC (rev 83)
++++ 0.0.x/distribute.sh	2005-09-27 19:22:41 UTC (rev 84)
+@@ -21,7 +21,7 @@
+ rm aclocal.m4
+ rm autogen.sh
+ rm config.log
+-rm darimasen-svn-0.1.ebuild
++rm darimasen-svn-0.1-r2.ebuild
+ rm distribute.sh
+ 
+ cd ..
+
+
+
+From darimasen-svn-admin at lists.berlios.de  Tue Sep 27 21:29:04 2005
+From: darimasen-svn-admin at lists.berlios.de (darimasen-svn-admin at lists.berlios.de)
+Date: Tue, 27 Sep 2005 21:29:04 +0200
+Subject: [Darimasen-svn] r85 - 0.0.x
+Message-ID: <200509271929.j8RJT4l8007852@sheep.berlios.de>
+
+Author: sudrien
+Date: 2005-09-27 21:29:04 +0200 (Tue, 27 Sep 2005)
+New Revision: 85
+
+Modified:
+   0.0.x/distribute.sh
+Log:
+Cleanup for 0.0.8a
+
+Modified: 0.0.x/distribute.sh
+===================================================================
+--- 0.0.x/distribute.sh	2005-09-27 19:22:41 UTC (rev 84)
++++ 0.0.x/distribute.sh	2005-09-27 19:29:04 UTC (rev 85)
+@@ -2,7 +2,7 @@
+ 
+ cd ..
+ mkdir darimasen-0.0.8a
+-cp -R trunk/* darimasen-0.0.8a/
++cp -R 0.0.x/* darimasen-0.0.8a/
+ cd darimasen-0.0.8a/
+ 
+ rm -Rf .svn/
+
+
+

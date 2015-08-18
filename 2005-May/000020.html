@@ -1,0 +1,220 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Darimasen-svn] r70 - in trunk: . pixmaps pixmaps/scalable src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/darimasen-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:darimasen-svn%40lists.berlios.de?Subject=Re%3A%20%5BDarimasen-svn%5D%20r70%20-%20in%20trunk%3A%20.%20pixmaps%20pixmaps/scalable%20src&In-Reply-To=%3C200505062129.j46LTqmW018579%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000019.html">
+   <LINK REL="Next"  HREF="000021.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Darimasen-svn] r70 - in trunk: . pixmaps pixmaps/scalable src</H1>
+    <B>darimasen-svn-admin at lists.berlios.de</B> 
+    <A HREF="mailto:darimasen-svn%40lists.berlios.de?Subject=Re%3A%20%5BDarimasen-svn%5D%20r70%20-%20in%20trunk%3A%20.%20pixmaps%20pixmaps/scalable%20src&In-Reply-To=%3C200505062129.j46LTqmW018579%40sheep.berlios.de%3E"
+       TITLE="[Darimasen-svn] r70 - in trunk: . pixmaps pixmaps/scalable src">darimasen-svn-admin at lists.berlios.de
+       </A><BR>
+    <I>Fri May  6 23:29:52 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000019.html">[Darimasen-svn] r69 - in trunk: . src
+</A></li>
+        <LI>Next message: <A HREF="000021.html">[Darimasen-svn] r71 - trunk/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#20">[ date ]</a>
+              <a href="thread.html#20">[ thread ]</a>
+              <a href="subject.html#20">[ subject ]</a>
+              <a href="author.html#20">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: sudrien
+Date: 2005-05-06 23:29:49 +0200 (Fri, 06 May 2005)
+New Revision: 70
+
+Added:
+   trunk/darimasen.desktop
+Modified:
+   trunk/Makefile.am
+   trunk/TODO
+   trunk/pixmaps/Makefile.am
+   trunk/pixmaps/scalable/Makefile.am
+   trunk/src/iconmodes.cpp
+   trunk/src/supplimental.cpp
+   trunk/src/supplimental.h
+Log:
+metwo's execution patch, darimasen.desktop
+
+Modified: trunk/Makefile.am
+===================================================================
+--- trunk/Makefile.am	2005-05-06 05:51:43 UTC (rev 69)
++++ trunk/Makefile.am	2005-05-06 21:29:49 UTC (rev 70)
+@@ -1,6 +1,15 @@
+-# generated 2004/9/10 11:30:35 CEST by <A HREF="https://lists.berlios.de/mailman/listinfo/darimasen-svn">nick at frisbee.mnc.ch.</A>(none)
+-# using glademm V2.6.0_cvs
+-
+ SUBDIRS = pixmaps src
+ 
+-EXTRA_DIST = AUTHORS TODO README configure 
++
++
++#/usr/share/applications/darimasen.desktop
++
++
++appdir = \
++        $(datadir)/applications
++
++app_DATA = \
++        darimasen.desktop
++
++
++EXTRA_DIST = AUTHORS TODO README configure $(app_DATA)
+
+Modified: trunk/TODO
+===================================================================
+--- trunk/TODO	2005-05-06 05:51:43 UTC (rev 69)
++++ trunk/TODO	2005-05-06 21:29:49 UTC (rev 70)
+@@ -18,6 +18,7 @@
+ 
+ Would like to do:
+ 
++set unreadable folders insensitive, etc.
+ limiting DaMenu expansion (preserve window width for long paths) - by shortening menu names
+ Create new folder
+ use existing thumbnails / create new thumbnails (a la ROX)
+
+Added: trunk/darimasen.desktop
+===================================================================
+--- trunk/darimasen.desktop	2005-05-06 05:51:43 UTC (rev 69)
++++ trunk/darimasen.desktop	2005-05-06 21:29:49 UTC (rev 70)
+@@ -0,0 +1,9 @@
++[Desktop Entry]
++Encoding=UTF-8
++Name=Darimasen file manager
++Name[ja]=&#22549;&#12522;&#12510;&#12475;&#12531;&#12288;&#12501;&#12449;&#12452;&#12523;&#12510;&#12493;&#12540;&#12472;&#12515;
++Comment=Folders are not files!
++Icon=darimasen.svg
++Exec=darimasen
++Type=Application
++Categories=Application;System; 
+
+Modified: trunk/pixmaps/Makefile.am
+===================================================================
+--- trunk/pixmaps/Makefile.am	2005-05-06 05:51:43 UTC (rev 69)
++++ trunk/pixmaps/Makefile.am	2005-05-06 21:29:49 UTC (rev 70)
+@@ -2,7 +2,7 @@
+ 	scalable 48x48
+ 
+ appsicondir = \
+-        $(datadir)/pixmaps/
++        $(datadir)/pixmaps
+ 
+ appsicon_DATA = \
+         darimasenInfo.svg
+
+Modified: trunk/pixmaps/scalable/Makefile.am
+===================================================================
+--- trunk/pixmaps/scalable/Makefile.am	2005-05-06 05:51:43 UTC (rev 69)
++++ trunk/pixmaps/scalable/Makefile.am	2005-05-06 21:29:49 UTC (rev 70)
+@@ -1,5 +1,5 @@
+ appsicondir = \
+-	$(datadir)/icons/hicolor/scalable/apps/
++	$(datadir)/icons/hicolor/scalable/apps
+ 
+ appsicon_DATA = \
+ 	darimasen.svg \
+
+Modified: trunk/src/iconmodes.cpp
+===================================================================
+--- trunk/src/iconmodes.cpp	2005-05-06 05:51:43 UTC (rev 69)
++++ trunk/src/iconmodes.cpp	2005-05-06 21:29:49 UTC (rev 70)
+@@ -36,7 +36,7 @@
+     exec_handle.open(exec, Gnome::Vfs::OPEN_READ);
+ 
+     exec += &quot; \&quot;&quot;  + path + FileName + &quot;\&quot;&quot;;
+-    Glib::spawn_command_line_async(exec);
++    goruncommand(exec,path);
+ 
+     parent-&gt;parent-&gt;set_message(exec + &quot; was run.&quot;);
+     return;
+@@ -50,7 +50,7 @@
+     exec = exec.substr(0, exec.rfind(&quot;_&quot;));
+     exec_handle.open(exec, Gnome::Vfs::OPEN_READ);
+     exec += &quot; \&quot;&quot;  + path + FileName + &quot;\&quot;&quot;;
+-    Glib::spawn_command_line_async(exec);
++    goruncommand(exec,path);
+ 
+     parent-&gt;parent-&gt;set_message(exec + &quot; was run.&quot;);
+     return;
+@@ -61,7 +61,7 @@
+   try{
+     if (Gnome::Vfs::Mime::can_be_executable(FileMime)){
+       parent-&gt;parent-&gt;set_message( &quot;Running &quot; + path + FileName);
+-      Glib::spawn_command_line_async( path + FileName );
++      goruncommand(exec,path);
+       return;
+       }
+    }
+
+Modified: trunk/src/supplimental.cpp
+===================================================================
+--- trunk/src/supplimental.cpp	2005-05-06 05:51:43 UTC (rev 69)
++++ trunk/src/supplimental.cpp	2005-05-06 21:29:49 UTC (rev 70)
+@@ -43,3 +43,12 @@
+   }
+ 
+ /**********************/
++
++void goruncommand(Glib::ustring exec, Glib::ustring path){
++//execute a command in the correct working directory
++    Glib::ArrayHandle&lt;std::string&gt; cmd_args = Glib::shell_parse_argv(exec);
++    Glib::spawn_async(path, cmd_args, Glib::SPAWN_SEARCH_PATH);
++
++  }
++  
++/**********************/ 
+
+Modified: trunk/src/supplimental.h
+===================================================================
+--- trunk/src/supplimental.h	2005-05-06 05:51:43 UTC (rev 69)
++++ trunk/src/supplimental.h	2005-05-06 21:29:49 UTC (rev 70)
+@@ -13,6 +13,7 @@
+ Glib::ustring int2ustr(int);
+ Glib::ustring underscoreSafe(Glib::ustring);
+ Glib::ustring getchoicesdir();
++void goruncommand(Glib::ustring, Glib::ustring);
+ 
+ /**********************/
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000019.html">[Darimasen-svn] r69 - in trunk: . src
+</A></li>
+	<LI>Next message: <A HREF="000021.html">[Darimasen-svn] r71 - trunk/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#20">[ date ]</a>
+              <a href="thread.html#20">[ thread ]</a>
+              <a href="subject.html#20">[ subject ]</a>
+              <a href="author.html#20">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/darimasen-svn">More information about the Darimasen-svn
+mailing list</a><br>
+</body></html>

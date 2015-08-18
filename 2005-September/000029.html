@@ -1,0 +1,258 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Darimasen-svn] r81 - trunk/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/darimasen-svn/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:darimasen-svn%40lists.berlios.de?Subject=Re%3A%20%5BDarimasen-svn%5D%20r81%20-%20trunk/src&In-Reply-To=%3C200509080247.j882lhUt016730%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000030.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Darimasen-svn] r81 - trunk/src</H1>
+    <B>darimasen-svn-admin at lists.berlios.de</B> 
+    <A HREF="mailto:darimasen-svn%40lists.berlios.de?Subject=Re%3A%20%5BDarimasen-svn%5D%20r81%20-%20trunk/src&In-Reply-To=%3C200509080247.j882lhUt016730%40sheep.berlios.de%3E"
+       TITLE="[Darimasen-svn] r81 - trunk/src">darimasen-svn-admin at lists.berlios.de
+       </A><BR>
+    <I>Thu Sep  8 04:47:43 CEST 2005</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000030.html">[Darimasen-svn] r82 - in 0.0.x: . src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#29">[ date ]</a>
+              <a href="thread.html#29">[ thread ]</a>
+              <a href="subject.html#29">[ subject ]</a>
+              <a href="author.html#29">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: sudrien
+Date: 2005-09-08 04:47:26 +0200 (Thu, 08 Sep 2005)
+New Revision: 81
+
+Modified:
+   trunk/src/darimasen.cpp
+   trunk/src/darimasen.h
+   trunk/src/directory.cpp
+   trunk/src/menu.cpp
+   trunk/src/menu.h
+   trunk/src/menu.txt
+   trunk/src/tabs.cpp
+   trunk/src/tabs.h
+Log:
+Syncing for no obvious reason
+
+Modified: trunk/src/darimasen.cpp
+===================================================================
+--- trunk/src/darimasen.cpp	2005-05-29 03:47:07 UTC (rev 80)
++++ trunk/src/darimasen.cpp	2005-09-08 02:47:26 UTC (rev 81)
+@@ -12,9 +12,10 @@
+   add(*vert);
+ 
+ 
+-  darimasen_menu * da_menu = Gtk::manage(new class darimasen_menu());
+-  tabs * tabber = Gtk::manage(new class tabs(paths));
+ 
++  tabber = Gtk::manage(new class tabs(*this,paths));
++  da_menu = Gtk::manage(new class darimasen_menu(*this));
++
+   vert-&gt;pack_start(*da_menu, Gtk::PACK_SHRINK, 0);
+   vert-&gt;pack_start(*tabber);
+ 
+
+Modified: trunk/src/darimasen.h
+===================================================================
+--- trunk/src/darimasen.h	2005-05-29 03:47:07 UTC (rev 80)
++++ trunk/src/darimasen.h	2005-09-08 02:47:26 UTC (rev 81)
+@@ -13,8 +13,10 @@
+   public:
+     darimasen_window(std::vector&lt;Glib::ustring&gt; );
+     ~darimasen_window();
+-
+-
++  private:
++  public:
++    class tabs * tabber;
++    class darimasen_menu * da_menu;
+   };
+ 
+ #endif
+
+Modified: trunk/src/directory.cpp
+===================================================================
+--- trunk/src/directory.cpp	2005-05-29 03:47:07 UTC (rev 80)
++++ trunk/src/directory.cpp	2005-09-08 02:47:26 UTC (rev 81)
+@@ -21,8 +21,9 @@
+ 
+ 
+   tree_view.set_model(tree_model_filtered);
++tree_view.set_item_width(240);
++tree_view.set_orientation(Gtk::ORIENTATION_HORIZONTAL);
+ 
+-
+   tree_view.set_pixbuf_column (icon_list.icon_pixmap);
+   tree_view.set_text_column (icon_list.file_name);
+ 
+
+Modified: trunk/src/menu.cpp
+===================================================================
+--- trunk/src/menu.cpp	2005-05-29 03:47:07 UTC (rev 80)
++++ trunk/src/menu.cpp	2005-09-08 02:47:26 UTC (rev 81)
+@@ -2,9 +2,44 @@
+ 
+ #include &quot;menu.h&quot;
+ 
+-darimasen_menu::darimasen_menu(){
+-Gtk::MenuBar::MenuBar();
+-items().push_back(Gtk::Menu_Helpers::MenuElem(
+-    &quot;\342\226\274&quot;));
++darimasen_menu::darimasen_menu(class darimasen_window&amp; ancestor){
++  parent = &ancestor;
++
++
++  
++
++  
++  Gtk::MenuBar * compact = Gtk::manage(new Gtk::MenuBar);
++  compact-&gt;items().push_back(Gtk::Menu_Helpers::MenuElem(&quot;\342\226\274&quot;));
++
++
++  Glib::ustring path = parent-&gt;tabber-&gt;get_history(parent-&gt;tabber-&gt;get_current_page());
++  Glib::ustring shortened = path;
++  
++
++  if ( path.find( Glib::get_home_dir()) != Glib::ustring::npos ) 
++    shortened = &quot;~&quot; + path.substr(Glib::get_home_dir().length());
++   std::cout &lt;&lt; shortened &lt;&lt; &quot;\n&quot;;
++
++  compact-&gt;items().push_back(Gtk::Menu_Helpers::MenuElem(shortened));
++
++    
++
++
++
++  compact-&gt;show();
++
++  //Glib::RefPtr&lt;Gtk::RcStyle&gt; compact_style = compact-&gt;get_modifier_style();
++  Glib::RefPtr&lt;Gtk::Style&gt; compact_style = compact-&gt;get_style();
++  compact_style-&gt;set_xthickness(0);
++  compact_style-&gt;set_ythickness(0);
++  compact-&gt;set_style(compact_style);
++
++
++  compact-&gt;show();
++  Gtk::ToolItem * compact_container = Gtk::manage(new Gtk::ToolItem);
++  compact_container-&gt;add(*compact);
++  compact_container-&gt;show();
++  append(*compact_container);
+   show();
+   }
+
+Modified: trunk/src/menu.h
+===================================================================
+--- trunk/src/menu.h	2005-05-29 03:47:07 UTC (rev 80)
++++ trunk/src/menu.h	2005-09-08 02:47:26 UTC (rev 81)
+@@ -6,11 +6,14 @@
+ #include &lt;glibmm.h&gt;
+ #include &lt;gtkmm.h&gt;
+ #include &lt;libgnomevfsmm.h&gt;
++#include &lt;iostream&gt;
++#include &quot;darimasen.h&quot;
+ 
+-class darimasen_menu : public Gtk::MenuBar{
++class darimasen_menu : public Gtk::Toolbar{
+   public:
+-    darimasen_menu();
++    darimasen_menu(class darimasen_window&amp;);
+ 
+-
++  private:
++    class darimasen_window * parent;
+ };
+ #endif
+
+Modified: trunk/src/menu.txt
+===================================================================
+--- trunk/src/menu.txt	2005-05-29 03:47:07 UTC (rev 80)
++++ trunk/src/menu.txt	2005-09-08 02:47:26 UTC (rev 81)
+@@ -3,7 +3,7 @@
+ It puts this into an array of strings, starting with root/home and ending
+ with the current directory.
+ 
+-Each memeber of the array gets a menu, showing the sibling directories and 
++Each member of the array gets a menu, showing the sibling directories and 
+ how many subdirectories each of them have. The directory itself is at the top of
+  the list, and not present in its normal space below.
+ 
+@@ -12,3 +12,8 @@
+ 
+ THe last menu is in the form #&gt;, where the # is the number of subdirectories
+  of the current dir, and the menu has those subdirectories and their counts. 
++
++
++The difference between this and the previous version is that submenus will be build only in an on-demand basis. THe whole file system will not need to be scanned to get a menu; only the current folder, to count the number of subdirectories. 
++
++Strictly speaking, this is not just the menu to manage, but the whole top toolbar. 
+
+Modified: trunk/src/tabs.cpp
+===================================================================
+--- trunk/src/tabs.cpp	2005-05-29 03:47:07 UTC (rev 80)
++++ trunk/src/tabs.cpp	2005-09-08 02:47:26 UTC (rev 81)
+@@ -5,9 +5,9 @@
+ 
+ /**********************/
+ 
+-tabs::tabs(const std::vector&lt;Glib::ustring&gt;&amp; input){
++tabs::tabs(class darimasen_window&amp; ancestor, const std::vector&lt;Glib::ustring&gt;&amp; input){
+ 
+-  set_tab_pos(Gtk::POS_BOTTOM);
++  //set_tab_pos(Gtk::POS_BOTTOM);
+ 
+   // begin the history  
+   for(gint i = 0; i &lt; input.size(); i++){
+
+Modified: trunk/src/tabs.h
+===================================================================
+--- trunk/src/tabs.h	2005-05-29 03:47:07 UTC (rev 80)
++++ trunk/src/tabs.h	2005-09-08 02:47:26 UTC (rev 81)
+@@ -10,7 +10,7 @@
+ 
+ class tabs : public Gtk::Notebook {
+   public:
+-    tabs(const std::vector&lt;Glib::ustring&gt;&amp;);
++    tabs(class darimasen_window&amp;, const std::vector&lt;Glib::ustring&gt;&amp;);
+     ~tabs();
+ 
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000030.html">[Darimasen-svn] r82 - in 0.0.x: . src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#29">[ date ]</a>
+              <a href="thread.html#29">[ thread ]</a>
+              <a href="subject.html#29">[ subject ]</a>
+              <a href="author.html#29">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/darimasen-svn">More information about the Darimasen-svn
+mailing list</a><br>
+</body></html>

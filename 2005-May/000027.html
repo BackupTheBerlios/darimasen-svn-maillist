@@ -1,0 +1,809 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Darimasen-svn] r78 - trunk/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/darimasen-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:darimasen-svn%40lists.berlios.de?Subject=Re%3A%20%5BDarimasen-svn%5D%20r78%20-%20trunk/src&In-Reply-To=%3C200505250234.j4P2YmNY010172%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000026.html">
+   <LINK REL="Next"  HREF="000028.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Darimasen-svn] r78 - trunk/src</H1>
+    <B>darimasen-svn-admin at lists.berlios.de</B> 
+    <A HREF="mailto:darimasen-svn%40lists.berlios.de?Subject=Re%3A%20%5BDarimasen-svn%5D%20r78%20-%20trunk/src&In-Reply-To=%3C200505250234.j4P2YmNY010172%40sheep.berlios.de%3E"
+       TITLE="[Darimasen-svn] r78 - trunk/src">darimasen-svn-admin at lists.berlios.de
+       </A><BR>
+    <I>Wed May 25 04:34:48 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000026.html">[Darimasen-svn] r77 - 0.0.x trunk trunk/src
+</A></li>
+        <LI>Next message: <A HREF="000028.html">[Darimasen-svn] r79 - trunk/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#27">[ date ]</a>
+              <a href="thread.html#27">[ thread ]</a>
+              <a href="subject.html#27">[ subject ]</a>
+              <a href="author.html#27">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: sudrien
+Date: 2005-05-25 04:34:38 +0200 (Wed, 25 May 2005)
+New Revision: 78
+
+Added:
+   trunk/src/darimasen.cpp
+   trunk/src/darimasen.h
+   trunk/src/darimasen.txt
+   trunk/src/directory.cpp
+   trunk/src/directory.h
+   trunk/src/directory.txt
+   trunk/src/icon.cpp
+   trunk/src/icon.h
+   trunk/src/icon.txt
+   trunk/src/main.cpp
+   trunk/src/main.h
+   trunk/src/main.txt
+   trunk/src/menu.cpp
+   trunk/src/menu.h
+   trunk/src/menu.txt
+   trunk/src/preferences.cpp
+   trunk/src/preferences.h
+   trunk/src/preferences.txt
+   trunk/src/supplimental.cpp
+   trunk/src/supplimental.h
+   trunk/src/supplimental.txt
+   trunk/src/tabs.cpp
+   trunk/src/tabs.h
+   trunk/src/tabs.txt
+Modified:
+   trunk/src/Makefile.am
+Log:
+gnomevfs-sharp isn't there yet-using C++ for now
+
+Modified: trunk/src/Makefile.am
+===================================================================
+--- trunk/src/Makefile.am	2005-05-23 03:07:19 UTC (rev 77)
++++ trunk/src/Makefile.am	2005-05-25 02:34:38 UTC (rev 78)
+@@ -2,9 +2,26 @@
+ bin_PROGRAMS = darimasen
+ 
+ darimasen_SOURCES = \
++  darimasen.cpp \
++  directory.cpp \
++  main.cpp \
++  preferences.cpp \
++  tabs.cpp \
++  icon.cpp \
++  menu.cpp \
++  supplimental.cpp
+ 
+ noinst_HEADERS = \
++  darimasen.h \
++  directory.h \
++  main.h \
++  preferences.h \
++  tabs.h \
++  icon.h \
++  menu.h \
++  supplimental.h
+ 
++
+ AM_CXXFLAGS = -I../.. @PKG_CFLAGS@
+ 
+ darimasen_LDADD = -lpthread @LIBS@ @PKG_LIBS@ 
+
+Added: trunk/src/darimasen.cpp
+===================================================================
+--- trunk/src/darimasen.cpp	2005-05-23 03:07:19 UTC (rev 77)
++++ trunk/src/darimasen.cpp	2005-05-25 02:34:38 UTC (rev 78)
+@@ -0,0 +1,14 @@
++/* Darimasen - darimasen.cpp - Copyright (C) 2005 Sudrien, GPL */
++
++#include &quot;darimasen.h&quot;
++
++darimasen_window::darimasen_window(std::vector&lt;Glib::ustring&gt; paths){
++  tabs * tabber = Gtk::manage(new class tabs(paths));
++  add(*tabber);
++  show();
++  }
++
++darimasen_window::~darimasen_window(){
++
++  }
++
+
+Added: trunk/src/darimasen.h
+===================================================================
+--- trunk/src/darimasen.h	2005-05-23 03:07:19 UTC (rev 77)
++++ trunk/src/darimasen.h	2005-05-25 02:34:38 UTC (rev 78)
+@@ -0,0 +1,19 @@
++/* Darimasen - darimasen.h - Copyright (C) 2005 Sudrien, GPL */
++
++
++#ifndef DAWINDOW_H
++#define DAWINDOW_H
++
++#include &lt;gtkmm.h&gt;
++#include &lt;vector&gt;
++#include &quot;tabs.h&quot;
++
++class darimasen_window : public Gtk::Window {
++  public:
++    darimasen_window(std::vector&lt;Glib::ustring&gt; );
++    ~darimasen_window();
++
++
++  };
++
++#endif
+
+Added: trunk/src/darimasen.txt
+===================================================================
+--- trunk/src/darimasen.txt	2005-05-23 03:07:19 UTC (rev 77)
++++ trunk/src/darimasen.txt	2005-05-25 02:34:38 UTC (rev 78)
+@@ -0,0 +1,20 @@
++darimasen.cs
++
++The main window. Arranges everything.
++
++Listens for signals from tabs that a tab has been switched, and:
++  sets hidden checkbox
++  makes new menu
++  orders new back button 
++  
++
++makes new tabs in begining, setting format from preferences
++
++Also has a preferences for locations menu, which is stored.
++
++That checkbox is in an options menu, which has regular stuff like 'quit' in it. 
++then the darimasen menu,
++then the back button/menu,
++then the new tab button,
++then the icon-type switch, which will send a signal to tabs,
++then a directory tree toggle if I get to it. 
+
+Added: trunk/src/directory.cpp
+===================================================================
+--- trunk/src/directory.cpp	2005-05-23 03:07:19 UTC (rev 77)
++++ trunk/src/directory.cpp	2005-05-25 02:34:38 UTC (rev 78)
+@@ -0,0 +1,17 @@
++/* Darimasen - directory.cpp - Copyright (C) 2005 Sudrien, GPL */
++
++#include &quot;directory.h&quot;
++
++directory::directory(){
++modify_bg(Gtk::STATE_NORMAL, Gdk::Color(&quot;#ffffff&quot;));
++show();
++}
++
++
++
++
++directory::~directory(){}
++
++
++
++
+
+Added: trunk/src/directory.h
+===================================================================
+--- trunk/src/directory.h	2005-05-23 03:07:19 UTC (rev 77)
++++ trunk/src/directory.h	2005-05-25 02:34:38 UTC (rev 78)
+@@ -0,0 +1,17 @@
++/* Darimasen - directory.h - Copyright (C) 2005 Sudrien, GPL */
++
++#ifndef DIRECTORY_H
++#define DIRECTORY_H
++
++#include &lt;gtkmm.h&gt;
++#include &lt;vector&gt;
++
++class directory : public Gtk::EventBox {
++  public:
++    directory();
++    ~directory();
++
++};
++
++
++#endif
+
+Added: trunk/src/directory.txt
+===================================================================
+--- trunk/src/directory.txt	2005-05-23 03:07:19 UTC (rev 77)
++++ trunk/src/directory.txt	2005-05-25 02:34:38 UTC (rev 78)
+@@ -0,0 +1,15 @@
++directory.cs
++
++Holds all the icon in a directory.
++Monitors for new icons in the directory and adds them to the list.
++Gets signals from removes idons and deletes them.
++
++Decides when and where to show icons - wrapping, hidden files.
++
++Checks periodically for its own existance, sends signal to
++tabs if it does not exist. 
++
++makes icon list in begining, in the format of icon specified in preferences.
++
++recieves the mode-switch signal from tabs, deletes current table and buerries icon list for
++new mode.
+
+Added: trunk/src/icon.cpp
+===================================================================
+--- trunk/src/icon.cpp	2005-05-23 03:07:19 UTC (rev 77)
++++ trunk/src/icon.cpp	2005-05-25 02:34:38 UTC (rev 78)
+@@ -0,0 +1,30 @@
++/* Darimasen - icon.cpp - Copyright (C) 2005 Sudrien, GPL */
++
++#include &quot;icon.h&quot;
++
++
++/* ~_~; 
++
++icon::icon(
++    const class directory&amp; parent,
++    const Glib::ustring&amp; file){
++
++  Glib::RefPtr&lt;const Gnome::Vfs::FileInfo&gt; result;
++  icon(parent, result);
++  }
++
++/* ~_~; */
++
++icon::icon(
++    const class directory&amp; dir,
++    Glib::RefPtr&lt;const Gnome::Vfs::FileInfo&gt; file){
++
++  parent = &dir;
++  file_info = file;
++  }
++
++/* ~_~; */
++
++icon::~icon(){}
++
++/* ~_~; */
+
+Added: trunk/src/icon.h
+===================================================================
+--- trunk/src/icon.h	2005-05-23 03:07:19 UTC (rev 77)
++++ trunk/src/icon.h	2005-05-25 02:34:38 UTC (rev 78)
+@@ -0,0 +1,41 @@
++/* Darimasen - icon.h - Copyright (C) 2005 Sudrien, GPL */
++
++#ifndef ICON_H
++#define ICON_H
++
++#include &lt;glibmm.h&gt;
++#include &lt;gtkmm.h&gt;
++#include &lt;libgnomevfsmm.h&gt;
++
++
++/* ~_~; */
++
++class icon{
++  public:
++    //icon(const class directory&amp;, const Glib::ustring&amp;);
++    icon(const class directory&amp;, Glib::RefPtr&lt;const Gnome::Vfs::FileInfo&gt;);
++    ~icon();
++    
++    gint run() const;
++    gint run_as_text() const;
++    gint copy() const;
++    gint move() const;
++    gint link() const;
++    gint unlink() const;
++    
++    Gtk::EventBox sidecon_format() const;
++    Gtk::EventBox list_format() const;
++    void detail_format(Gtk::Table&amp;) const;
++
++    gint set_run_action() const;
++    gint set_permissions() const;
++
++
++  private:  
++
++    Glib::RefPtr&lt;const Gnome::Vfs::FileInfo&gt; file_info;
++    const class directory * parent;
++
++  };
++
++#endif
+
+Added: trunk/src/icon.txt
+===================================================================
+--- trunk/src/icon.txt	2005-05-23 03:07:19 UTC (rev 77)
++++ trunk/src/icon.txt	2005-05-25 02:34:38 UTC (rev 78)
+@@ -0,0 +1,34 @@
++icon.cs
++
++An icon holds all the information of a file/pipe/socket/anything but a directory.
++
++These include:
++
++A name
++A mime-type
++A path
++Permissions
++owner
++group
++type
++
++... most of which can be accomplished by having a Gnome::Vfs::FileInfo member.
++
++An icon pixmap, which can be gotten from a preferences in the tabs. 
++
++One function of an icon is to give its own renditions of itself when prompted;
++ This can be a eventbox (Sidecon format, list format) or specific struct (detail view).
++
++Another function it to keep track of what it should do when called for execution;
++though this can change, only one thing can be executed at a time (with a slight delay)
++to prevent certain errors from hapening, unlike many of the file operations.
++
++An icon should regularly check if the file it is based on still exists. If it doesn't,
++a signal get sent to the directory to discard it.
++
++An icon should be able to catch signals on the deletion of non-existance of a parent
++directory (and therefore itself)
++
++Last an icon should be able to proform functions on its own file; deleting, duplicating,
++ creating a link of, setting permissions; things that can be part of a recursive operation.
++
+
+Added: trunk/src/main.cpp
+===================================================================
+--- trunk/src/main.cpp	2005-05-23 03:07:19 UTC (rev 77)
++++ trunk/src/main.cpp	2005-05-25 02:34:38 UTC (rev 78)
+@@ -0,0 +1,43 @@
++/* Darimasen - main.cpp - Copyright (C) 2005 Sudrien, GPL */
++   
++#include &quot;main.h&quot;
++
++
++
++int main(int argc, char *argv[]){
++
++  Gtk::Main kit(argc, argv);
++  Gnome::Vfs::init();
++
++
++  // next blocks are to check the existance of required directories.
++  // make .choices if nothing available
++  if (!Gnome::Vfs::Uri::create(Glib::get_home_dir() + get_choices_dir())-&gt;uri_exists()){
++    gnome_vfs_make_directory((Glib::get_home_dir() + get_choices_dir()).c_str(),493);
++    }
++
++  // make MIME-types if nothing available, set up basics
++  if (!Gnome::Vfs::Uri::create(Glib::get_home_dir() + get_choices_dir() + &quot;/MIME-types&quot;)-&gt;uri_exists()){
++    gnome_vfs_make_directory((Glib::get_home_dir() + get_choices_dir() + &quot;/MIME-types&quot;).c_str(),493);
++    //firsttime window; 
++    //Gtk::Main::run(window);
++    }
++
++  // make our own settings folder if nothing available
++  if (!Gnome::Vfs::Uri::create(Glib::get_home_dir() + get_choices_dir() + &quot;/Darimasen&quot;)-&gt;uri_exists()){
++    gnome_vfs_make_directory((Glib::get_home_dir() + get_choices_dir() + &quot;/Darimasen&quot;).c_str(),493);
++    }
++  
++
++  std::vector&lt;Glib::ustring&gt; path;
++
++  if(path.empty())
++    path.push_back(Glib::get_home_dir() + &quot;/&quot;);
++
++
++  darimasen_window window(path);
++  Gtk::Main::run(window);
++
++
++  return 0;
++  }
+
+Added: trunk/src/main.h
+===================================================================
+--- trunk/src/main.h	2005-05-23 03:07:19 UTC (rev 77)
++++ trunk/src/main.h	2005-05-25 02:34:38 UTC (rev 78)
+@@ -0,0 +1,11 @@
++/* Darimasen - main.h - Copyright (C) 2005 Sudrien, GPL */
++   
++#ifndef MAIN_H
++#define MAIN_H
++
++#include &lt;gtkmm/main.h&gt;
++#include &lt;libgnomevfsmm.h&gt;
++#include &quot;darimasen.h&quot;
++#include &lt;vector&gt;
++
++#endif
+
+Added: trunk/src/main.txt
+===================================================================
+--- trunk/src/main.txt	2005-05-23 03:07:19 UTC (rev 77)
++++ trunk/src/main.txt	2005-05-25 02:34:38 UTC (rev 78)
+@@ -0,0 +1,4 @@
++startup of the program.
++
++command line parsing.
++
+
+Added: trunk/src/menu.cpp
+===================================================================
+
+Added: trunk/src/menu.h
+===================================================================
+
+Added: trunk/src/menu.txt
+===================================================================
+--- trunk/src/menu.txt	2005-05-23 03:07:19 UTC (rev 77)
++++ trunk/src/menu.txt	2005-05-25 02:34:38 UTC (rev 78)
+@@ -0,0 +1,14 @@
++Is given a path to build off of.
++
++It puts this into an array of strings, starting with root/home and ending
++with the current directory.
++
++Each memeber of the array gets a menu, showing the sibling directories and 
++how many subdirectories each of them have. The directory itself is at the top of
++ the list, and not present in its normal space below.
++
++The first menu is always ~/ or / ,and holds home, root, and the location menu.
++ these locations are gotten from the preferences in darimasen.
++
++THe last menu is in the form #&gt;, where the # is the number of subdirectories
++ of the current dir, and the menu has those subdirectories and their counts. 
+
+Added: trunk/src/preferences.cpp
+===================================================================
+
+Added: trunk/src/preferences.h
+===================================================================
+
+Added: trunk/src/preferences.txt
+===================================================================
+--- trunk/src/preferences.txt	2005-05-23 03:07:19 UTC (rev 77)
++++ trunk/src/preferences.txt	2005-05-25 02:34:38 UTC (rev 78)
+@@ -0,0 +1,14 @@
++preferences.cs
++
++Loads preferences from last session and stores them on exit.
++
++Also can have nothing in constructor, and have no write-in/-out.
++
++They are in XML format.
++
++Is a genaric preference taker, so there is a second instance for the
++locations menu.
++
++it gets a sting and returns a value or a &quot;&quot;
++
++it gets two strings, the first is a name the second is a value.
+
+Added: trunk/src/supplimental.cpp
+===================================================================
+--- trunk/src/supplimental.cpp	2005-05-23 03:07:19 UTC (rev 77)
++++ trunk/src/supplimental.cpp	2005-05-25 02:34:38 UTC (rev 78)
+@@ -0,0 +1,10 @@
++
++#include &quot;supplimental.h&quot;
++
++/**********************/
++
++//check which choices dir to use
++Glib::ustring get_choices_dir(){
++  if (Gnome::Vfs::Uri::create(Glib::get_home_dir() + &quot;/Choices&quot;)-&gt;uri_exists()) return &quot;/Choices&quot;;
++  else return &quot;/.choices&quot;;
++  }
+
+Added: trunk/src/supplimental.h
+===================================================================
+--- trunk/src/supplimental.h	2005-05-23 03:07:19 UTC (rev 77)
++++ trunk/src/supplimental.h	2005-05-25 02:34:38 UTC (rev 78)
+@@ -0,0 +1,12 @@
++/* Darimasen - supplimental.h - Copyright (C) 2005 Sudrien, GPL */
++
++#ifndef SUPPLIMENTAL_H
++#define SUPPLIMENTAL_H
++
++#include &lt;glibmm.h&gt;
++#include &lt;libgnomevfsmm.h&gt;
++
++Glib::ustring get_choices_dir();
++
++
++#endif //SUPPLIMENTAL_H
+
+Added: trunk/src/supplimental.txt
+===================================================================
+--- trunk/src/supplimental.txt	2005-05-23 03:07:19 UTC (rev 77)
++++ trunk/src/supplimental.txt	2005-05-25 02:34:38 UTC (rev 78)
+@@ -0,0 +1,3 @@
++Holds all functions with general application. 
++
++THis includes the enum decribing the differnt icon modes, and small marsupials, mostly those from the islands of the South Pacific.  This is arguably the most important mamillian discovery of the modern era and many proffessional and amature scientists alike, have devoted their lives and fortunes to its study.
+
+Added: trunk/src/tabs.cpp
+===================================================================
+--- trunk/src/tabs.cpp	2005-05-23 03:07:19 UTC (rev 77)
++++ trunk/src/tabs.cpp	2005-05-25 02:34:38 UTC (rev 78)
+@@ -0,0 +1,181 @@
++/* Darimasen - tabs.cpp - Copyright (C) 2005 Sudrien, GPL */
++
++#include &quot;tabs.h&quot;
++
++
++/**********************/
++
++tabs::tabs(const std::vector&lt;Glib::ustring&gt;&amp; input){
++
++  // begin the history  
++  for(gint i = 0; i &lt; input.size(); i++){
++    set_history(i, input[i]);
++    add_tab(i);
++    }
++  show_all_children();
++  show();
++  }
++
++/**********************/
++
++tabs::~tabs(){}
++
++/**********************/
++
++void tabs::add_tab(gint pos){
++
++
++ // if( get_n_pages() == 0 )
++ //   set_show_tabs(false);
++ // else
++    set_show_tabs(true);
++
++
++  Gtk::Image * xed = Gtk::manage(
++    new Gtk::Image(&quot;/usr/share/icons/hicolor/16x16/stock/generic/stock_close.png&quot;));
++  xed-&gt;show();
++
++  Gtk::Label * tabNum;
++
++  if ( get_history(pos) == &quot;/&quot;)
++    tabNum = Gtk::manage(new Gtk::Label(&quot;/ &quot;));
++  else if ( get_history(pos) == (Glib::get_home_dir() + &quot;/&quot;))
++    tabNum = Gtk::manage(new Gtk::Label(&quot;~/ &quot;));
++  else
++    tabNum = Gtk::manage(new Gtk::Label(
++      get_history(pos).substr(get_history(pos).rfind(&quot;/&quot;,get_history(pos).length() - 2  ) + 1)));
++
++
++  Gtk::HBox * arrangement= Gtk::manage(new Gtk::HBox()) ;
++  Gtk::Button * closeButton = Gtk::manage(new Gtk::Button());
++
++  closeButton-&gt;add(*xed);
++  closeButton-&gt;set_relief(Gtk::RELIEF_NONE); 
++  closeButton-&gt;show();
++
++
++
++
++  tabNum-&gt;show();
++  arrangement-&gt;show();
++
++  arrangement-&gt;pack_start(*tabNum);
++  arrangement-&gt;pack_end(*closeButton);
++
++ // Gtk::EventBox * MainEventBox = new class Gtk::EventBox;
++
++
++ // MainEventBox-&gt;modify_bg(Gtk::STATE_NORMAL, Gdk::Color(&quot;#ffffff&quot;));
++ // MainEventBox-&gt;show();
++
++  //DaIconModes * foo;
++  //foo = new class DaIconModes(pos, *this);
++
++
++  // pos can't be the thing passed here, it changes... (segfault: 3 tabs, close 2nd then 3rd)
++  //closeButton-&gt;signal_clicked().connect(
++  //  sigc::bind&lt;DaIconModes*&gt;(sigc::mem_fun(*this, &amp;Darimasen::removeTab), foo) );
++
++
++/*
++  if ( IconModeList.size() == pos ){
++  //  IconModeList.push_badirectory * dir = Gtk::manage(new class directory(*this,pos))ck(foo);
++  //  EventBoxList.push_back(MainEventBox);
++    }
++  else {
++    delete IconModeList[pos];
++    IconModeList[pos] = foo;
++    delete EventBoxList[pos];
++    EventBoxList[pos] = MainEventBox;
++    }*/
++
++ // Gtk::ScrolledWindow * MainScroller = new Gtk::ScrolledWindow;
++ // MainScroller-&gt;show();
++ // MainScroller-&gt;set_shadow_type(Gtk::SHADOW_NONE);
++  //MainScroller-&gt;add(*MainEventBox);
++  //MainEventBox-&gt;add(*foo);
++  //MainScroller-&gt;set_policy(Gtk::POLICY_ALWAYS, Gtk::POLICY_AUTOMATIC);
++  //foo-&gt;show();
++
++ // Gtk::EventBox * MainEventBox = new class Gtk::EventBox;
++
++
++ // MainEventBox-&gt;modify_bg(Gtk::STATE_NORMAL, Gdk::Color(&quot;#ffffff&quot;));
++
++  //directory * dir = Gtk::manage(new class directory(*this,pos))
++  directory * dir = Gtk::manage(new class directory());
++  insert_page( *dir, *arrangement, pos);
++
++
++
++  }
++
++/**********************/
++
++Glib::RefPtr&lt;Gdk::Pixbuf&gt; tabs::get_icon(Glib::ustring mime){
++  int i;
++
++  for(i = 0; i&lt; mimeList.size(); i++){
++    if( mime == mimeList[i] ){
++      return unsizedImg[i];
++      }
++    }
++   // pic doesn't exist.
++
++    Glib::ustring ico;
++  try{
++    ico = &quot;/usr/share/icons/gnome/48x48/mimetypes/gnome-mime-&quot;;
++    ico += mime.replace(mime.find(&quot;/&quot;), 1, &quot;-&quot;);
++    ico += &quot;.png&quot;;
++
++    Glib::file_get_contents(ico);
++    }
++  catch(const Glib::Error) {
++    try{
++      ico = &quot;/usr/share/icons/gnome/48x48/mimetypes/gnome-mime-&quot;;
++      ico += mime.substr(0,mime.find(&quot;-&quot;));
++      ico += &quot;.png&quot;;
++      Glib::file_get_contents(ico);
++      }
++    catch(const Glib::Error) {
++     ico = &quot;/usr/share/icons/gnome/48x48/filesystems/gnome-fs-loading-icon.png&quot;;
++     }
++    }
++
++  mimeList.push_back(mime);
++  Glib::RefPtr&lt;Gdk::Pixbuf&gt; xe = Gdk::Pixbuf::create_from_file(ico);
++  unsizedImg.push_back(xe);
++  return unsizedImg[i]; 
++  }
++
++/**********************/
++
++Glib::ustring tabs::get_history(gint tab, gint level) const{
++  return history[tab][history[tab].size()-level-1];
++  }
++
++/**********************/
++
++void tabs::set_history(gint tab, Glib::ustring path){
++  if (get_n_pages() == tab){
++    std::vector&lt;Glib::ustring&gt; empty;
++    history.push_back(empty);
++    history[tab].push_back(path);
++    }
++  else {
++    history[tab].push_back(path);
++    }
++  }
++
++/**********************/
++
++gint tabs::rm_history(gint tab){
++  history[tab].pop_back();
++  if ( history[tab].size() == 0 ){
++    history.erase(history.begin()+tab,history.begin()+tab+1 );
++    return 0;
++    }
++  return history[tab].size();
++  }
++
++/**********************/
+
+Added: trunk/src/tabs.h
+===================================================================
+--- trunk/src/tabs.h	2005-05-23 03:07:19 UTC (rev 77)
++++ trunk/src/tabs.h	2005-05-25 02:34:38 UTC (rev 78)
+@@ -0,0 +1,33 @@
++/* Darimasen - tabs.h - Copyright (C) 2005 Sudrien, GPL */
++
++#ifndef TABS_H
++#define TABS_H
++
++#include &lt;gtkmm.h&gt;
++#include &lt;vector&gt;
++#include &quot;supplimental.h&quot;
++#include &quot;directory.h&quot;
++
++class tabs : public Gtk::Notebook {
++  public:
++    tabs(const std::vector&lt;Glib::ustring&gt;&amp;);
++    ~tabs();
++
++
++    void set_history(gint, Glib::ustring);
++    Glib::ustring get_history(gint, gint = 0) const;
++    gint rm_history(gint);
++
++    Glib::RefPtr&lt;Gdk::Pixbuf&gt; get_icon(Glib::ustring);
++
++  private:
++    void add_tab(gint);
++    //signal_switch_page().connect(sigc::mem_fun(*this, &amp;Darimasen::tabberSwitched));
++
++    std::vector&lt; std::vector &lt;Glib::ustring&gt; &gt; history;
++
++    std::vector&lt; Glib::ustring &gt; mimeList;
++    std::vector&lt; Glib::RefPtr&lt;Gdk::Pixbuf&gt; &gt; unsizedImg;
++};
++
++#endif
+
+Added: trunk/src/tabs.txt
+===================================================================
+--- trunk/src/tabs.txt	2005-05-23 03:07:19 UTC (rev 77)
++++ trunk/src/tabs.txt	2005-05-25 02:34:38 UTC (rev 78)
+@@ -0,0 +1,18 @@
++tab.cs
++
++This is what holds sets of icons. It is a Gtk::Notebook, along with managing
++the current directories.
++
++This is the class you query and set for all history operations.
++This is the class you tell to update thus-and-such directory.
++
++recieves I-don't-exist signal from directory, and deletes it directory instance and tab.
++Tries to make a new tab of a parent directory in its place.
++
++Sends dignal up to darimasen when a tab is switched, giving the new path.
++Sends up same signal when a location is no longer valid.
++
++Recieves signals for new tabs from darimasen.
++passes the switch-icon signal on to each directory
++
++A preferences for icon pixmaps, which aren't written out, but are requested during icon creation.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000026.html">[Darimasen-svn] r77 - 0.0.x trunk trunk/src
+</A></li>
+	<LI>Next message: <A HREF="000028.html">[Darimasen-svn] r79 - trunk/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#27">[ date ]</a>
+              <a href="thread.html#27">[ thread ]</a>
+              <a href="subject.html#27">[ subject ]</a>
+              <a href="author.html#27">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/darimasen-svn">More information about the Darimasen-svn
+mailing list</a><br>
+</body></html>
